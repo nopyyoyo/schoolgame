@@ -41,10 +41,7 @@
   const categoryFolder = { weapon: "Weapon", armor: "Armor", shield: "Shield", accessory: "Accessory", item: "Item" };
   const categoryPrefix = { weapon: "weapon", armor: "armor", shield: "shield", accessory: "accessory", item: "item" };
   const catalogCache = { weapon: [], armor: [], shield: [], accessory: [], item: [] };
-  const storageKey = (playerId) => `school-game-player-portal-demo-${playerId}`;
   players.forEach((player) => {
-    const saved = JSON.parse(localStorage.getItem(storageKey(player.id)) || "null");
-    if (saved) Object.assign(player, saved);
     player.equipped = player.equipped || { weapon: null, armor: null, shield: null, accessory: null };
     player.ownedEquipment = player.ownedEquipment || [];
     player.ownedItems = player.ownedItems || [];
@@ -97,10 +94,10 @@
   }
 
   async function loadPublicPlayerSummary() {
-    if (!supabase) return;
+    if (!supabase) throw new Error("Supabase is not configured");
     try {
       const { data, error } = await supabase.functions.invoke("get-public-player-summary", { body: {} });
-      if (error || !data?.players) return;
+      if (error || !data?.players) throw new Error(data?.error || error?.message || "Could not load players");
       data.players.forEach((summary) => {
         const player = players.find((entry) => entry.id === summary.id);
         if (!player) return;
@@ -128,6 +125,7 @@
       });
     } catch (error) {
       console.error("Could not load public player summary", error);
+      throw error;
     }
   }
 
@@ -226,10 +224,6 @@
   function shopMarkup(category, rows) {
     const canBuy = Boolean(selected);
     return `<h2>ร้าน${categoryNames[category]}</h2><p class="demo-note">${canBuy ? "ร้านค้าของผู้เล่น: สามารถซื้อสินค้าได้" : "หน้าสำหรับเลือกดูสินค้าเท่านั้น"}</p><div class="catalog-grid">${rows.map((item) => `<article class="catalog-card">${catalogMarkup(category, item, canBuy ? "ซื้อสินค้า" : "ดูรายละเอียด", "shop")}${canBuy ? `<button data-action="buy" data-category="${category}" data-id="${item.id}">ซื้อสินค้า</button>` : ""}</article>`).join("") || "<p>ยังไม่มีรายการ</p>"}</div>${shopLinks()}`;
-  }
-
-  function saveDemoPlayer() {
-    localStorage.setItem(storageKey(selected.id), JSON.stringify(selected));
   }
 
   async function authenticateOnlinePlayer(player, passcode) {
@@ -390,8 +384,12 @@
     } else if (!selected && params.get("shop") && categoryNames[params.get("shop")]) {
       renderShop(params.get("shop"));
     } else if (!selected) {
-      renderLanding();
-      await loadPublicPlayerSummary();
+      try {
+        await loadPublicPlayerSummary();
+      } catch (error) {
+        root.innerHTML = `<section class="team"><h2>ไม่สามารถโหลดข้อมูลผู้เล่นได้</h2><p>กรุณาลองใหม่อีกครั้ง</p></section>`;
+        return;
+      }
       renderLanding();
     }
   }
