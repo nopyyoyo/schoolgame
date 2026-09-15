@@ -227,6 +227,12 @@
 
   function applyOnlinePlayerData(player, portalData) {
     const remote = portalData.player;
+    const equipmentEntries = (portalData.equipment || []).map((entry) => ({
+      ...entry,
+      equipment_catalog: Array.isArray(entry.equipment_catalog)
+        ? entry.equipment_catalog[0]
+        : entry.equipment_catalog
+    }));
     Object.assign(player, {
       team: remote.team,
       name: remote.name,
@@ -244,14 +250,14 @@
         shield: remote.equipped_shield_id,
         accessory: remote.equipped_accessory_id
       },
-      ownedEquipment: (portalData.equipment || []).map((entry) => ({
+      ownedEquipment: equipmentEntries.map((entry) => ({
         category: entry.equipment_catalog?.category,
         id: entry.equipment_id,
         quantity: entry.quantity
       })),
       ownedItems: (portalData.items || []).flatMap((entry) => Array(entry.quantity).fill(entry.item_id))
     });
-    (portalData.equipment || []).forEach((entry) => {
+    equipmentEntries.forEach((entry) => {
       if (entry.equipment_catalog) {
         catalogCache[entry.equipment_catalog.category].push(entry.equipment_catalog);
       }
@@ -276,7 +282,10 @@
       const { data, error } = await supabase.functions.invoke("process-portal-transaction", {
         body: { token: session.token, action, category, catalog_id: id, request_id: crypto.randomUUID() }
       });
-      if (error || !data?.success) throw new Error(data?.error || "ทำรายการไม่สำเร็จ");
+      if (error || !data?.success) {
+        const serverMessage = data?.error || error?.context?.error || error?.message;
+        throw new Error(serverMessage || "ทำรายการไม่สำเร็จ");
+      }
       const refreshed = await supabase.functions.invoke("get-player-portal", { body: { token: session.token } });
       if (refreshed.error || !refreshed.data?.player) throw new Error("โหลดข้อมูลหลังทำรายการไม่สำเร็จ");
       applyOnlinePlayerData(player, refreshed.data);
