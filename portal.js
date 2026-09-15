@@ -70,6 +70,12 @@
     </a>`;
   }
 
+  function playerTeam(player) {
+    const team = typeof player.team === "string" ? player.team.toLowerCase() : "";
+    if (team === "red" || team === "blue") return team;
+    return Number(player.id.slice(1)) <= 4 ? "red" : "blue";
+  }
+
   function equippedSummary(player) {
     const names = ["weapon", "armor", "shield", "accessory"].map((category) => {
       const item = findDemoItem(category, player.equipped?.[category]);
@@ -86,8 +92,8 @@
   }
 
   function renderLanding() {
-    root.innerHTML = `<section class="team"><h2>ทีมสีแดง</h2><div class="player-grid">${players.filter((p) => p.team === "red").map(playerCard).join("")}</div></section>
-      <section class="team"><h2>ทีมสีน้ำเงิน</h2><div class="player-grid">${players.filter((p) => p.team === "blue").map(playerCard).join("")}</div></section>${shopLinks()}`;
+    root.innerHTML = `<section class="team"><h2>ทีมสีแดง</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "red").map(playerCard).join("")}</div></section>
+      <section class="team"><h2>ทีมสีน้ำเงิน</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "blue").map(playerCard).join("")}</div></section>${shopLinks()}`;
   }
 
   async function loadPublicPlayerSummary() {
@@ -100,7 +106,9 @@
         if (!player) return;
         const equipped = summary.equipped || {};
         Object.assign(player, {
-          team: summary.team || player.team,
+          team: ["red", "blue"].includes(String(summary.team).toLowerCase())
+            ? String(summary.team).toLowerCase()
+            : player.team,
           name: summary.name || player.name,
           face: summary.face || player.face,
           hpMax: summary.hp_max ?? player.hpMax,
