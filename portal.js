@@ -8,7 +8,8 @@
     : null;
   const root = document.querySelector("#player-view");
   const shopRoot = document.querySelector("#shop-view");
-  const image = (player) => `Character/Cut/Player/${player.face}/face.png`;
+  const siteRoot = new URL("./", document.baseURI).href;
+  const image = (player) => `${siteRoot}Character/Cut/Player/${player.face}/face.png`;
   const params = new URLSearchParams(window.location.search);
   const selected = players.find((player) => player.id === params.get("player"));
   const categoryNames = { weapon: "อาวุธ", armor: "เกราะ", shield: "โล่", accessory: "เครื่องประดับ", item: "ไอเทม" };
