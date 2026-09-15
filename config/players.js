@@ -13,5 +13,6 @@ window.PORTAL_PLAYERS = [
   { id: "p5", team: "blue", name: "เจสซี่", face: "P5S_Cut", hpMax: 30, mpMax: 10, attack: 10, defense: 7, speed: 10, wisdom: 1, money: 50 },
   { id: "p6", team: "blue", name: "ไนล์ส", face: "P6S_Cut", hpMax: 30, mpMax: 10, attack: 10, defense: 7, speed: 10, wisdom: 1, money: 50 },
   { id: "p7", team: "green", name: "โซเฟีย", face: "P7S_Cut", hpMax: 30, mpMax: 10, attack: 10, defense: 7, speed: 10, wisdom: 1, money: 50 },
-  { id: "p8", team: "green", name: "ซูริ", face: "P8S_Cut", hpMax: 30, mpMax: 10, attack: 10, defense: 7, speed: 10, wisdom: 1, money: 50 }
+  { id: "p8", team: "green", name: "ซูริ", face: "P8S_Cut", hpMax: 30, mpMax: 10, attack: 10, defense: 7, speed: 10, wisdom: 1, money: 50 },
+  { id: "p9", team: "green", name: "ผู้เล่น 9", face: "P9S_Cut", hpMax: 30, mpMax: 10, attack: 10, defense: 7, speed: 10, wisdom: 5, money: 50 }
 ];
