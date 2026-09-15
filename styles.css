@@ -11,6 +11,12 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
 .team { padding:14px; border:1px solid #4c5160; background:var(--panel); }
 .team + .team { margin-top:12px; }
 .team h2 { margin-bottom:10px; }
+.team-red { border-color:#b04b4b; background:#2a1519; }
+.team-red h2 { color:#f07a7a; }
+.team-blue { border-color:#3e83bd; background:#101c2b; }
+.team-blue h2 { color:#70b8f0; }
+.team-green { border-color:#46915d; background:#102118; }
+.team-green h2 { color:#74d58c; }
 .player-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .player-card { display:grid; grid-template-columns:72px 1fr; gap:10px; padding:10px; color:var(--ink); text-decoration:none; background:var(--soft); border:1px solid #4c5160; }
 .player-card:hover { border-color:var(--gold); }

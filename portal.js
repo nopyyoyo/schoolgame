@@ -69,8 +69,8 @@
 
   function playerTeam(player) {
     const team = typeof player.team === "string" ? player.team.toLowerCase() : "";
-    if (team === "red" || team === "blue") return team;
-    return Number(player.id.slice(1)) <= 4 ? "red" : "blue";
+    if (["red", "blue", "green"].includes(team)) return team;
+    return Number(player.id.slice(1)) <= 3 ? "red" : Number(player.id.slice(1)) <= 6 ? "blue" : "green";
   }
 
   function equippedSummary(player) {
@@ -89,8 +89,9 @@
   }
 
   function renderLanding() {
-    root.innerHTML = `<section class="team"><h2>ทีมสีแดง</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "red").map(playerCard).join("")}</div></section>
-      <section class="team"><h2>ทีมสีน้ำเงิน</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "blue").map(playerCard).join("")}</div></section>${shopLinks()}`;
+    root.innerHTML = `<section class="team team-red"><h2>ทีมสีแดง</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "red").map(playerCard).join("")}</div></section>
+      <section class="team team-blue"><h2>ทีมสีน้ำเงิน</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "blue").map(playerCard).join("")}</div></section>
+      <section class="team team-green"><h2>ทีมสีเขียว</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "green").map(playerCard).join("")}</div></section>${shopLinks()}`;
   }
 
   async function loadPublicPlayerSummary() {
@@ -103,7 +104,7 @@
         if (!player) return;
         const equipped = summary.equipped || {};
         Object.assign(player, {
-          team: ["red", "blue"].includes(String(summary.team).toLowerCase())
+          team: ["red", "blue", "green"].includes(String(summary.team).toLowerCase())
             ? String(summary.team).toLowerCase()
             : player.team,
           name: summary.name || player.name,
@@ -132,7 +133,7 @@
   function renderProfile(player) {
     root.innerHTML = `<section class="profile">
       <div class="profile-face"><img src="${image(player)}" alt="${player.name}"></div>
-      <div><p class="eyebrow">${player.team === "red" ? "ทีมสีแดง" : "ทีมสีน้ำเงิน"}</p><h2>${player.name}</h2><div>${statMarkup(player)}</div><p class="money">เงิน: ${player.money}</p></div>
+      <div><p class="eyebrow">${player.team === "red" ? "ทีมสีแดง" : player.team === "green" ? "ทีมสีเขียว" : "ทีมสีน้ำเงิน"}</p><h2>${player.name}</h2><div>${statMarkup(player)}</div><p class="money">เงิน: ${player.money}</p></div>
     </section>
     <section class="team"><h2>อุปกรณ์ที่สวมใส่</h2><div class="slots">
       ${["weapon","armor","shield","accessory"].map((category) => {
