@@ -92,8 +92,9 @@
 
   async function loadPublicPlayerSummary() {
     if (!supabase) return;
-    const { data, error } = await supabase.functions.invoke("get-public-player-summary", { body: {} });
-    if (error || !data?.players) return;
+    try {
+      const { data, error } = await supabase.functions.invoke("get-public-player-summary", { body: {} });
+      if (error || !data?.players) return;
     data.players.forEach((summary) => {
       const player = players.find((entry) => entry.id === summary.id);
       if (player) {
@@ -115,6 +116,9 @@
         if (item && !catalogCache[category].some((entry) => entry.id === item.id)) catalogCache[category].push(item);
       });
     });
+    } catch (error) {
+      console.error("Could not load public player summary", error);
+    }
   }
 
   function renderProfile(player) {
