@@ -40,6 +40,7 @@
   };
   const categoryFolder = { weapon: "Weapon", armor: "Armor", shield: "Shield", accessory: "Accessory", item: "Item" };
   const categoryPrefix = { weapon: "weapon", armor: "armor", shield: "shield", accessory: "accessory", item: "item" };
+  const catalogCache = { weapon: [], armor: [], shield: [], accessory: [], item: [] };
   const storageKey = (playerId) => `school-game-player-portal-demo-${playerId}`;
   players.forEach((player) => {
     const saved = JSON.parse(localStorage.getItem(storageKey(player.id)) || "null");
@@ -113,6 +114,8 @@
 
   function findDemoItem(category, id) {
     if (!id) return null;
+    const cached = (catalogCache[category] || []).find((item) => item.id === id);
+    if (cached) return cached;
     const row = (demoCatalog[category] || []).find((item) => item[0] === id);
     return row ? { id: row[0], photo_file_name: row[1], item_name: row[2], item_description: row[3], item_price: row[4] } : null;
   }
@@ -154,18 +157,29 @@
     try {
       const remoteRows = await loadSupabaseCatalog(category);
       if (remoteRows) {
+        catalogCache[category] = remoteRows;
         root.querySelector(".team").innerHTML = shopMarkup(category, remoteRows);
         return;
       }
+
       const response = await fetch(catalogFiles[category]);
       if (!response.ok) throw new Error(`โหลด ${catalogFiles[category]} ไม่สำเร็จ`);
       const rows = parseCsv(await response.text());
+      catalogCache[category] = rows;
       root.querySelector(".team").innerHTML = shopMarkup(category, rows);
     } catch (error) {
       root.querySelector(".team").innerHTML = shopMarkup(category, (demoCatalog[category] || []).map((row) => ({
         id: row[0], photo_file_name: row[1], item_name: row[2], item_description: row[3], item_price: row[4]
       })));
     }
+  }
+
+  async function loadAllCatalogs() {
+    await Promise.all(Object.keys(categoryNames).map(async (category) => {
+      if (catalogCache[category].length) return;
+      const rows = await loadSupabaseCatalog(category);
+      if (rows) catalogCache[category] = rows;
+    }));
   }
 
   function shopMarkup(category, rows) {
@@ -218,49 +232,54 @@
         accessory: remote.equipped_accessory_id
       },
       ownedEquipment: (portalData.equipment || []).map((entry) => ({
-        category: entry.equipment_catalog.category,
+        category: entry.equipment_catalog?.category,
         id: entry.equipment_id,
         quantity: entry.quantity
       })),
       ownedItems: (portalData.items || []).flatMap((entry) => Array(entry.quantity).fill(entry.item_id))
     });
+    (portalData.equipment || []).forEach((entry) => {
+      if (entry.equipment_catalog) {
+        catalogCache[entry.equipment_catalog.category].push(entry.equipment_catalog);
+      }
+    });
+    (portalData.items || []).forEach((entry) => {
+      if (entry.item_catalog) catalogCache.item.push(entry.item_catalog);
+    });
   }
 
-  function handleTransaction(button) {
+  async function handleTransaction(button) {
     const player = selected;
     const category = button.dataset.category;
     const id = button.dataset.id;
-    const item = findDemoItem(category, id);
-    if (!player || !item) return;
-    if (button.dataset.action === "buy") {
-      if (player.money < item.item_price) return window.alert("เงินไม่เพียงพอ");
-      player.money -= item.item_price;
-      if (category === "item") player.ownedItems.push(id);
-      else player.ownedEquipment.push({ category, id });
-    } else if (button.dataset.action === "sell") {
-      player.money += Math.round(item.item_price / 2);
-      if (category === "item") player.ownedItems = player.ownedItems.filter((entry) => entry !== id);
-      else player.ownedEquipment = player.ownedEquipment.filter((entry) => !(entry.category === category && entry.id === id));
-    } else if (button.dataset.action === "equip") {
-      const previousId = player.equipped[category];
-      if (previousId && previousId !== id) {
-        player.ownedEquipment.push({ category, id: previousId });
-      }
-      player.equipped[category] = id;
-      player.ownedEquipment = player.ownedEquipment.filter((entry) => !(entry.category === category && entry.id === id));
-    } else if (button.dataset.action === "unequip") {
-      player.equipped[category] = null;
-      player.ownedEquipment.push({ category, id });
+    const action = button.dataset.action;
+    if (!player || !id || !["buy", "sell", "equip", "unequip"].includes(action)) return;
+    const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
+    if (!supabase || !session?.token || session.token === "local-demo") {
+      return window.alert("ต้องเชื่อมต่อ Supabase เพื่อทำรายการ");
     }
-    saveDemoPlayer();
-    window.location.href = `?player=${player.id}`;
+    button.disabled = true;
+    try {
+      const { data, error } = await supabase.functions.invoke("process-portal-transaction", {
+        body: { token: session.token, action, category, catalog_id: id, request_id: crypto.randomUUID() }
+      });
+      if (error || !data?.success) throw new Error(data?.error || "ทำรายการไม่สำเร็จ");
+      const refreshed = await supabase.functions.invoke("get-player-portal", { body: { token: session.token } });
+      if (refreshed.error || !refreshed.data?.player) throw new Error("โหลดข้อมูลหลังทำรายการไม่สำเร็จ");
+      applyOnlinePlayerData(player, refreshed.data);
+      if (params.get("shop") && categoryNames[params.get("shop")]) renderShop(params.get("shop"));
+      else renderProfile(player);
+    } catch (error) {
+      window.alert(error.message || "ทำรายการไม่สำเร็จ");
+      button.disabled = false;
+    }
   }
 
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-action]");
     if (button) {
       event.preventDefault();
-      handleTransaction(button);
+      void handleTransaction(button);
     }
   });
 
@@ -301,7 +320,10 @@
   async function startPage() {
     if (selected && await authenticatePlayer(selected)) {
       if (params.get("shop") && categoryNames[params.get("shop")]) renderShop(params.get("shop"));
-      else renderProfile(selected);
+      else {
+        await loadAllCatalogs();
+        renderProfile(selected);
+      }
     } else if (!selected && params.get("shop") && categoryNames[params.get("shop")]) {
       renderShop(params.get("shop"));
     } else if (!selected) {
