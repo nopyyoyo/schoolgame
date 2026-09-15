@@ -64,7 +64,7 @@
   function playerCard(player) {
     return `<a class="player-card" href="?player=${player.id}">
       <div class="face"><img src="${image(player)}" alt="${player.name}"></div>
-      <div><h3>${player.name}</h3>${statMarkup(player)}<p class="equipped-summary">${equippedSummary(player)}</p></div>
+      <div><h3>${player.name}</h3><p class="money">เงิน: ${player.money} เหรียญ</p>${statMarkup(player)}<p class="equipped-summary">${equippedSummary(player)}</p></div>
     </a>`;
   }
 
