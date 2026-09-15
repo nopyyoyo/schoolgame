@@ -251,7 +251,7 @@
         accessory: remote.equipped_accessory_id
       },
       ownedEquipment: equipmentEntries.map((entry) => ({
-        category: entry.equipment_catalog?.category,
+        category: entry.equipment_catalog?.category || entry.equipment_id.split("_")[0],
         id: entry.equipment_id,
         quantity: entry.quantity
       })),
@@ -283,7 +283,15 @@
         body: { token: session.token, action, category, catalog_id: id, request_id: crypto.randomUUID() }
       });
       if (error || !data?.success) {
-        const serverMessage = data?.error || error?.context?.error || error?.message;
+        let serverMessage = data?.error || error?.message;
+        if (!serverMessage && error?.context instanceof Response) {
+          try {
+            const responseBody = await error.context.json();
+            serverMessage = responseBody?.error;
+          } catch (responseError) {
+            serverMessage = error.message;
+          }
+        }
         throw new Error(serverMessage || "ทำรายการไม่สำเร็จ");
       }
       const refreshed = await supabase.functions.invoke("get-player-portal", { body: { token: session.token } });
