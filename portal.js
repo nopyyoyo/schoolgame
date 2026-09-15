@@ -90,6 +90,19 @@
       <section class="team"><h2>ทีมสีน้ำเงิน</h2><div class="player-grid">${players.filter((p) => p.team === "blue").map(playerCard).join("")}</div></section>${shopLinks()}`;
   }
 
+  async function loadPublicPlayerSummary() {
+    if (!supabase) return;
+    const { data, error } = await supabase.functions.invoke("get-public-player-summary", { body: {} });
+    if (error || !data?.players) return;
+    data.players.forEach((summary) => {
+      const player = players.find((entry) => entry.id === summary.id);
+      if (player) player.equipped = Object.fromEntries(Object.entries(summary.equipped).map(([category, item]) => [category, item?.id || null]));
+      Object.entries(summary.equipped).forEach(([category, item]) => {
+        if (item && !catalogCache[category].some((entry) => entry.id === item.id)) catalogCache[category].push(item);
+      });
+    });
+  }
+
   function renderProfile(player) {
     root.innerHTML = `<section class="profile">
       <div class="profile-face"><img src="${image(player)}" alt="${player.name}"></div>
@@ -267,8 +280,13 @@
       const refreshed = await supabase.functions.invoke("get-player-portal", { body: { token: session.token } });
       if (refreshed.error || !refreshed.data?.player) throw new Error("โหลดข้อมูลหลังทำรายการไม่สำเร็จ");
       applyOnlinePlayerData(player, refreshed.data);
-      if (params.get("shop") && categoryNames[params.get("shop")]) renderShop(params.get("shop"));
-      else renderProfile(player);
+      if (action === "buy") {
+        window.location.href = `?player=${player.id}`;
+      } else if (params.get("shop") && categoryNames[params.get("shop")]) {
+        renderShop(params.get("shop"));
+      } else {
+        renderProfile(player);
+      }
     } catch (error) {
       window.alert(error.message || "ทำรายการไม่สำเร็จ");
       button.disabled = false;
@@ -327,6 +345,7 @@
     } else if (!selected && params.get("shop") && categoryNames[params.get("shop")]) {
       renderShop(params.get("shop"));
     } else if (!selected) {
+      await loadPublicPlayerSummary();
       renderLanding();
     }
   }
