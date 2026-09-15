@@ -96,7 +96,21 @@
     if (error || !data?.players) return;
     data.players.forEach((summary) => {
       const player = players.find((entry) => entry.id === summary.id);
-      if (player) player.equipped = Object.fromEntries(Object.entries(summary.equipped).map(([category, item]) => [category, item?.id || null]));
+      if (player) {
+        Object.assign(player, {
+          team: summary.team,
+          name: summary.name,
+          face: summary.face,
+          hpMax: summary.hp_max,
+          mpMax: summary.mp_max,
+          attack: summary.attack,
+          defense: summary.defense,
+          speed: summary.speed,
+          wisdom: summary.wisdom,
+          money: summary.money,
+          equipped: Object.fromEntries(Object.entries(summary.equipped).map(([category, item]) => [category, item?.id || null]))
+        });
+      }
       Object.entries(summary.equipped).forEach(([category, item]) => {
         if (item && !catalogCache[category].some((entry) => entry.id === item.id)) catalogCache[category].push(item);
       });
