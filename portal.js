@@ -284,15 +284,15 @@
       });
       if (error || !data?.success) {
         let serverMessage = data?.error || error?.message;
-        if (!serverMessage && error?.context instanceof Response) {
+        if (!serverMessage && error?.context && typeof error.context.json === "function") {
           try {
             const responseBody = await error.context.json();
             serverMessage = responseBody?.error;
-          } catch (responseError) {
-            serverMessage = error.message;
+          } catch {
+            // The response body may already have been consumed by the client.
           }
         }
-        throw new Error(serverMessage || "ทำรายการไม่สำเร็จ");
+        throw new Error(serverMessage || "ทำรายการไม่สำเร็จ กรุณาตรวจสอบการติดตั้งฟังก์ชัน Supabase");
       }
       const refreshed = await supabase.functions.invoke("get-player-portal", { body: { token: session.token } });
       if (refreshed.error || !refreshed.data?.player) throw new Error("โหลดข้อมูลหลังทำรายการไม่สำเร็จ");
