@@ -1,0 +1,6 @@
+id,photo_file_name,item_name,item_description,item_price,hp_add,mp_add,revive_one,revive_all
+item_01,item_01.png,สมุนไพรรักษา,ฟื้นฟูพลังชีวิตจำนวนเล็กน้อย,5,20,0,false,false
+item_02,item_02.png,สมุนไพรรักษาขนาดใหญ่,ฟื้นฟูพลังชีวิตจำนวนปานกลาง,12,50,0,false,false
+item_03,item_03.png,น้ำเวทมนตร์,ฟื้นฟูพลังเวทจำนวนเล็กน้อย,8,0,15,false,false
+item_04,item_04.png,ใบไม้คืนชีพ,ชุบชีวิตผู้เล่นที่ล้มลงหนึ่งคน,20,0,0,true,false
+item_05,item_05.png,น้ำค้างแห่งชีวิต,ชุบชีวิตผู้เล่นที่ล้มลงทั้งหมด,45,0,0,false,true

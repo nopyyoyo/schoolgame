@@ -1,0 +1,6 @@
+id,category,photo_file_name,item_name,item_description,item_price,attack_stat,defend_stat,speed_stat,hp_stat,mp_stat,skill_enable1,skill_enable2,skill_enable3,skill_enable4
+accessory_01,accessory,accessory_01.png,แหวนเรียบง่าย,แหวนธรรมดาที่มอบพลังเสริมเล็กน้อย,7,1,0,0,0,2,false,false,false,false
+accessory_02,accessory,accessory_02.png,จี้สีเขียว,จี้ที่ช่วยเพิ่มพลังชีวิต,14,0,1,0,5,0,false,false,false,false
+accessory_03,accessory,accessory_03.png,เครื่องรางว่องไว,เครื่องรางที่ช่วยให้เคลื่อนไหวได้คล่องตัว,18,0,0,3,0,2,false,true,false,false
+accessory_04,accessory,accessory_04.png,ลูกแก้วจอมเวท,ลูกแก้วขนาดเล็กที่เพิ่มพลังเวทมนตร์,25,0,0,0,0,8,true,false,false,false
+accessory_05,accessory,accessory_05.png,กำไลทอง,กำไลที่ทำจากทองคำขัดเงา,30,2,2,1,4,4,false,false,true,false

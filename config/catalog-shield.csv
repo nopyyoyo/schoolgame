@@ -1,0 +1,6 @@
+id,category,photo_file_name,item_name,item_description,item_price,attack_stat,defend_stat,speed_stat,hp_stat,mp_stat,skill_enable1,skill_enable2,skill_enable3,skill_enable4
+shield_01,shield,shield_01.png,โล่ไม้กลม,โล่ไม้ขนาดเล็กสำหรับนักผจญภัยมือใหม่,8,0,2,0,2,0,false,false,false,false
+shield_02,shield,shield_02.png,โล่ทองแดง,โล่ทรงกลมที่ทำจากทองแดง,16,0,4,0,4,0,false,false,false,false
+shield_03,shield,shield_03.png,โล่เหล็กพิทักษ์,โล่เหล็กที่ไว้ใจได้ในการต่อสู้,25,0,6,0,8,0,false,false,false,false
+shield_04,shield,shield_04.png,โล่ตราสีน้ำเงิน,โล่ประดับตราที่ให้การป้องกัน,34,0,5,1,6,3,true,false,false,false
+shield_05,shield,shield_05.png,โล่ทองคำ,โล่ล้ำค่าที่มีพลังป้องกันสูง,50,1,8,0,10,0,false,true,false,false

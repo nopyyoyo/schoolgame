@@ -1,0 +1,6 @@
+id,category,photo_file_name,item_name,item_description,item_price,attack_stat,defend_stat,speed_stat,hp_stat,mp_stat,skill_enable1,skill_enable2,skill_enable3,skill_enable4
+weapon_01,weapon,weapon_01.png,กระบองทองแดง,กระบองเรียบง่ายสำหรับผู้เริ่มต้น,10,2,0,0,0,0,false,false,false,false
+weapon_02,weapon,weapon_02.png,คทาเหล็ก,คทาแข็งแรงที่จับถนัดมือ,15,3,0,1,0,0,true,false,false,false
+weapon_03,weapon,weapon_03.png,มีดฝึกหัด,มีดน้ำหนักเบาที่ใช้งานได้ง่าย,12,2,0,2,0,0,false,true,false,false
+weapon_04,weapon,weapon_04.png,ดาบสั้น,ดาบสั้นที่ไว้ใจได้ในการต่อสู้,20,5,0,0,0,0,false,false,false,false
+weapon_05,weapon,weapon_05.png,ดาบสายลม,ดาบที่ช่วยให้ผู้ถือเคลื่อนไหวได้รวดเร็ว,28,6,0,3,0,0,false,true,false,false
