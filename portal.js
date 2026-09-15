@@ -95,27 +95,29 @@
     try {
       const { data, error } = await supabase.functions.invoke("get-public-player-summary", { body: {} });
       if (error || !data?.players) return;
-    data.players.forEach((summary) => {
-      const player = players.find((entry) => entry.id === summary.id);
-      if (player) {
+      data.players.forEach((summary) => {
+        const player = players.find((entry) => entry.id === summary.id);
+        if (!player) return;
+        const equipped = summary.equipped || {};
         Object.assign(player, {
-          team: summary.team,
-          name: summary.name,
-          face: summary.face,
-          hpMax: summary.hp_max,
-          mpMax: summary.mp_max,
-          attack: summary.attack,
-          defense: summary.defense,
-          speed: summary.speed,
-          wisdom: summary.wisdom,
-          money: summary.money,
-          equipped: Object.fromEntries(Object.entries(summary.equipped).map(([category, item]) => [category, item?.id || null]))
+          team: summary.team || player.team,
+          name: summary.name || player.name,
+          face: summary.face || player.face,
+          hpMax: summary.hp_max ?? player.hpMax,
+          mpMax: summary.mp_max ?? player.mpMax,
+          attack: summary.attack ?? player.attack,
+          defense: summary.defense ?? player.defense,
+          speed: summary.speed ?? player.speed,
+          wisdom: summary.wisdom ?? player.wisdom,
+          money: summary.money ?? player.money,
+          equipped: Object.fromEntries(Object.entries(equipped).map(([category, item]) => [category, item?.id || null]))
         });
-      }
-      Object.entries(summary.equipped).forEach(([category, item]) => {
-        if (item && !catalogCache[category].some((entry) => entry.id === item.id)) catalogCache[category].push(item);
+        Object.entries(equipped).forEach(([category, item]) => {
+          if (item && catalogCache[category] && !catalogCache[category].some((entry) => entry.id === item.id)) {
+            catalogCache[category].push(item);
+          }
+        });
       });
-    });
     } catch (error) {
       console.error("Could not load public player summary", error);
     }
@@ -380,6 +382,7 @@
     } else if (!selected && params.get("shop") && categoryNames[params.get("shop")]) {
       renderShop(params.get("shop"));
     } else if (!selected) {
+      renderLanding();
       await loadPublicPlayerSummary();
       renderLanding();
     }
