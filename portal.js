@@ -42,6 +42,7 @@
   const categoryFolder = { weapon: "Weapon", armor: "Armor", shield: "Shield", accessory: "Accessory", item: "Item" };
   const categoryPrefix = { weapon: "weapon", armor: "armor", shield: "shield", accessory: "accessory", item: "item" };
   const catalogCache = { weapon: [], armor: [], shield: [], accessory: [], item: [] };
+  let skillCache = [];
   players.forEach((player) => {
     player.equipped = player.equipped || { weapon: null, armor: null, shield: null, accessory: null };
     player.ownedEquipment = player.ownedEquipment || [];
@@ -163,10 +164,23 @@
 
   function catalogMarkup(category, item, note, context) {
     return `<img class="catalog-image" src="${assetPath(category, item.photo_file_name)}" alt="${item.item_name}">
-      <h3>${item.item_name}</h3><p>${item.item_description}</p><p>ราคา: ${item.item_price} เหรียญ</p><p class="catalog-note">${note}</p>
+      <h3>${item.item_name}</h3><p>${item.item_description}</p>${category === "item" ? "" : equipmentDetails(item)}<p>ราคา: ${item.item_price} เหรียญ</p><p class="catalog-note">${note}</p>
       ${context === "owned" ? `<button data-action="equip" data-category="${category}" data-id="${item.id}">สวมใส่</button><button data-action="sell" data-category="${category}" data-id="${item.id}">ขาย</button>` : ""}
       ${context === "owned-item" ? `<button data-action="sell" data-category="item" data-id="${item.id}">ขาย</button>` : ""}
       ${context === "equipped" ? `<button data-action="unequip" data-category="${category}" data-id="${item.id}">ถอดอุปกรณ์</button>` : ""}`;
+  }
+
+  function equipmentDetails(item) {
+    const stats = [
+      ["โจมตี", item.attack_stat], ["ป้องกัน", item.defend_stat], ["ความเร็ว", item.speed_stat],
+      ["พลังชีวิต", item.hp_stat], ["พลังเวท", item.mp_stat]
+    ].filter(([, value]) => Number(value) !== 0)
+      .map(([label, value]) => `<span>${label} ${Number(value) > 0 ? "+" : ""}${value}</span>`);
+    const skills = ["skill_id1", "skill_id2", "skill_id3", "skill_id4"]
+      .map((key) => skillCache.find((skill) => skill.id === item[key]))
+      .filter(Boolean)
+      .map((skill) => `<span class="equipment-skill">${skill.skill_name}</span>`);
+    return `<div class="equipment-details">${stats.concat(skills).join(" ") || "<span>ไม่มีโบนัส</span>"}</div>`;
   }
 
   function parseCsv(text) {
@@ -193,9 +207,23 @@
     }));
   }
 
+  async function loadSkills() {
+    if (skillCache.length) return;
+    if (supabase) {
+      const { data } = await supabase.from("skill_catalog").select("*").eq("active", true).order("id");
+      if (data?.length) {
+        skillCache = data;
+        return;
+      }
+    }
+    const response = await fetch("config/catalog-skill.csv");
+    if (response.ok) skillCache = parseCsv(await response.text());
+  }
+
   async function renderShop(category) {
     root.innerHTML = `<section class="team"><h2>ร้าน${categoryNames[category]}</h2><p>กำลังโหลดรายการ...</p>${shopLinks()}</section>`;
     try {
+      if (category !== "item") await loadSkills();
       const remoteRows = await loadSupabaseCatalog(category);
       if (remoteRows) {
         catalogCache[category] = remoteRows;
@@ -216,11 +244,11 @@
   }
 
   async function loadAllCatalogs() {
-    await Promise.all(Object.keys(categoryNames).map(async (category) => {
+    await Promise.all([loadSkills(), ...Object.keys(categoryNames).map(async (category) => {
       if (catalogCache[category].length) return;
       const rows = await loadSupabaseCatalog(category);
       if (rows) catalogCache[category] = rows;
-    }));
+    })]);
   }
 
   function shopMarkup(category, rows) {

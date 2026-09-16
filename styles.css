@@ -38,6 +38,9 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
 .slot h3,.catalog-card h3 { margin:0 0 5px; color:var(--gold); font-size:1rem; }
 .catalog-card { min-height:130px; }
 .catalog-card p { margin:3px 0; color:var(--muted); font-size:.88rem; }
+.equipment-details { display:flex; flex-wrap:wrap; gap:4px 8px; margin:5px 0; color:var(--ink); font-size:.82rem; }
+.equipment-details span { white-space:nowrap; }
+.equipment-details .equipment-skill { padding:2px 5px; border:1px solid var(--gold); border-radius:4px; color:var(--gold); background:#3a2d16; font-weight:bold; }
 .catalog-image { display:block; width:64px; height:64px; object-fit:contain; margin:0 auto 6px; image-rendering:pixelated; }
 .catalog-note,.demo-note { color:var(--gold) !important; }
 .catalog-card button,.slot button { margin:4px 4px 0 0; padding:5px 8px; font-size:.8rem; }
