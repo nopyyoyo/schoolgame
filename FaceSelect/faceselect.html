@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Face Selection</title>
+  <style>
+    :root { color-scheme: dark; font-family: Arial, sans-serif; }
+    body { margin: 0; padding: 24px; background: #12151f; color: #f8f4e8; }
+    main { max-width: 1100px; margin: auto; }
+    h1 { margin-top: 0; }
+    .help { color: #b9b5aa; }
+    .faces { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+    .face-card { padding: 12px; border: 1px solid #4c5160; border-radius: 8px; background: #1c202d; text-align: center; cursor: pointer; }
+    .face-card:hover { border-color: #e7b968; }
+    .face-card.selected { opacity: .42; cursor: default; border-color: #74d58c; }
+    .face-card img { display: block; width: 80px; height: 80px; margin: auto; image-rendering: pixelated; object-fit: contain; background: #ff05ee; }
+    .face-card strong, .face-card span { display: block; margin-top: 8px; }
+    .assignment { color: #74d58c; min-height: 18px; }
+    button { margin: 20px 0; padding: 10px 16px; border: 1px solid #70788b; border-radius: 6px; background: #292f40; color: inherit; cursor: pointer; }
+    button:hover { border-color: #e7b968; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Face Selection</h1>
+    <p class="help">Click an available face and enter the player name. A selected face becomes inactive.</p>
+    <button id="reset" type="button">Reset selections</button>
+    <section id="faces" class="faces" aria-label="Available faces"></section>
+  </main>
+  <script>
+    (() => {
+      const storageKey = "school-game-face-selection";
+      const faces = Array.from({ length: 20 }, (_, index) => `P${index + 1}`);
+      const root = document.querySelector("#faces");
+      const reset = document.querySelector("#reset");
+      let assignments = JSON.parse(localStorage.getItem(storageKey) || "{}");
+
+      function render() {
+        root.innerHTML = faces.map((face) => {
+          const name = assignments[face] || "";
+          return `<article class="face-card${name ? " selected" : ""}" data-face="${face}">
+            <img src="${face}.png" alt="${face}">
+            <strong>${face}</strong>
+            <span class="assignment">${name || "Available"}</span>
+          </article>`;
+        }).join("");
+      }
+
+      root.addEventListener("click", (event) => {
+        const card = event.target.closest(".face-card");
+        if (!card || assignments[card.dataset.face]) return;
+        const name = window.prompt(`Enter the player name for ${card.dataset.face}:`);
+        if (!name || !name.trim()) return;
+        assignments[card.dataset.face] = name.trim();
+        localStorage.setItem(storageKey, JSON.stringify(assignments));
+        render();
+      });
+
+      reset.addEventListener("click", () => {
+        if (!window.confirm("Reset all face selections?")) return;
+        assignments = {};
+        localStorage.removeItem(storageKey);
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
