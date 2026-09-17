@@ -253,7 +253,7 @@
 
   function shopMarkup(category, rows) {
     const canBuy = Boolean(selected);
-    return `<h2>ร้าน${categoryNames[category]}</h2><p class="demo-note">${canBuy ? "ร้านค้าของผู้เล่น: สามารถซื้อสินค้าได้" : "หน้าสำหรับเลือกดูสินค้าเท่านั้น"}</p><div class="catalog-grid">${rows.map((item) => `<article class="catalog-card">${catalogMarkup(category, item, canBuy ? "ซื้อสินค้า" : "ดูรายละเอียด", "shop")}${canBuy ? `<button data-action="buy" data-category="${category}" data-id="${item.id}">ซื้อสินค้า</button>` : ""}</article>`).join("") || "<p>ยังไม่มีรายการ</p>"}</div>${shopLinks()}`;
+    return `<h2>ร้าน${categoryNames[category]}</h2><p class="demo-note">${canBuy ? "ร้านค้าของผู้เล่น: สามารถซื้อสินค้าได้" : "หน้าสำหรับเลือกดูสินค้าเท่านั้น"}</p><div class="catalog-grid">${rows.map((item) => `<article class="catalog-card">${catalogMarkup(category, item, canBuy ? "ซื้อสินค้า" : "", "shop")}${canBuy ? `<button data-action="buy" data-category="${category}" data-id="${item.id}">ซื้อสินค้า</button>` : ""}</article>`).join("") || "<p>ยังไม่มีรายการ</p>"}</div>${shopLinks()}`;
   }
 
   async function authenticateOnlinePlayer(player, passcode) {
