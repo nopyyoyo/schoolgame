@@ -81,7 +81,7 @@
   }
 
   function skillMarkup(player) {
-    const skills = Object.values(player.equippedItems || {}).flatMap((item) =>
+    const skills = Object.values(player.equippedItems || {}).filter(Boolean).flatMap((item) =>
       ["skill_id1", "skill_id2", "skill_id3", "skill_id4"]
         .map((key) => skillCache.find((skill) => skill.id === item[key]))
         .filter(Boolean)
