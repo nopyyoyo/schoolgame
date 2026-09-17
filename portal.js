@@ -48,6 +48,10 @@
     player.ownedEquipment = player.ownedEquipment || [];
     player.ownedItems = player.ownedItems || [];
   });
+  Object.values(equippedItems).forEach((item) => {
+    if (!catalogCache[item.category].some((entry) => entry.id === item.id)) catalogCache[item.category].push(item);
+  });
+  applyEquipmentStats(player);
 
   function assetPath(category, fileName) {
     return `${categoryFolder[category]}/Cut/${fileName}`;
@@ -62,10 +66,41 @@
       <div class="stat-line"><span>ปัญญา</span><strong>${player.wisdom}</strong></div>`;
   }
 
+  function applyEquipmentStats(player) {
+    const base = player.baseStats || player;
+    const equipment = Object.values(player.equippedItems || {}).filter(Boolean);
+    const totals = equipment.reduce((sum, item) => ({
+      hp_stat: sum.hp_stat + Number(item.hp_stat || 0),
+      mp_stat: sum.mp_stat + Number(item.mp_stat || 0),
+      attack_stat: sum.attack_stat + Number(item.attack_stat || 0),
+      defend_stat: sum.defend_stat + Number(item.defend_stat || 0),
+      speed_stat: sum.speed_stat + Number(item.speed_stat || 0)
+    }), { hp_stat: 0, mp_stat: 0, attack_stat: 0, defend_stat: 0, speed_stat: 0 });
+    Object.assign(player, {
+      hpMax: Number(base.hpMax) + totals.hp_stat,
+      mpMax: Number(base.mpMax) + totals.mp_stat,
+      attack: Number(base.attack) + totals.attack_stat,
+      defense: Number(base.defense) + totals.defend_stat,
+      speed: Number(base.speed) + totals.speed_stat
+    });
+  }
+
+  function skillMarkup(player) {
+    const skills = Object.values(player.equippedItems || {}).flatMap((item) =>
+      ["skill_id1", "skill_id2", "skill_id3", "skill_id4"]
+        .map((key) => skillCache.find((skill) => skill.id === item[key]))
+        .filter(Boolean)
+    );
+    const unique = [...new Map(skills.map((skill) => [skill.id, skill])).values()];
+    return `<p class="player-skills"><strong>ทักษะ:</strong> ${unique.length
+      ? unique.map((skill) => `<span>${skill.skill_name}</span>`).join(" ")
+      : "ไม่มี"}</p>`;
+  }
+
   function playerCard(player) {
     return `<a class="player-card" href="?player=${player.id}">
       <div class="face"><img src="${image(player)}" alt="${player.name}"></div>
-      <div><h3>${player.name}</h3><p class="money">เงิน: ${player.money} เหรียญ</p>${statMarkup(player)}<p class="equipped-summary">${equippedSummary(player)}</p></div>
+      <div><h3>${player.name}</h3><p class="money">เงิน: ${player.money} เหรียญ</p>${statMarkup(player)}${skillMarkup(player)}<p class="equipped-summary">${equippedSummary(player)}</p></div>
     </a>`;
   }
 
@@ -118,13 +153,16 @@
           speed: summary.speed ?? player.speed,
           wisdom: summary.wisdom ?? player.wisdom,
           money: summary.money ?? player.money,
-          equipped: Object.fromEntries(Object.entries(equipped).map(([category, item]) => [category, item?.id || null]))
+          equipped: Object.fromEntries(Object.entries(equipped).map(([category, item]) => [category, item?.id || null])),
+          baseStats: { hpMax: summary.hp_max, mpMax: summary.mp_max, attack: summary.attack, defense: summary.defense, speed: summary.speed, wisdom: summary.wisdom },
+          equippedItems: equipped
         });
         Object.entries(equipped).forEach(([category, item]) => {
           if (item && catalogCache[category] && !catalogCache[category].some((entry) => entry.id === item.id)) {
             catalogCache[category].push(item);
           }
         });
+        applyEquipmentStats(player);
       });
     } catch (error) {
       console.error("Could not load public player summary", error);
@@ -135,7 +173,7 @@
   function renderProfile(player) {
     root.innerHTML = `<section class="profile">
       <div class="profile-face"><img src="${image(player)}" alt="${player.name}"></div>
-      <div><p class="eyebrow">${player.team === "red" ? "ทีมสีแดง" : player.team === "green" ? "ทีมสีเขียว" : "ทีมสีน้ำเงิน"}</p><h2>${player.name}</h2><div>${statMarkup(player)}</div><p class="money">เงิน: ${player.money}</p></div>
+      <div><p class="eyebrow">${player.team === "red" ? "ทีมสีแดง" : player.team === "green" ? "ทีมสีเขียว" : "ทีมสีน้ำเงิน"}</p><h2>${player.name}</h2><div>${statMarkup(player)}</div><p class="money">เงิน: ${player.money}</p>${skillMarkup(player)}</div>
     </section>
     <section class="team"><h2>อุปกรณ์ที่สวมใส่</h2><div class="slots">
       ${["weapon","armor","shield","accessory"].map((category) => {
@@ -285,10 +323,12 @@
         ? entry.equipment_catalog[0]
         : entry.equipment_catalog
     }));
+    const equippedItems = Object.fromEntries((portalData.equipped_equipment || []).map((item) => [item.category, item]));
     Object.assign(player, {
       team: remote.team,
       name: remote.name,
       face: remote.face,
+      baseStats: { hpMax: remote.hp_max, mpMax: remote.mp_max, attack: remote.attack, defense: remote.defense, speed: remote.speed, wisdom: remote.wisdom },
       hpMax: remote.hp_max,
       mpMax: remote.mp_max,
       attack: remote.attack,
@@ -307,7 +347,8 @@
         id: entry.equipment_id,
         quantity: entry.quantity
       })),
-      ownedItems: (portalData.items || []).flatMap((entry) => Array(entry.quantity).fill(entry.item_id))
+      ownedItems: (portalData.items || []).flatMap((entry) => Array(entry.quantity).fill(entry.item_id)),
+      equippedItems
     });
     equipmentEntries.forEach((entry) => {
       if (entry.equipment_catalog) {
@@ -415,6 +456,7 @@
       renderShop(params.get("shop"));
     } else if (!selected) {
       try {
+        await loadSkills();
         await loadPublicPlayerSummary();
       } catch (error) {
         root.innerHTML = `<section class="team"><h2>ไม่สามารถโหลดข้อมูลผู้เล่นได้</h2><p>กรุณาลองใหม่อีกครั้ง</p></section>`;

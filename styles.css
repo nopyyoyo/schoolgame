@@ -24,6 +24,8 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
 .face img { max-width:100%; max-height:78px; image-rendering:pixelated; }
 .player-card h3 { margin:0 0 5px; color:var(--gold); }
 .equipped-summary { margin:6px 0 0; color:var(--gold); font-size:.78rem; line-height:1.4; }
+.player-skills { margin:6px 0 0; color:var(--muted); font-size:.82rem; line-height:1.5; }
+.player-skills span { display:inline-block; margin:2px 4px 0 0; padding:2px 5px; border:1px solid var(--gold); border-radius:4px; color:var(--gold); background:#3a2d16; }
 .stat-line { display:flex; justify-content:space-between; gap:8px; color:var(--muted); font-size:.88rem; line-height:1.45; }
 .stat-line strong { color:var(--ink); font-weight:normal; }
 .shop-links { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:12px; }
