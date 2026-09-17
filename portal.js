@@ -9,7 +9,9 @@
   const root = document.querySelector("#player-view");
   const shopRoot = document.querySelector("#shop-view");
   const siteRoot = new URL("./", document.baseURI).href;
-  const image = (player) => `${siteRoot}Character/Cut/Player/${player.face}/face.png`;
+  const image = (player) => player.role === "enemy"
+    ? `${siteRoot}Character/Cut/Enemy/${player.face}`
+    : `${siteRoot}Character/Cut/Player/${player.face}/face.png`;
   const params = new URLSearchParams(window.location.search);
   const requestedPlayerId = params.get("player");
   let selected = players.find((player) => player.id === requestedPlayerId);
