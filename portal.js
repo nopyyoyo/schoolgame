@@ -130,29 +130,27 @@
     if (!supabase) throw new Error("Supabase is not configured");
     try {
       const { data, error } = await supabase.functions.invoke("get-public-player-summary", { body: {} });
-      if (error || !data?.players) throw new Error(data?.error || error?.message || "Could not load players");
-      data.players.forEach((summary) => {
-        const player = players.find((entry) => entry.id === summary.id);
-        if (!player) return;
+      if (error || !Array.isArray(data?.players) || !data.players.length) {
+        throw new Error(data?.error || error?.message || "Could not load players");
+      }
+      const databasePlayers = data.players.map((summary) => {
         const equipped = summary.equipped || {};
-        Object.assign(player, {
-          team: ["red", "blue", "green"].includes(String(summary.team).toLowerCase())
-            ? String(summary.team).toLowerCase()
-            : player.team,
-          name: summary.name || player.name,
-          face: summary.face || player.face,
-          hpMax: summary.hp_max ?? player.hpMax,
-          mpMax: summary.mp_max ?? player.mpMax,
-          attack: summary.attack ?? player.attack,
-          defense: summary.defense ?? player.defense,
-          speed: summary.speed ?? player.speed,
-          wisdom: summary.wisdom ?? player.wisdom,
-          money: summary.money ?? player.money,
+        return {
+          id: summary.id, team: summary.team, name: summary.name, face: summary.face,
+          hpMax: summary.hp_max, mpMax: summary.mp_max, attack: summary.attack,
+          defense: summary.defense, speed: summary.speed, wisdom: summary.wisdom,
+          money: summary.money,
           equipped: Object.fromEntries(Object.entries(equipped).map(([category, item]) => [category, item?.id || null])),
           baseStats: { hpMax: summary.hp_max, mpMax: summary.mp_max, attack: summary.attack, defense: summary.defense, speed: summary.speed, wisdom: summary.wisdom },
-          equippedItems: equipped
-        });
-        Object.entries(equipped).forEach(([category, item]) => {
+          equippedItems: equipped, ownedEquipment: [], ownedItems: []
+        };
+      });
+      if (databasePlayers.some((player) => !player.id || !player.name || !player.team)) {
+        throw new Error("Incomplete player data from Supabase");
+      }
+      players.splice(0, players.length, ...databasePlayers);
+      databasePlayers.forEach((player) => {
+        Object.entries(player.equippedItems).forEach(([category, item]) => {
           if (item && catalogCache[category] && !catalogCache[category].some((entry) => entry.id === item.id)) {
             catalogCache[category].push(item);
           }
@@ -454,7 +452,6 @@
     } else if (!selected && params.get("shop") && categoryNames[params.get("shop")]) {
       renderShop(params.get("shop"));
     } else if (!selected) {
-      renderLanding();
       try {
         await loadSkills();
         await loadPublicPlayerSummary();
