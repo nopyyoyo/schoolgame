@@ -118,7 +118,10 @@
 
   function shopLinks() {
     const suffix = selected ? `&player=${selected.id}` : "";
-    return `<nav class="shop-links" aria-label="ร้านค้า">
+    const playerLink = selected
+      ? `<a class="button" href="?player=${selected.id}">กลับหน้าผู้เล่น</a>`
+      : "";
+    return `<nav class="shop-links" aria-label="ร้านค้า">${playerLink}
       ${Object.entries(categoryNames).map(([key, name]) => `<a class="button" href="?shop=${key}${suffix}">${name}</a>`).join("")}
     </nav>`;
   }
