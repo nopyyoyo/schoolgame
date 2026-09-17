@@ -208,7 +208,7 @@
     return `<img class="catalog-image" src="${assetPath(category, item.photo_file_name)}" alt="${item.item_name}">
       <h3>${item.item_name}</h3><p>${item.item_description}</p>${category === "item" ? "" : equipmentDetails(item)}<p>ราคา: ${item.item_price} เหรียญ</p>${note ? `<p class="catalog-note">${note}</p>` : ""}
       ${context === "owned" ? `<button data-action="equip" data-category="${category}" data-id="${item.id}">สวมใส่</button><button data-action="sell" data-category="${category}" data-id="${item.id}">ขาย</button>` : ""}
-      ${context === "owned-item" ? `<button data-action="sell" data-category="item" data-id="${item.id}">ขาย</button>` : ""}
+      ${context === "owned-item" ? `${item.stat_usable === true || item.stat_usable === "true" ? `<button data-action="use_item" data-category="item" data-id="${item.id}">กิน</button>` : ""}<button data-action="sell" data-category="item" data-id="${item.id}">ขาย</button>` : ""}
       ${context === "equipped" ? `<button data-action="unequip" data-category="${category}" data-id="${item.id}">ถอดอุปกรณ์</button>` : ""}`;
   }
 
@@ -336,6 +336,30 @@
     });
   }
 
+  function useItemConfirmation(item) {
+    const modal = document.createElement("div");
+    modal.className = "transaction-modal-backdrop";
+    modal.innerHTML = `<div class="transaction-modal" role="dialog" aria-modal="true">
+      <h2>คุณต้องการกิน ${item.item_name} ใช่หรือไม่</h2>
+      <div class="transaction-modal-actions">
+        <button type="button" data-confirm="yes">ตกลง</button>
+        <button type="button" data-confirm="no">ยกเลิก</button>
+      </div>
+    </div>`;
+    document.body.append(modal);
+    return new Promise((resolve) => {
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal || event.target.closest("[data-confirm='no']")) {
+          modal.remove();
+          resolve(false);
+        } else if (event.target.closest("[data-confirm='yes']")) {
+          modal.remove();
+          resolve(true);
+        }
+      });
+    });
+  }
+
   async function authenticateOnlinePlayer(player, passcode) {
     if (!supabase) return null;
     const { data: authData, error: authError } = await supabase.functions.invoke("authenticate-player", {
@@ -410,7 +434,11 @@
     const category = button.dataset.category;
     const id = button.dataset.id;
     const action = button.dataset.action;
-    if (!player || !id || !["buy", "sell", "equip", "unequip"].includes(action)) return;
+    if (!player || !id || !["buy", "sell", "equip", "unequip", "use_item"].includes(action)) return;
+    if (action === "use_item") {
+      const item = findDemoItem("item", id);
+      if (!item || !(await useItemConfirmation(item))) return;
+    }
     if (action === "buy" || action === "sell") {
       const item = findDemoItem(category, id);
       if (!item || !(await transactionConfirmation(action, item, player))) return;
