@@ -242,15 +242,19 @@
 
   async function loadSkills() {
     if (skillCache.length) return;
-    if (supabase) {
-      const { data } = await supabase.from("skill_catalog").select("*").eq("active", true).order("id");
-      if (data?.length) {
-        skillCache = data;
-        return;
+    try {
+      if (supabase) {
+        const { data } = await supabase.from("skill_catalog").select("*").eq("active", true).order("id");
+        if (data?.length) {
+          skillCache = data;
+          return;
+        }
       }
+      const response = await fetch("config/catalog-skill.csv");
+      if (response.ok) skillCache = parseCsv(await response.text());
+    } catch (error) {
+      console.error("Could not load skills", error);
     }
-    const response = await fetch("config/catalog-skill.csv");
-    if (response.ok) skillCache = parseCsv(await response.text());
   }
 
   async function renderShop(category) {
@@ -450,11 +454,12 @@
     } else if (!selected && params.get("shop") && categoryNames[params.get("shop")]) {
       renderShop(params.get("shop"));
     } else if (!selected) {
+      renderLanding();
       try {
         await loadSkills();
         await loadPublicPlayerSummary();
       } catch (error) {
-        root.innerHTML = `<section class="team"><h2>ไม่สามารถโหลดข้อมูลผู้เล่นได้</h2><p>กรุณาลองใหม่อีกครั้ง</p></section>`;
+        console.error("Could not initialize landing page", error);
         return;
       }
       renderLanding();
