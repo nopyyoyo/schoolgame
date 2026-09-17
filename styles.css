@@ -31,15 +31,17 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
 .transaction-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10;
+  z-index: 1000;
   display: grid;
   place-items: center;
   padding: 1rem;
   background: rgb(0 0 0 / 55%);
+  overflow-y: auto;
 }
 
 .transaction-modal {
   width: min(100%, 30rem);
+  color: #202124;
   padding: 1.5rem;
   border-radius: 1rem;
   background: #fff;
@@ -48,6 +50,7 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
 
 .transaction-modal h2 {
   margin-top: 0;
+  color: #202124;
 }
 
 .transaction-modal p {
@@ -69,6 +72,16 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
   gap: 0.75rem;
   justify-content: flex-end;
   margin-top: 1.25rem;
+}
+
+.transaction-modal-actions button {
+  color: #202124;
+  background: #f1f3f4;
+}
+
+.transaction-modal-actions button:first-child {
+  color: #fff;
+  background: #1769aa;
 }
 .stat-line strong { color:var(--ink); font-weight:normal; }
 .shop-links { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:12px; }
