@@ -96,13 +96,13 @@
   function playerCard(player) {
     return `<a class="player-card" href="?player=${player.id}">
       <div class="face"><img src="${image(player)}" alt="${player.name}"></div>
-      <div><h3>${player.name}</h3><p class="money">เงิน: ${player.money} เหรียญ</p>${statMarkup(player)}${skillMarkup(player)}<p class="equipped-summary">${equippedSummary(player)}</p></div>
+      <div><h3>${player.name}</h3>${player.role === "enemy" ? "" : `<p class="money">เงิน: ${player.money} เหรียญ</p>`}${statMarkup(player)}${skillMarkup(player)}<p class="equipped-summary">${equippedSummary(player)}</p></div>
     </a>`;
   }
 
   function playerTeam(player) {
     const team = typeof player.team === "string" ? player.team.toLowerCase() : "";
-    if (["red", "blue", "green"].includes(team)) return team;
+    if (["red", "blue", "green", "teacher", "enemy"].includes(team)) return team;
     return Number(player.id.slice(1)) <= 3 ? "red" : Number(player.id.slice(1)) <= 6 ? "blue" : "green";
   }
 
@@ -122,9 +122,11 @@
   }
 
   function renderLanding() {
-    root.innerHTML = `<section class="team team-red"><h2>ทีมสีแดง</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "red").map(playerCard).join("")}</div></section>
+    root.innerHTML = `<section class="team team-teacher"><h2>ครู</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "teacher").map(playerCard).join("")}</div></section>
+      <section class="team team-red"><h2>ทีมสีแดง</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "red").map(playerCard).join("")}</div></section>
       <section class="team team-blue"><h2>ทีมสีน้ำเงิน</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "blue").map(playerCard).join("")}</div></section>
-      <section class="team team-green"><h2>ทีมสีเขียว</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "green").map(playerCard).join("")}</div></section>${shopLinks()}`;
+      <section class="team team-green"><h2>ทีมสีเขียว</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "green").map(playerCard).join("")}</div></section>
+      <section class="team team-enemy"><h2>ศัตรู</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "enemy").map(playerCard).join("")}</div></section>${shopLinks()}`;
   }
 
   async function loadPublicPlayerSummary() {
@@ -138,7 +140,7 @@
       const databasePlayers = data.players.map((summary) => {
         const equipped = summary.equipped || {};
         return {
-          id: summary.id, team: summary.team, name: summary.name, face: summary.face,
+          id: summary.id, role: summary.role || "player", team: summary.team, name: summary.name, face: summary.face,
           hpMax: summary.hp_max, mpMax: summary.mp_max, attack: summary.attack,
           defense: summary.defense, speed: summary.speed, wisdom: summary.wisdom,
           money: summary.money,
@@ -166,9 +168,11 @@
   }
 
   function renderProfile(player) {
+    const isEnemy = player.role === "enemy";
+    const teamLabel = player.team === "teacher" ? "ครู" : player.team === "enemy" ? "ศัตรู" : player.team === "red" ? "ทีมสีแดง" : player.team === "green" ? "ทีมสีเขียว" : "ทีมสีน้ำเงิน";
     root.innerHTML = `<section class="profile">
       <div class="profile-face"><img src="${image(player)}" alt="${player.name}"></div>
-      <div><p class="eyebrow">${player.team === "red" ? "ทีมสีแดง" : player.team === "green" ? "ทีมสีเขียว" : "ทีมสีน้ำเงิน"}</p><h2>${player.name}</h2><div>${statMarkup(player)}</div><p class="money">เงิน: ${player.money}</p>${skillMarkup(player)}</div>
+      <div><p class="eyebrow">${teamLabel}</p><h2>${player.name}</h2><div>${statMarkup(player)}</div>${isEnemy ? "" : `<p class="money">เงิน: ${player.money}</p>`}${skillMarkup(player)}</div>
     </section>
     <section class="team"><h2>อุปกรณ์ที่สวมใส่</h2><div class="slots">
       ${["weapon","armor","shield","accessory"].map((category) => {
@@ -177,14 +181,14 @@
         return `<article class="slot"><h3>${categoryNames[category]}</h3>${item ? catalogMarkup(category, item, "สวมใส่อยู่", "equipped") : "<p>ยังไม่มีอุปกรณ์</p>"}</article>`;
       }).join("")}
     </div></section>
-    <section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
+    ${isEnemy ? "" : `<section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
       const item = findDemoItem(owned.category, owned.id);
       return item ? `<article class="catalog-card">${catalogMarkup(owned.category, item, "คลิกเพื่อดูรายละเอียด", "owned")}</article>` : "";
     }).join("") || "<p>ยังไม่มีอุปกรณ์ในคลัง</p>"}</div>
     <h2 class="subheading">ไอเทมในคลัง</h2><div class="owned-grid">${(player.ownedItems || []).map((id) => {
       const item = findDemoItem("item", id);
       return item ? `<article class="catalog-card">${catalogMarkup("item", item, "จำนวน 1", "owned-item")}</article>` : "";
-    }).join("") || "<p>ยังไม่มีไอเทมในคลัง</p>"}</div></section>${shopLinks()}`;
+    }).join("") || "<p>ยังไม่มีไอเทมในคลัง</p>"}</div></section>${shopLinks()}`}`;
   }
 
   function findDemoItem(category, id) {
@@ -325,6 +329,7 @@
     const equippedItems = Object.fromEntries((portalData.equipped_equipment || []).map((item) => [item.category, item]));
     if (Array.isArray(portalData.skills)) skillCache = portalData.skills;
     Object.assign(player, {
+      role: remote.role || "player",
       team: remote.team,
       name: remote.name,
       face: remote.face,
@@ -459,7 +464,14 @@
         return;
       }
     }
-    if (selected && await authenticatePlayer(selected)) {
+    if (selected?.role === "enemy") {
+      if (params.get("shop") && categoryNames[params.get("shop")]) {
+        renderProfile(selected);
+      } else {
+        await loadAllCatalogs();
+        renderProfile(selected);
+      }
+    } else if (selected && await authenticatePlayer(selected)) {
       if (params.get("shop") && categoryNames[params.get("shop")]) renderShop(params.get("shop"));
       else {
         await loadAllCatalogs();
