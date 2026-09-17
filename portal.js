@@ -133,6 +133,7 @@
       if (error || !Array.isArray(data?.players) || !data.players.length) {
         throw new Error(data?.error || error?.message || "Could not load players");
       }
+      if (Array.isArray(data.skills)) skillCache = data.skills;
       const databasePlayers = data.players.map((summary) => {
         const equipped = summary.equipped || {};
         return {
@@ -321,6 +322,7 @@
         : entry.equipment_catalog
     }));
     const equippedItems = Object.fromEntries((portalData.equipped_equipment || []).map((item) => [item.category, item]));
+    if (Array.isArray(portalData.skills)) skillCache = portalData.skills;
     Object.assign(player, {
       team: remote.team,
       name: remote.name,
