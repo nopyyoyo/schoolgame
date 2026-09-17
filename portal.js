@@ -149,7 +149,6 @@
           wisdom: summary.wisdom ?? player.wisdom,
           money: summary.money ?? player.money,
           equipped: Object.fromEntries(Object.entries(equipped).map(([category, item]) => [category, item?.id || null])),
-          equippedItems: equipped,
           baseStats: { hpMax: summary.hp_max, mpMax: summary.mp_max, attack: summary.attack, defense: summary.defense, speed: summary.speed, wisdom: summary.wisdom },
           equippedItems: equipped
         });
