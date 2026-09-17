@@ -299,6 +299,40 @@
     return `<h2>ร้าน${categoryNames[category]}</h2><p class="demo-note">${canBuy ? "ร้านค้าของผู้เล่น: สามารถซื้อสินค้าได้" : "หน้าสำหรับเลือกดูสินค้าเท่านั้น"}</p><div class="catalog-grid">${rows.map((item) => `<article class="catalog-card">${catalogMarkup(category, item, canBuy ? "ซื้อสินค้า" : "", "shop")}${canBuy ? `<button data-action="buy" data-category="${category}" data-id="${item.id}">ซื้อสินค้า</button>` : ""}</article>`).join("") || "<p>ยังไม่มีรายการ</p>"}</div>${shopLinks()}`;
   }
 
+  function transactionConfirmation(action, item, player) {
+    const price = Number(item?.item_price || 0);
+    const currentMoney = Number(player.money || 0);
+    const amount = action === "sell" ? Math.floor(price / 2) : price;
+    const remainingMoney = currentMoney + (action === "sell" ? amount : -amount);
+    const amountMarkup = action === "sell"
+      ? `<span class="transaction-gain">+${amount} เหรียญ</span>`
+      : `<span class="transaction-cost">-${amount} เหรียญ</span>`;
+    const modal = document.createElement("div");
+    modal.className = "transaction-modal-backdrop";
+    modal.innerHTML = `<div class="transaction-modal" role="dialog" aria-modal="true">
+      <h2>ต้องการ${action === "sell" ? "ขาย" : "ซื้อ"} ${item.item_name} ใช่หรือไม่</h2>
+      <p>เงินปัจจุบัน: ${currentMoney} เหรียญ</p>
+      <p>${action === "sell" ? "ราคาขาย" : "ราคา"}: ${amountMarkup}</p>
+      <p>เงินคงเหลือ: ${remainingMoney} เหรียญ</p>
+      <div class="transaction-modal-actions">
+        <button type="button" data-confirm="yes">ตกลง</button>
+        <button type="button" data-confirm="no">ยกเลิก</button>
+      </div>
+    </div>`;
+    document.body.append(modal);
+    return new Promise((resolve) => {
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal || event.target.closest("[data-confirm='no']")) {
+          modal.remove();
+          resolve(false);
+        } else if (event.target.closest("[data-confirm='yes']")) {
+          modal.remove();
+          resolve(true);
+        }
+      });
+    });
+  }
+
   async function authenticateOnlinePlayer(player, passcode) {
     if (!supabase) return null;
     const { data: authData, error: authError } = await supabase.functions.invoke("authenticate-player", {
@@ -374,6 +408,10 @@
     const id = button.dataset.id;
     const action = button.dataset.action;
     if (!player || !id || !["buy", "sell", "equip", "unequip"].includes(action)) return;
+    if (action === "buy" || action === "sell") {
+      const item = findDemoItem(category, id);
+      if (!item || !(await transactionConfirmation(action, item, player))) return;
+    }
     const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
     if (!supabase || !session?.token || session.token === "local-demo") {
       return window.alert("ต้องเชื่อมต่อ Supabase เพื่อทำรายการ");
