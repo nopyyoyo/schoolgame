@@ -459,6 +459,7 @@
         await loadPublicPlayerSummary();
       } catch (error) {
         console.error("Could not initialize landing page", error);
+        root.innerHTML = `<section class="team"><h2>ไม่สามารถโหลดข้อมูลจาก Supabase ได้</h2><p>${error.message || "กรุณาตรวจสอบการติดตั้ง Edge Function"}</p></section>`;
         return;
       }
       renderLanding();
