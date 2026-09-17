@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>School Game</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header class="game-header">
+      <div>
+        <p class="eyebrow">เกมโรงเรียนวัดพุทธดัลลัส</p>
+        <h1>- ลานประลอง ห้องผีเสื้อ</h1>
+      </div>
+      <div class="header-controls">
+        <button id="restart-button" class="secondary-button">เริ่มใหม่</button>
+      </div>
+    </header>
+
+    <section id="player-stats" class="player-stats" aria-label="ค่าสถานะผู้เล่น"></section>
+
+    <section id="battle-display" class="battle-display" aria-label="พื้นที่ต่อสู้">
+      <div class="arena-grid" id="arena-grid">
+        <div class="enemy-stage" id="enemy-stage" aria-label="ศัตรู"></div>
+        <div class="player-stage" id="player-stage" aria-label="ผู้เล่น"></div>
+      </div>
+      <div id="battle-message" class="battle-message" role="status"></div>
+    </section>
+
+    <section class="command-panel" aria-label="แผงคำสั่ง">
+      <div class="command-heading">
+        <div>
+          <p class="eyebrow">คำสั่ง</p>
+          <h2 id="acting-name">กำลังเตรียมการต่อสู้...</h2>
+        </div>
+        <p id="turn-detail" class="turn-detail"></p>
+      </div>
+      <div id="target-panel" class="target-panel hidden"></div>
+      <div id="command-actions" class="command-actions">
+        <button data-command="attack">โจมตี</button>
+        <button data-command="skill" disabled>ทักษะ</button>
+        <button data-command="defend">ป้องกัน</button>
+        <button data-command="item" disabled>ไอเทม</button>
+      </div>
+      <div id="confirmation-panel" class="confirmation-panel hidden">
+        <p id="confirmation-text"></p>
+        <button id="confirm-button">ยืนยัน</button>
+        <button id="cancel-button" class="secondary-button">ยกเลิก</button>
+      </div>
+      <div id="battle-result" class="battle-result hidden"></div>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="../Player portal/config/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="battle-roster.js"></script>
+  <script src="../config/music.js"></script>
+  <script src="../config/sounds.js"></script>
+  <script src="../config/enemy-ai.js"></script>
+  <script src="app.js?v=20260917-1"></script>
+</body>
+</html>
