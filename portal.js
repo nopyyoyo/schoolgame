@@ -11,7 +11,8 @@
   const siteRoot = new URL("./", document.baseURI).href;
   const image = (player) => `${siteRoot}Character/Cut/Player/${player.face}/face.png`;
   const params = new URLSearchParams(window.location.search);
-  const selected = players.find((player) => player.id === params.get("player"));
+  const requestedPlayerId = params.get("player");
+  let selected = players.find((player) => player.id === requestedPlayerId);
   const categoryNames = { weapon: "อาวุธ", armor: "เกราะ", shield: "โล่", accessory: "เครื่องประดับ", item: "ไอเทม" };
   const catalogFiles = {
     weapon: "config/catalog-weapon.csv",
@@ -446,6 +447,18 @@
   }
 
   async function startPage() {
+    if (requestedPlayerId) {
+      try {
+        await loadSkills();
+        await loadPublicPlayerSummary();
+        selected = players.find((player) => player.id === requestedPlayerId);
+        if (!selected) throw new Error("ไม่พบข้อมูลผู้เล่นจาก Supabase");
+      } catch (error) {
+        console.error("Could not load selected player from Supabase", error);
+        root.innerHTML = `<section class="team"><h2>ไม่สามารถโหลดข้อมูลจาก Supabase ได้</h2><p>${error.message || "กรุณาตรวจสอบการติดตั้ง Edge Function"}</p></section>`;
+        return;
+      }
+    }
     if (selected && await authenticatePlayer(selected)) {
       if (params.get("shop") && categoryNames[params.get("shop")]) renderShop(params.get("shop"));
       else {
