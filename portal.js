@@ -48,11 +48,6 @@
     player.ownedEquipment = player.ownedEquipment || [];
     player.ownedItems = player.ownedItems || [];
   });
-  Object.values(equippedItems).forEach((item) => {
-    if (!catalogCache[item.category].some((entry) => entry.id === item.id)) catalogCache[item.category].push(item);
-  });
-  applyEquipmentStats(player);
-
   function assetPath(category, fileName) {
     return `${categoryFolder[category]}/Cut/${fileName}`;
   }
