@@ -349,6 +349,7 @@
       ownedItems: (portalData.items || []).flatMap((entry) => Array(entry.quantity).fill(entry.item_id)),
       equippedItems
     });
+    applyEquipmentStats(player);
     equipmentEntries.forEach((entry) => {
       if (entry.equipment_catalog) {
         catalogCache[entry.equipment_catalog.category].push(entry.equipment_catalog);
