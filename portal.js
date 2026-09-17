@@ -208,7 +208,7 @@
     return `<img class="catalog-image" src="${assetPath(category, item.photo_file_name)}" alt="${item.item_name}">
       <h3>${item.item_name}</h3><p>${item.item_description}</p>${category === "item" ? "" : equipmentDetails(item)}<p>ราคา: ${item.item_price} เหรียญ</p>${note ? `<p class="catalog-note">${note}</p>` : ""}
       ${context === "owned" ? `<button data-action="equip" data-category="${category}" data-id="${item.id}">สวมใส่</button><button data-action="sell" data-category="${category}" data-id="${item.id}">ขาย</button>` : ""}
-      ${context === "owned-item" ? `${item.stat_usable === true || item.stat_usable === "true" ? `<button data-action="use_item" data-category="item" data-id="${item.id}">กิน</button>` : ""}<button data-action="sell" data-category="item" data-id="${item.id}">ขาย</button>` : ""}
+      ${context === "owned-item" ? `${item.stat_usable === true || item.stat_usable === "true" ? `<button data-action="use_item" data-category="item" data-id="${item.id}">ใช้</button>` : ""}<button data-action="sell" data-category="item" data-id="${item.id}">ขาย</button>` : ""}
       ${context === "equipped" ? `<button data-action="unequip" data-category="${category}" data-id="${item.id}">ถอดอุปกรณ์</button>` : ""}`;
   }
 
@@ -340,7 +340,7 @@
     const modal = document.createElement("div");
     modal.className = "transaction-modal-backdrop";
     modal.innerHTML = `<div class="transaction-modal" role="dialog" aria-modal="true">
-      <h2>คุณต้องการกิน ${item.item_name} ใช่หรือไม่</h2>
+      <h2>คุณต้องการใช้ ${item.item_name} ใช่หรือไม่</h2>
       <div class="transaction-modal-actions">
         <button type="button" data-confirm="yes">ตกลง</button>
         <button type="button" data-confirm="no">ยกเลิก</button>
