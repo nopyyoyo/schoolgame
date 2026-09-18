@@ -57,6 +57,16 @@
       throw new Error(data?.error || error?.message || "Could not load battle characters");
     }
     const byId = new Map(data.players.map((character) => [character.id, character]));
+    const skillsById = new Map((data.skills || []).map((skill) => [skill.id, skill]));
+    const equippedSkills = (character) => {
+      const ids = [character.equipped?.weapon, character.equipped?.armor, character.equipped?.shield, character.equipped?.accessory]
+        .filter(Boolean)
+        .flatMap((item) => [item.skill_id1, item.skill_id2, item.skill_id3, item.skill_id4])
+        .filter(Boolean);
+      return [...new Set(ids)]
+        .map((id) => skillsById.get(id))
+        .filter((skill) => skill && skill.active !== false);
+    };
     const getCharacter = (id, role) => {
       const character = byId.get(id);
       if (!character || (role && character.role !== role)) {
@@ -77,7 +87,9 @@
         attack: Number(character.attack),
         defense: Number(character.defense),
         speed: Number(character.speed),
-        wisdom: Number(character.wisdom)
+        wisdom: Number(character.wisdom),
+        weakElement: character.weak_element || "",
+        skills: equippedSkills(character)
       };
     });
     if (players.length < 1 || players.length > 4) {
@@ -94,7 +106,9 @@
         attack: Number(character.attack),
         defense: Number(character.defense),
         speed: Number(character.speed),
-        wisdom: Number(character.wisdom)
+        wisdom: Number(character.wisdom),
+        weakElement: character.weak_element || "",
+        skills: equippedSkills(character)
       };
     });
     characterConfig = { players, enemies };
@@ -147,10 +161,11 @@
       acting: null,
       readyQueue: [],
       pendingCommand: null,
+      skillMenu: null,
       calculation: 0,
       message: "เริ่มการต่อสู้",
       awaitingContinue: false,
-      resultEffect: null,
+      resultEffects: [],
       pendingEnemyDeaths: [],
       enemyBlinking: false,
       ended: false,
@@ -217,16 +232,24 @@
 
   function runEnemyAi() {
     if (state.ended || state.awaitingContinue || state.acting?.team !== "enemy") return;
+    const actor = state.acting;
+    const strategy = enemyAiConfig.strategies[enemyAiConfig.selectedStrategy]
+      || enemyAiConfig.strategies.always_attack_random;
+    const affordableSkills = (actor.skills || []).filter((skill) => skill.mp_consumption <= actor.mpCurrent);
+    if (affordableSkills.length && Math.random() < strategy.skillChance) {
+      const skill = affordableSkills[Math.floor(Math.random() * affordableSkills.length)];
+      const sideTeam = allowedTeamForSkill(actor, skill);
+      const candidates = living(sideTeam === "enemy" ? "enemies" : "players");
+      if (candidates.length) {
+        const targets = skill.target === "all" ? candidates : [candidates[Math.floor(Math.random() * candidates.length)]];
+        applySkill(actor, skill, targets);
+        return;
+      }
+    }
     const targets = living("players");
     if (!targets.length) {
       checkBattleEnd();
       return;
-    }
-    const strategy = enemyAiConfig.strategies[enemyAiConfig.selectedStrategy]
-      || enemyAiConfig.strategies.always_attack_random;
-    const useSkill = Math.random() >= strategy.attackChance && strategy.skillChance > 0;
-    if (useSkill) {
-      state.message = `${state.acting.name} ต้องการใช้ทักษะ แต่ทักษะยังไม่พร้อมใช้งาน`;
     }
     const target = targets[Math.floor(Math.random() * targets.length)];
     chooseTarget(target);
@@ -246,7 +269,7 @@
   function continueAfterResult() {
     if (!state.awaitingContinue || state.ended) return;
     state.awaitingContinue = false;
-    state.resultEffect = null;
+    state.resultEffects = [];
     state.pendingEnemyDeaths.forEach((enemy) => {
       enemy.deathPending = false;
       playSound("enemyDeath");
@@ -308,6 +331,15 @@
       state.pendingCommand = { type: "attack" };
       state.message = "คลิกที่เป้าหมาย";
       renderTargets();
+      render();
+      return;
+    }
+    if (type === "skill") {
+      if (!state.acting.skills?.length) return;
+      state.skillMenu = true;
+      state.pendingCommand = null;
+      state.message = "เลือกทักษะ";
+      render();
       return;
     }
     if (type === "defend") {
@@ -316,6 +348,114 @@
       $("#confirmation-panel").classList.remove("hidden");
     }
     render();
+  }
+
+  function cancelSkillMenu() {
+    state.skillMenu = null;
+    state.message = `${state.acting.name} พร้อมดำเนินการ`;
+    render();
+  }
+
+  function selectSkill(skill) {
+    if (!state.acting || skill.mp_consumption > state.acting.mpCurrent) return;
+    state.skillMenu = null;
+    const mode = skill.target === "all" ? "side" : "single";
+    state.pendingCommand = { type: "skill", skill, mode };
+    state.message = mode === "side" ? "คลิกฝั่งเป้าหมาย" : "คลิกที่เป้าหมาย";
+    render();
+  }
+
+  function allowedTeamForSkill(caster, skill) {
+    if (skill.skill_type === "heal") return caster.team;
+    return caster.team === "player" ? "enemy" : "player";
+  }
+
+  function boostedSkillStats(caster, skill) {
+    return {
+      attack: (caster.attack + (skill.attack_add || 0)) * (skill.attack_multiply || 1),
+      wisdom: (caster.wisdom + (skill.wisdom_add || 0)) * (skill.wisdom_multiply || 1)
+    };
+  }
+
+  function computeMissChance(attackerSpeed, targetSpeed) {
+    const difference = targetSpeed - attackerSpeed;
+    const rule = difference === 0
+      ? { missChance: config.equalSpeedMissChance }
+      : difference < 0
+        ? null
+        : config.hitRules.find((item) => difference >= item.min && difference <= item.max);
+    return rule ? rule.missChance : 0;
+  }
+
+  function computeDamage(attackPower, defensePower, target) {
+    const factor = config.damage.randomFactors[Math.floor(Math.random() * config.damage.randomFactors.length)];
+    const defense = target.defending ? defensePower * config.defend.defenseMultiplier : defensePower;
+    return Math.max(config.minimumDamage, Math.round(((attackPower * config.damage.attackMultiplier) - defense) * factor));
+  }
+
+  function applySkill(caster, skill, targets) {
+    if (!caster?.alive) return;
+    caster.mpCurrent = Math.max(0, caster.mpCurrent - (skill.mp_consumption || 0));
+    const boosted = boostedSkillStats(caster, skill);
+    const isCastAnimation = skill.skill_type === "magic" || skill.skill_type === "heal";
+    const applyEffects = () => {
+      if (state.ended || !caster.alive) return;
+      state.resultEffects = [];
+      targets.filter((target) => target.alive).forEach((target) => {
+        if (skill.skill_type === "heal") {
+          const healAmount = Math.max(0, Math.round(boosted.wisdom * config.skills.healMultiplier));
+          const before = target.hpCurrent;
+          target.hpCurrent = Math.min(target.hpMax, target.hpCurrent + healAmount);
+          state.resultEffects.push({ targetId: target.id, text: `+${target.hpCurrent - before}`, kind: "heal" });
+          return;
+        }
+        const isMagic = skill.skill_type === "magic";
+        const missChance = isMagic ? 0 : computeMissChance(caster.speed, target.speed);
+        if (Math.random() < missChance) {
+          state.resultEffects.push({ targetId: target.id, text: "พลาด!", kind: "miss" });
+          playSound("miss");
+          return;
+        }
+        const attackPower = isMagic ? boosted.wisdom : boosted.attack;
+        const defensePower = isMagic ? target.wisdom : target.defense;
+        let damage = computeDamage(attackPower, defensePower, target);
+        if (skill.element && skill.element === target.weakElement) {
+          damage = Math.round(damage * config.skills.elementMultiplier);
+        }
+        target.hpCurrent = Math.max(0, target.hpCurrent - damage);
+        if (target.hpCurrent === 0) {
+          target.alive = false;
+          if (target.team === "enemy") {
+            target.deathPending = true;
+            state.pendingEnemyDeaths.push(target);
+          }
+        } else if (target.team === "player") {
+          target.actionState = 8;
+        }
+        playSound("hit");
+        state.resultEffects.push({ targetId: target.id, text: `-${damage}`, kind: "damage" });
+      });
+      state.message = `${caster.name} ใช้ ${skill.skill_name}`;
+      finishTurn(caster);
+    };
+    const run = () => {
+      if (caster.team === "enemy") {
+        blinkBeforeEnemyAction(applyEffects);
+        return;
+      }
+      if (caster.team === "player") {
+        setPlayerAction(caster, isCastAnimation ? 5 : 3);
+        render();
+        setTimeout(() => {
+          if (state.ended || !caster.alive) return;
+          setPlayerAction(caster, isCastAnimation ? 6 : 4);
+          applyEffects();
+        }, 220);
+        return;
+      }
+      applyEffects();
+    };
+    run();
   }
 
   function confirmCommand() {
@@ -340,23 +480,15 @@
 
   function resolveAttack(attacker, target) {
     if (!attacker?.alive || !target?.alive) return;
-    const difference = target.speed - attacker.speed;
-    const rule = difference === 0
-      ? { missChance: config.equalSpeedMissChance }
-      : difference < 0
-        ? null
-        : config.hitRules.find((item) => difference >= item.min && difference <= item.max);
-    const missChance = rule ? rule.missChance : 0;
+    const missChance = computeMissChance(attacker.speed, target.speed);
     if (Math.random() < missChance) {
       state.message = `${attacker.name} โจมตี ${target.name}`;
-      state.resultEffect = { targetId: target.id, text: "พลาด!", kind: "miss" };
+      state.resultEffects = [{ targetId: target.id, text: "พลาด!", kind: "miss" }];
       playSound("miss");
       finishTurn(attacker);
       return;
     }
-    const factor = config.damage.randomFactors[Math.floor(Math.random() * config.damage.randomFactors.length)];
-    const defense = target.defending ? target.defense * config.defend.defenseMultiplier : target.defense;
-    const damage = Math.max(config.minimumDamage, Math.round(((attacker.attack * config.damage.attackMultiplier) - defense) * factor));
+    const damage = computeDamage(attacker.attack, target.defense, target);
     if (target.team === "player") {
       target.actionState = 8;
       render();
@@ -378,7 +510,7 @@
         state.message = `${attacker.name} โจมตี ${target.name}`;
       }
       playSound("hit");
-      state.resultEffect = { targetId: target.id, text: `-${damage}`, kind: "damage" };
+      state.resultEffects = [{ targetId: target.id, text: `-${damage}`, kind: "damage" }];
       finishTurn(attacker);
     }, target.team === "player" ? 220 : 0);
   }
@@ -423,7 +555,8 @@
     const image = character.team === "player"
       ? asset(`Player/${character.face}/action_${String(character.actionState || 1).padStart(2, "0")}.png`)
       : asset(`Enemy/${character.image}`);
-    const effect = state.resultEffect?.targetId === character.id ? `<strong class="combat-effect ${state.resultEffect.kind}">${state.resultEffect.text}</strong>` : "";
+    const effect = (state.resultEffects || []).find((item) => item.targetId === character.id);
+    const effectMarkup = effect ? `<strong class="combat-effect ${effect.kind}">${effect.text}</strong>` : "";
     const enemyName = character.team === "enemy" ? `<span class="enemy-name">${character.name}</span>` : "";
     const blinking = state.enemyBlinking && state.acting?.id === character.id ? " enemy-blinking" : "";
     const teamClass = character.team === "enemy" ? "enemy-sprite" : "player-sprite";
@@ -431,7 +564,7 @@
     return `<div class="sprite-slot ${teamClass} ${defeated ? "dead" : ""} ${state.acting?.id === character.id ? "acting" : ""}${blinking}" data-character-id="${character.id}">
       <img src="${image}" alt="${character.name}">
       ${enemyName}
-      ${effect}
+      ${effectMarkup}
     </div>`;
   }
 
@@ -448,6 +581,21 @@
     panel.innerHTML = "";
   }
 
+  function renderSkillMenu() {
+    const panel = $("#skill-panel");
+    if (!state.skillMenu || !state.acting) {
+      panel.classList.add("hidden");
+      panel.innerHTML = "";
+      return;
+    }
+    panel.classList.remove("hidden");
+    const skills = state.acting.skills || [];
+    panel.innerHTML = skills.map((skill) => {
+      const disabled = skill.mp_consumption > state.acting.mpCurrent;
+      return `<button class="skill-option" data-skill-id="${skill.id}" ${disabled ? "disabled" : ""}>${skill.skill_name}<span>MP ${skill.mp_consumption}</span></button>`;
+    }).join("") + `<button class="secondary-button" data-skill-cancel>ยกเลิก</button>`;
+  }
+
   function render() {
     renderStats();
     renderDisplay();
@@ -458,25 +606,65 @@
     $("#turn-detail").textContent = state.acting ? `CDP ${state.acting.cooldownPoint} / ${config.cooldownThreshold}` : `รอบคำนวณ ${state.calculation}`;
     const canAct = Boolean(state.acting?.alive) && !state.ended;
     const playerControlsVisible = canAct && state.acting?.team === "player" && !state.awaitingContinue;
-    $("#command-actions").classList.toggle("hidden", !playerControlsVisible || Boolean(state.pendingCommand));
-    $("#confirmation-panel").classList.toggle("hidden", !playerControlsVisible || state.pendingCommand?.type !== "defend");
+    const skillMenuOpen = Boolean(state.skillMenu);
+    $("#command-actions").classList.toggle("hidden", !playerControlsVisible || Boolean(state.pendingCommand) || skillMenuOpen);
+    $("#confirmation-panel").classList.toggle("hidden", !playerControlsVisible || state.pendingCommand?.type !== "defend" || skillMenuOpen);
+    const skillButton = document.querySelector('[data-command="skill"]');
+    if (skillButton) skillButton.disabled = !(state.acting?.skills?.length);
+    renderSkillMenu();
     renderTargets();
     $("#confirm-button").disabled = !state.pendingCommand;
   }
 
   $("#command-actions").addEventListener("click", (event) => useCommand(event.target.closest("button")?.dataset.command));
+  $("#skill-panel").addEventListener("click", (event) => {
+    if (event.target.closest("[data-skill-cancel]")) {
+      cancelSkillMenu();
+      return;
+    }
+    const button = event.target.closest(".skill-option");
+    if (!button || button.disabled || !state.acting) return;
+    const skill = (state.acting.skills || []).find((item) => item.id === button.dataset.skillId);
+    if (skill) selectSkill(skill);
+  });
   $("#target-panel").addEventListener("click", (event) => {
     const target = allCharacters().find((character) => character.id === event.target.dataset.target);
     if (target) chooseTarget(target);
   });
   ["#enemy-stage", "#player-stage"].forEach((selector) => $(selector).addEventListener("click", (event) => {
-    if (state.pendingCommand?.type !== "attack" || state.pendingCommand.target || !state.acting) return;
-    const id = event.target.closest(".sprite-slot")?.dataset.characterId;
-    const target = allCharacters().find((character) => character.id === id);
-    const opponentTeam = state.acting.team === "player" ? "enemy" : "player";
-    if (target?.team === opponentTeam && target.alive) {
-      event.stopPropagation();
-      chooseTarget(target);
+    if (!state.acting || !state.pendingCommand) return;
+    const stageTeam = selector === "#enemy-stage" ? "enemy" : "player";
+    if (state.pendingCommand.type === "attack") {
+      if (state.pendingCommand.target) return;
+      const id = event.target.closest(".sprite-slot")?.dataset.characterId;
+      const target = allCharacters().find((character) => character.id === id);
+      const opponentTeam = state.acting.team === "player" ? "enemy" : "player";
+      if (target?.team === opponentTeam && target.alive) {
+        event.stopPropagation();
+        chooseTarget(target);
+      }
+      return;
+    }
+    if (state.pendingCommand.type === "skill") {
+      const skill = state.pendingCommand.skill;
+      if (state.pendingCommand.mode === "side") {
+        const targets = living(stageTeam === "enemy" ? "enemies" : "players");
+        if (!targets.length) return;
+        event.stopPropagation();
+        state.pendingCommand = null;
+        applySkill(state.acting, skill, targets);
+        render();
+        return;
+      }
+      const id = event.target.closest(".sprite-slot")?.dataset.characterId;
+      const target = allCharacters().find((character) => character.id === id);
+      const allowedTeam = allowedTeamForSkill(state.acting, skill);
+      if (target?.team === allowedTeam && target.alive) {
+        event.stopPropagation();
+        state.pendingCommand = null;
+        applySkill(state.acting, skill, [target]);
+        render();
+      }
     }
   }));
   $("#confirm-button").addEventListener("click", confirmCommand);

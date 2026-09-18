@@ -9,9 +9,8 @@ window.ENEMY_AI_CONFIG = {
     attack_skill_70_30: {
       label: "70/30 Attack/Skill ratio",
       attackChance: 0.7,
-      skillChance: 0.3,
-      status: "future"
+      skillChance: 0.3
     }
   },
-  selectedStrategy: "always_attack_random"
+  selectedStrategy: "attack_skill_70_30"
 };

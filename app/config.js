@@ -16,6 +16,10 @@ window.BATTLE_CONFIG = {
   defend: {
     defenseMultiplier: 1.8
   },
+  skills: {
+    elementMultiplier: 2.00,
+    healMultiplier: 1.00
+  },
   selectedBackground: 1,
   backgrounds: Array.from({ length: 10 }, (_, index) =>
     `../Character/Cut/Background/background_${String(index + 1).padStart(2, "0")}.png`
