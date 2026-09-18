@@ -25,14 +25,31 @@
 
   async function loadCharactersFromSupabase() {
     if (!supabase) throw new Error("Supabase is not configured");
-    const playerIds = rosterConfig?.playerIds;
-    const enemyIds = rosterConfig?.enemyIds;
-    if (!Array.isArray(playerIds) || !Array.isArray(enemyIds) ||
-        playerIds.length < 1 || playerIds.length > 4 ||
+    const battleParams = new URLSearchParams(window.location.search);
+    const requestedLevel = Number(battleParams.get("level"));
+    const requestedTeam = battleParams.get("team");
+    const level = Array.isArray(window.BATTLE_LEVELS)
+      ? window.BATTLE_LEVELS.find((entry) => entry.id === requestedLevel && entry.open)
+      : null;
+    if (battleParams.has("level") && !level) {
+      throw new Error("This battle level is not open");
+    }
+    const playerIds = requestedTeam
+      ? null
+      : rosterConfig?.playerIds;
+    const enemyIds = level ? level.enemyIds : rosterConfig?.enemyIds;
+    if ((!requestedTeam && !Array.isArray(playerIds)) || !Array.isArray(enemyIds) ||
+        (Array.isArray(playerIds) && (playerIds.length < 1 || playerIds.length > 4)) ||
         enemyIds.length < 1 || enemyIds.length > 4) {
       throw new Error("Battle roster must contain 1 to 4 players and 1 to 4 enemies");
     }
-    if (new Set(playerIds).size !== playerIds.length || new Set(enemyIds).size !== enemyIds.length) {
+    if (requestedTeam && !["teacher", "red", "green", "blue"].includes(requestedTeam)) {
+      throw new Error("Invalid battle team");
+    }
+    if (!Array.isArray(playerIds) && !requestedTeam) {
+      throw new Error("Battle roster has no player IDs");
+    }
+    if (new Set(enemyIds).size !== enemyIds.length) {
       throw new Error("Battle roster cannot contain duplicate character IDs");
     }
     const { data, error } = await supabase.functions.invoke("get-public-player-summary", { body: {} });
@@ -47,7 +64,9 @@
       }
       return character;
     };
-    const players = playerIds.map((id) => {
+    const players = (requestedTeam
+      ? data.players.filter((character) => character.role === "player" && character.team === requestedTeam).map((character) => character.id)
+      : playerIds).map((id) => {
       const character = getCharacter(id, "player");
       return {
         id: character.id,
@@ -61,6 +80,9 @@
         wisdom: Number(character.wisdom)
       };
     });
+    if (players.length < 1 || players.length > 4) {
+      throw new Error("Selected team must contain 1 to 4 players");
+    }
     const enemies = enemyIds.map((id) => {
       const character = getCharacter(id, "enemy");
       return {
