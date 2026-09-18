@@ -65,7 +65,10 @@
       return character;
     };
     const players = (requestedTeam
-      ? data.players.filter((character) => character.role === "player" && character.team === requestedTeam).map((character) => character.id)
+      ? data.players.filter((character) =>
+        (requestedTeam === "teacher" ? character.role === "teacher" : character.role === "player") &&
+        character.team === requestedTeam
+      ).map((character) => character.id)
       : playerIds).map((id) => {
       const character = getCharacter(id, "player");
       return {
