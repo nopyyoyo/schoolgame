@@ -457,8 +457,9 @@
     $("#acting-name").textContent = state.ended ? "จบการต่อสู้" : state.acting ? state.acting.name : "กำลังรอ...";
     $("#turn-detail").textContent = state.acting ? `CDP ${state.acting.cooldownPoint} / ${config.cooldownThreshold}` : `รอบคำนวณ ${state.calculation}`;
     const canAct = Boolean(state.acting?.alive) && !state.ended;
-    $("#command-actions").classList.toggle("hidden", !canAct || state.awaitingContinue || Boolean(state.pendingCommand));
-    $("#confirmation-panel").classList.toggle("hidden", state.pendingCommand?.type !== "defend");
+    const playerControlsVisible = canAct && state.acting?.team === "player" && !state.awaitingContinue;
+    $("#command-actions").classList.toggle("hidden", !playerControlsVisible || Boolean(state.pendingCommand));
+    $("#confirmation-panel").classList.toggle("hidden", !playerControlsVisible || state.pendingCommand?.type !== "defend");
     renderTargets();
     $("#confirm-button").disabled = !state.pendingCommand;
   }
