@@ -126,12 +126,43 @@
     </nav>`;
   }
 
+  function arenaMarkup() {
+    const levels = Array.isArray(window.BATTLE_LEVELS) ? window.BATTLE_LEVELS : [];
+    const teams = [
+      ["teacher", "ทีมครู"],
+      ["red", "ทีมสีแดง"],
+      ["green", "ทีมสีเขียว"],
+      ["blue", "ทีมสีน้ำเงิน"]
+    ];
+    return `<section class="team arena-links"><h2>ลานประลอง</h2>
+      <label for="arena-team">เลือกทีม</label>
+      <select id="arena-team">${teams.map(([id, label]) => `<option value="${id}">${label}</option>`).join("")}</select>
+      <div class="arena-level-list">${levels.map((level) => level.open
+        ? `<a class="button arena-level-link" data-level="${level.id}" href="app/index.html?level=${level.id}&team=teacher">${level.name}</a>`
+        : `<span class="arena-level-locked">${level.name} (ยังไม่เปิด)</span>`).join("")}</div>
+    </section>`;
+  }
+
+  function wireArenaLinks() {
+    const selector = document.querySelector("#arena-team");
+    if (!selector) return;
+    document.querySelectorAll(".arena-level-link").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const url = new URL(link.href);
+        url.searchParams.set("team", selector.value);
+        window.location.href = url.href;
+      });
+    });
+  }
+
   function renderLanding() {
     root.innerHTML = `<section class="team team-teacher"><h2>ครู</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "teacher").map(playerCard).join("")}</div></section>
       <section class="team team-red"><h2>ทีมสีแดง</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "red").map(playerCard).join("")}</div></section>
       <section class="team team-blue"><h2>ทีมสีน้ำเงิน</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "blue").map(playerCard).join("")}</div></section>
       <section class="team team-green"><h2>ทีมสีเขียว</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "green").map(playerCard).join("")}</div></section>
-      <section class="team team-enemy"><h2>ศัตรู</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "enemy").map(playerCard).join("")}</div></section>${shopLinks()}`;
+      <section class="team team-enemy"><h2>ศัตรู</h2><div class="player-grid">${players.filter((p) => playerTeam(p) === "enemy").map(playerCard).join("")}</div></section>${arenaMarkup()}${shopLinks()}`;
+    wireArenaLinks();
   }
 
   async function loadPublicPlayerSummary() {
