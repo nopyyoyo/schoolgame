@@ -59,18 +59,15 @@
     const byId = new Map(data.players.map((character) => [character.id, character]));
     const getCharacter = (id, role) => {
       const character = byId.get(id);
-      if (!character || character.role !== role) {
+      if (!character || (role && character.role !== role)) {
         throw new Error(`Character ${id} is missing or has the wrong role`);
       }
       return character;
     };
     const players = (requestedTeam
-      ? data.players.filter((character) =>
-        (requestedTeam === "teacher" ? character.role === "teacher" : character.role === "player") &&
-        character.team === requestedTeam
-      ).map((character) => character.id)
+      ? data.players.filter((character) => character.team === requestedTeam).map((character) => character.id)
       : playerIds).map((id) => {
-      const character = getCharacter(id, "player");
+      const character = getCharacter(id, requestedTeam ? null : "player");
       return {
         id: character.id,
         name: character.name,
