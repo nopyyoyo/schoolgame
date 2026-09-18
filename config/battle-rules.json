@@ -1,0 +1,21 @@
+{
+  "cooldownThreshold": 1000,
+  "calculationIntervalMs": 700,
+  "minimumDamage": 1,
+  "equalSpeedMissChance": 0.05,
+  "selectedBackground": 1,
+  "hitRules": [
+    { "min": 1, "max": 49, "missChance": 0.05 },
+    { "min": 50, "max": 199, "missChance": 0.2 },
+    { "min": 200, "max": 499, "missChance": 0.5 },
+    { "min": 500, "max": null, "missChance": 0.9 }
+  ],
+  "damage": {
+    "attackMultiplier": 1.5,
+    "randomFactors": [0.9, 1, 1.1, 1.2]
+  },
+  "defend": {
+    "defenseMultiplier": 1.8,
+    "duration": "until_next_turn"
+  }
+}
