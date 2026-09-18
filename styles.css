@@ -83,6 +83,26 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
   color: #fff;
   background: #1769aa;
 }
+
+.arena-links label,
+.arena-links select {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.arena-level-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.arena-level-locked {
+  display: block;
+  padding: 8px 13px;
+  color: var(--muted);
+}
 .stat-line strong { color:var(--ink); font-weight:normal; }
 .shop-links { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:12px; }
 .shop-links .button { text-align:center; }
