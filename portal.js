@@ -16,6 +16,7 @@
   const requestedPlayerId = params.get("player");
   let selected = players.find((player) => player.id === requestedPlayerId);
   const categoryNames = { weapon: "อาวุธ", armor: "เกราะ", shield: "โล่", accessory: "เครื่องประดับ", item: "ไอเทม" };
+  const elementNames = { fire: "ไฟ", ice: "น้ำแข็ง", thunder: "สายฟ้า", wind: "ลม", light: "แสง" };
   const catalogFiles = {
     weapon: "config/catalog-weapon.csv",
     armor: "config/catalog-armor.csv",
@@ -56,12 +57,14 @@
   }
 
   function statMarkup(player) {
+    const weakLabel = elementNames[player.weakElement] || player.weakElement || "ไม่มี";
     return `<div class="stat-line"><span>พลังชีวิต</span><strong>${player.hpMax}</strong></div>
       <div class="stat-line"><span>พลังเวท</span><strong>${player.mpMax}</strong></div>
       <div class="stat-line"><span>โจมตี</span><strong>${player.attack}</strong></div>
       <div class="stat-line"><span>ป้องกัน</span><strong>${player.defense}</strong></div>
       <div class="stat-line"><span>ความเร็ว</span><strong>${player.speed}</strong></div>
-      <div class="stat-line"><span>ปัญญา</span><strong>${player.wisdom}</strong></div>`;
+      <div class="stat-line"><span>ปัญญา</span><strong>${player.wisdom}</strong></div>
+      <div class="stat-line"><span>จุดอ่อนธาตุ</span><strong>${weakLabel}</strong></div>`;
   }
 
   function applyEquipmentStats(player) {
@@ -179,6 +182,7 @@
           id: summary.id, role: summary.role || "player", team: summary.team, name: summary.name, face: summary.face,
           hpMax: summary.hp_max, mpMax: summary.mp_max, attack: summary.attack,
           defense: summary.defense, speed: summary.speed, wisdom: summary.wisdom,
+          weakElement: summary.weak_element || "",
           money: summary.money,
           equipped: Object.fromEntries(Object.entries(equipped).map(([category, item]) => [category, item?.id || null])),
           baseStats: { hpMax: summary.hp_max, mpMax: summary.mp_max, attack: summary.attack, defense: summary.defense, speed: summary.speed, wisdom: summary.wisdom },
