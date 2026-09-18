@@ -67,6 +67,32 @@
         .map((id) => skillsById.get(id))
         .filter((skill) => skill && skill.active !== false);
     };
+    const equippedStatTotals = (character) => [character.equipped?.weapon, character.equipped?.armor,
+      character.equipped?.shield, character.equipped?.accessory]
+      .filter(Boolean)
+      .reduce((totals, item) => ({
+        hpMax: totals.hpMax + Number(item.hp_stat || 0),
+        mpMax: totals.mpMax + Number(item.mp_stat || 0),
+        attack: totals.attack + Number(item.attack_stat || 0),
+        defense: totals.defense + Number(item.defend_stat || 0),
+        speed: totals.speed + Number(item.speed_stat || 0)
+      }), { hpMax: 0, mpMax: 0, attack: 0, defense: 0, speed: 0 });
+    const battleCharacter = (character, enemy = false) => {
+      const totals = equippedStatTotals(character);
+      return {
+        id: character.id,
+        name: character.name,
+        ...(enemy ? { image: character.face } : { face: character.face }),
+        hpMax: Number(character.hp_max) + totals.hpMax,
+        mpMax: Number(character.mp_max) + totals.mpMax,
+        attack: Number(character.attack) + totals.attack,
+        defense: Number(character.defense) + totals.defense,
+        speed: Number(character.speed) + totals.speed,
+        wisdom: Number(character.wisdom),
+        weakElement: character.weak_element || "",
+        skills: equippedSkills(character)
+      };
+    };
     const getCharacter = (id, role) => {
       const character = byId.get(id);
       if (!character || (role && character.role !== role)) {
@@ -76,41 +102,11 @@
     };
     const players = (requestedTeam
       ? data.players.filter((character) => character.team === requestedTeam).map((character) => character.id)
-      : playerIds).map((id) => {
-      const character = getCharacter(id, requestedTeam ? null : "player");
-      return {
-        id: character.id,
-        name: character.name,
-        face: character.face,
-        hpMax: Number(character.hp_max),
-        mpMax: Number(character.mp_max),
-        attack: Number(character.attack),
-        defense: Number(character.defense),
-        speed: Number(character.speed),
-        wisdom: Number(character.wisdom),
-        weakElement: character.weak_element || "",
-        skills: equippedSkills(character)
-      };
-    });
+      : playerIds).map((id) => battleCharacter(getCharacter(id, requestedTeam ? null : "player")));
     if (players.length < 1 || players.length > 4) {
       throw new Error("Selected team must contain 1 to 4 players");
     }
-    const enemies = enemyIds.map((id) => {
-      const character = getCharacter(id, "enemy");
-      return {
-        id: character.id,
-        name: character.name,
-        image: character.face,
-        hpMax: Number(character.hp_max),
-        mpMax: Number(character.mp_max),
-        attack: Number(character.attack),
-        defense: Number(character.defense),
-        speed: Number(character.speed),
-        wisdom: Number(character.wisdom),
-        weakElement: character.weak_element || "",
-        skills: equippedSkills(character)
-      };
-    });
+    const enemies = enemyIds.map((id) => battleCharacter(getCharacter(id, "enemy"), true));
     characterConfig = { players, enemies };
   }
 
