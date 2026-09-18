@@ -1,7 +1,7 @@
 {
   "cooldownThreshold": 1000,
   "calculationIntervalMs": 700,
-  "minimumDamage": 1,
+  "minimumDamageValues": [1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5],
   "equalSpeedMissChance": 0.05,
   "selectedBackground": 1,
   "hitRules": [
