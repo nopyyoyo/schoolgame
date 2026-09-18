@@ -1,0 +1,12 @@
+id,skill_name,attack_add,wisdom_add,mp_consumption,element,attack_multiply,wisdom_multiply,skill_type,target
+fire1a,ท่าฟันไฟ,5,0,5,fire,1.20,1.00,attack,single
+ice1a,ท่าฟันน้ำแข็ง,5,0,5,ice,1.20,1.00,attack,single
+thunder1a,ท่าฟันสายฟ้า,5,0,5,thunder,1.20,1.00,attack,single
+wind1a,ท่าฟันลม,5,0,5,wind,1.20,1.00,attack,single
+light1a,ท่าฟันแสง,5,0,5,light,1.20,1.00,attack,single
+fire1m,เวทย์มนต์ไฟ,0,10,5,fire,1.00,1.20,magic,single
+ice1m,เวทย์มนต์น้ำแข็ง,0,10,5,ice,1.00,1.20,magic,single
+thunder1m,เวทย์มนต์สายฟ้า,0,10,5,thunder,1.00,1.20,magic,single
+wind1m,เวทย์มนต์ลม,0,10,5,wind,1.00,1.20,magic,single
+light1m,เวทย์มนต์แสง,0,10,5,light,1.00,1.20,magic,single
+heal1m,เวทย์มนต์รักษา,0,0,5,heal,1.00,1.20,heal,single
