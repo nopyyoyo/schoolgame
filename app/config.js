@@ -20,6 +20,20 @@ window.BATTLE_CONFIG = {
     elementMultiplier: 2.00,
     healMultiplier: 1.00
   },
+  effects: {
+    // Per-frame playback speed for Attack Effect animations (ms per frame).
+    frameDurationMs: 70,
+    // Estimated playback length used to hold the damage/heal number reveal
+    // until the impact sound has had time to finish (wav duration isn't probed).
+    soundDurationMs: 500,
+    soundVolume: 0.85,
+    // How far (in %) the effect is offset toward the attacker's side of the target.
+    offsetPercent: 14,
+    // Bare-hand fallback when neither a skill nor the equipped weapon defines
+    // an attack_effect. Set this to an "Attack Effect" folder name (e.g.
+    // "43_HorizontalSlash_Row_1") once you pick a default punch/kick effect.
+    defaultEffect: null
+  },
   selectedBackground: 1,
   backgrounds: Array.from({ length: 10 }, (_, index) =>
     `../Character/Cut/Background/background_${String(index + 1).padStart(2, "0")}.png`

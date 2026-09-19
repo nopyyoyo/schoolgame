@@ -161,6 +161,7 @@ button:not(:disabled):hover { border-color: var(--gold); color: var(--gold); }
 .combat-effect { position: absolute; z-index: 2; top: 22%; left: 78%; transform: translate(-50%, -50%); color: #ff3d3d; font: 900 clamp(1.4rem, 4vw, 3rem)/1 Arial, sans-serif; text-shadow: 2px 2px 0 #180b0b, -1px -1px 0 #180b0b; pointer-events: none; white-space: nowrap; }
 .combat-effect.miss { font-size: clamp(1.1rem, 3vw, 2.3rem); }
 .combat-effect.heal { color: #63e88a; }
+.sprite-slot .attack-effect-sprite { position: absolute; top: 50%; z-index: 3; filter: none; pointer-events: none; image-rendering: pixelated; max-width: none; max-height: none; }
 .battle-message { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(85%, 800px); padding: 11px 15px; text-align: center; background: rgba(36, 24, 58, .94); border: 1px solid #c58cff; color: #f0ddff; box-shadow: 0 0 16px rgba(197, 140, 255, .35); cursor: pointer; }
 
 .command-panel { display: grid; grid-template-rows: auto minmax(32px, 1fr); height: 92px; margin-top: 6px; padding: 8px 14px; background: var(--panel); border: 1px solid #4c5160; }

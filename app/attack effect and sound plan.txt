@@ -1,0 +1,12 @@
+Let's plan it first. I want to add attack effect (animation) and sound to equipment and skill. They will be used on C:\AI Projects\Clone from Github nopyyoyo\schoolgame\app\index.html
+
+I provide a lot of subfolder inside C:\AI Projects\Clone from Github nopyyoyo\schoolgame\app\Attack Effect. Each subfolder contain animation file which can play upon attack, skill command. I don't know if it is better to use frame xx file in sequence separately, or png file or gif file. I rely on your expert. What I want is to define additional column into equipment_catelog and skill_catelog pointing to its animation folder to play on screen. The one attach to skill is top priority, ignore the equipment level. The equipment level only apply on normal attack command.
+
+I also want to add sound associate to equipment_catelog and skill_catelog. The sound will play use the same logic describe above with attack effect (skill first, then equipment). There was already a sound associate to attack command, keep that one as the last priority (normal attack bare hand with no equipment).
+
+The sound should start playing at the same moment with attack Effect and also at the same moment with the character action change (already there when player get damage). The damage number display only when both sound and attack effect finish.
+
+The attack effect must be flipped left-to-right, when it is enemy attack player.
+The attack effect will be in front of enemy/player character who get damage. I'm not sure what is the best position to make them align well (look like the effect hit the character). If you don't have any idea, we can try on the align the center of both together but put the effect a little bit coming from the front side.
+
+You can default attack effect and sound to each equipment / skill randomly. I will choose and adjust each of them later during the test phase.

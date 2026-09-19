@@ -11,6 +11,8 @@
   const musicConfig = window.MUSIC_CONFIG;
   const soundConfig = window.SOUND_CONFIG;
   const enemyAiConfig = window.ENEMY_AI_CONFIG;
+  const effectsRegistry = new Map((window.ATTACK_EFFECTS || []).map((entry) => [entry.folder, entry]));
+  const attackEffectFrameSrc = (folder, frame) => encodeURI(`Attack Effect/${folder}/frame_${String(frame).padStart(2, "0")}.png`);
   const $ = (selector) => document.querySelector(selector);
   const asset = (path) => `../Character/Cut/${path}`;
   let state;
@@ -90,7 +92,8 @@
         speed: Number(character.speed) + totals.speed,
         wisdom: Number(character.wisdom),
         weakElement: character.weak_element || "",
-        skills: equippedSkills(character)
+        skills: equippedSkills(character),
+        equipment: character.equipped || {}
       };
     };
     const getCharacter = (id, role) => {
@@ -162,6 +165,7 @@
       message: "เริ่มการต่อสู้",
       awaitingContinue: false,
       resultEffects: [],
+      impactEffects: [],
       pendingEnemyDeaths: [],
       enemyBlinking: false,
       ended: false,
@@ -389,28 +393,84 @@
     return Math.max(config.minimumDamage, Math.round(((attackPower * config.damage.attackMultiplier) - defense) * factor));
   }
 
+  // Priority: skill's own effect/sound (when a skill is used) > attacker's
+  // equipped weapon's effect/sound (normal attack only) > bare-hand default
+  // effect (config.effects.defaultEffect, sound stays null so it falls back
+  // to the generic "hit" sound).
+  function pickAttackAssets(caster, skill) {
+    if (skill && (skill.attack_effect || skill.attack_sound)) {
+      return { effect: skill.attack_effect || null, sound: skill.attack_sound || null };
+    }
+    const weapon = !skill ? caster.equipment?.weapon : null;
+    if (weapon && (weapon.attack_effect || weapon.attack_sound)) {
+      return { effect: weapon.attack_effect || null, sound: weapon.attack_sound || null };
+    }
+    return { effect: config.effects.defaultEffect || null, sound: null };
+  }
+
+  function playAttackSound(fileName) {
+    const audio = new Audio(`Sounds/${fileName}`);
+    audio.volume = config.effects.soundVolume ?? 1;
+    audio.play().catch(() => {});
+  }
+
+  function startImpactEffect(target, assets, flip, offsetPercent) {
+    const entry = assets.effect ? effectsRegistry.get(assets.effect) : null;
+    if (!entry) return 0;
+    const record = { targetId: target.id, folder: assets.effect, frame: 1, flip, offsetPercent };
+    state.impactEffects.push(record);
+    const timer = setInterval(() => {
+      record.frame += 1;
+      if (record.frame > entry.frames) {
+        clearInterval(timer);
+        state.impactEffects = state.impactEffects.filter((item) => item !== record);
+      }
+      render();
+    }, config.effects.frameDurationMs);
+    return entry.frames * config.effects.frameDurationMs;
+  }
+
+  // Starts the impact effect + sound on one target and returns how long (ms)
+  // to wait before the damage/heal number is revealed.
+  function beginTargetImpact(attacker, target, assets) {
+    const flip = attacker.team === "enemy" && target.team === "player";
+    const offsetPercent = attacker.team === target.team
+      ? 0
+      : (attacker.team === "player" ? config.effects.offsetPercent : -config.effects.offsetPercent);
+    const effectDurationMs = startImpactEffect(target, assets, flip, offsetPercent);
+    if (assets.sound) {
+      playAttackSound(assets.sound);
+    } else {
+      playSound("hit");
+    }
+    const soundDurationMs = (assets.sound || assets.effect) ? config.effects.soundDurationMs : 0;
+    return Math.max(effectDurationMs, soundDurationMs);
+  }
+
   function applySkill(caster, skill, targets) {
     if (!caster?.alive) return;
     caster.mpCurrent = Math.max(0, caster.mpCurrent - (skill.mp_consumption || 0));
     const boosted = boostedSkillStats(caster, skill);
     const isCastAnimation = skill.skill_type === "magic" || skill.skill_type === "heal";
+    const assets = pickAttackAssets(caster, skill);
     const applyEffects = () => {
       if (state.ended || !caster.alive) return;
-      state.resultEffects = [];
-      targets.filter((target) => target.alive).forEach((target) => {
+      const livingTargets = targets.filter((target) => target.alive);
+      if (!livingTargets.length) {
+        finishTurn(caster);
+        return;
+      }
+      // Phase 1: resolve hit/miss/damage/heal for every target up front,
+      // without mutating HP yet, so the reveal happens together afterward.
+      const results = livingTargets.map((target) => {
         if (skill.skill_type === "heal") {
           const healAmount = Math.max(0, Math.round(boosted.wisdom * config.skills.healMultiplier));
-          const before = target.hpCurrent;
-          target.hpCurrent = Math.min(target.hpMax, target.hpCurrent + healAmount);
-          state.resultEffects.push({ targetId: target.id, text: `+${target.hpCurrent - before}`, kind: "heal" });
-          return;
+          return { target, kind: "heal", healAmount };
         }
         const isMagic = skill.skill_type === "magic";
         const missChance = isMagic ? 0 : computeMissChance(caster.speed, target.speed);
         if (Math.random() < missChance) {
-          state.resultEffects.push({ targetId: target.id, text: "พลาด!", kind: "miss" });
-          playSound("miss");
-          return;
+          return { target, kind: "miss" };
         }
         const attackPower = isMagic ? boosted.wisdom : boosted.attack;
         const defensePower = isMagic ? target.wisdom : target.defense;
@@ -418,21 +478,51 @@
         if (skill.element && skill.element === target.weakElement) {
           damage = Math.round(damage * config.skills.elementMultiplier);
         }
-        target.hpCurrent = Math.max(0, target.hpCurrent - damage);
-        if (target.hpCurrent === 0) {
-          target.alive = false;
-          if (target.team === "enemy") {
-            target.deathPending = true;
-            state.pendingEnemyDeaths.push(target);
-          }
-        } else if (target.team === "player") {
-          target.actionState = 8;
-        }
-        playSound("hit");
-        state.resultEffects.push({ targetId: target.id, text: `-${damage}`, kind: "damage" });
+        return { target, kind: "damage", damage };
       });
-      state.message = `${caster.name} ใช้ ${skill.skill_name}`;
-      finishTurn(caster);
+      // Phase 2: start each target's impact effect/sound simultaneously and
+      // wait for the longest one before revealing numbers and applying HP.
+      let maxDurationMs = 0;
+      results.forEach((result) => {
+        if (result.kind === "miss") {
+          playSound("miss");
+          return;
+        }
+        if (result.kind === "damage" && result.target.team === "player") {
+          result.target.actionState = 8;
+        }
+        maxDurationMs = Math.max(maxDurationMs, beginTargetImpact(caster, result.target, assets));
+      });
+      render();
+      setTimeout(() => {
+        if (state.ended || !caster.alive) return;
+        state.resultEffects = [];
+        results.forEach(({ target, kind, damage, healAmount }) => {
+          if (kind === "miss") {
+            state.resultEffects.push({ targetId: target.id, text: "พลาด!", kind: "miss" });
+            return;
+          }
+          if (kind === "heal") {
+            const before = target.hpCurrent;
+            target.hpCurrent = Math.min(target.hpMax, target.hpCurrent + healAmount);
+            state.resultEffects.push({ targetId: target.id, text: `+${target.hpCurrent - before}`, kind: "heal" });
+            return;
+          }
+          target.hpCurrent = Math.max(0, target.hpCurrent - damage);
+          if (target.hpCurrent === 0) {
+            target.alive = false;
+            if (target.team === "enemy") {
+              target.deathPending = true;
+              state.pendingEnemyDeaths.push(target);
+            }
+          } else if (target.team === "player") {
+            target.actionState = 8;
+          }
+          state.resultEffects.push({ targetId: target.id, text: `-${damage}`, kind: "damage" });
+        });
+        state.message = `${caster.name} ใช้ ${skill.skill_name}`;
+        finishTurn(caster);
+      }, maxDurationMs);
     };
     const run = () => {
       if (caster.team === "enemy") {
@@ -485,10 +575,13 @@
       return;
     }
     const damage = computeDamage(attacker.attack, target.defense, target);
+    const assets = pickAttackAssets(attacker, null);
     if (target.team === "player") {
       target.actionState = 8;
-      render();
     }
+    const impactDurationMs = beginTargetImpact(attacker, target, assets);
+    const durationMs = Math.max(impactDurationMs, target.team === "player" ? 220 : 0);
+    render();
     setTimeout(() => {
       if (state.ended || !attacker.alive) return;
       target.hpCurrent = Math.max(0, target.hpCurrent - damage);
@@ -505,10 +598,9 @@
         }
         state.message = `${attacker.name} โจมตี ${target.name}`;
       }
-      playSound("hit");
       state.resultEffects = [{ targetId: target.id, text: `-${damage}`, kind: "damage" }];
       finishTurn(attacker);
-    }, target.team === "player" ? 220 : 0);
+    }, durationMs);
   }
 
   function checkBattleEnd() {
@@ -547,6 +639,16 @@
     }).join("");
   }
 
+  function impactMarkup(character) {
+    const impact = (state.impactEffects || []).find((item) => item.targetId === character.id);
+    if (!impact) return "";
+    const entry = effectsRegistry.get(impact.folder);
+    if (!entry) return "";
+    const src = attackEffectFrameSrc(impact.folder, impact.frame);
+    const scaleX = impact.flip ? -3 : 3;
+    return `<img class="attack-effect-sprite" src="${src}" alt="" style="left:calc(50% + ${impact.offsetPercent}%); transform: translate(-50%, -50%) scale(${scaleX}, 3);">`;
+  }
+
   function spriteMarkup(character) {
     const image = character.team === "player"
       ? asset(`Player/${character.face}/action_${String(character.actionState || 1).padStart(2, "0")}.png`)
@@ -560,6 +662,7 @@
     return `<div class="sprite-slot ${teamClass} ${defeated ? "dead" : ""} ${state.acting?.id === character.id ? "acting" : ""}${blinking}" data-character-id="${character.id}">
       <img src="${image}" alt="${character.name}">
       ${enemyName}
+      ${impactMarkup(character)}
       ${effectMarkup}
     </div>`;
   }
