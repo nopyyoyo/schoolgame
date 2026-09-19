@@ -390,7 +390,8 @@
   function computeDamage(attackPower, defensePower, target) {
     const factor = config.damage.randomFactors[Math.floor(Math.random() * config.damage.randomFactors.length)];
     const defense = target.defending ? defensePower * config.defend.defenseMultiplier : defensePower;
-    return Math.max(config.minimumDamage, Math.round(((attackPower * config.damage.attackMultiplier) - defense) * factor));
+    const minimumDamage = config.minimumDamageValues[Math.floor(Math.random() * config.minimumDamageValues.length)];
+    return Math.max(minimumDamage, Math.round(((attackPower * config.damage.attackMultiplier) - defense) * factor));
   }
 
   // Priority: skill's own effect/sound (when a skill is used) > attacker's
