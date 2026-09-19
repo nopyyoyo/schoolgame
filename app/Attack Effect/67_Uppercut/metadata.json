@@ -1,0 +1,9 @@
+﻿{
+    "name":  "Uppercut",
+    "frames":  7,
+    "cell_size":  [
+                      118,
+                      130
+                  ],
+    "source":  "AnimatedAttack/uppercut"
+}

@@ -1,0 +1,9 @@
+﻿{
+    "name":  "PunchAction",
+    "frames":  6,
+    "cell_size":  [
+                      130,
+                      124
+                  ],
+    "source":  "AnimatedAttack/punch_action"
+}

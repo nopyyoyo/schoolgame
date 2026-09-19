@@ -1,4 +1,4 @@
-window.ATTACK_EFFECTS = [
+﻿window.ATTACK_EFFECTS = [
   {
     "folder": "01_ThunderBlade",
     "frames": 7,
@@ -382,6 +382,53 @@ window.ATTACK_EFFECTS = [
     "frames": 6,
     "width": 41,
     "height": 58
+  },
+  {
+    "folder": "65_PunchStrike",
+    "frames": 5,
+    "width": 130,
+    "height": 118
+  },
+  {
+    "folder": "66_Strike",
+    "frames": 5,
+    "width": 118,
+    "height": 130
+  },
+  {
+    "folder": "67_Uppercut",
+    "frames": 7,
+    "width": 118,
+    "height": 130
+  },
+  {
+    "folder": "68_SlashEffect",
+    "frames": 6,
+    "width": 77,
+    "height": 130
+  },
+  {
+    "folder": "69_PunchBlast",
+    "frames": 7,
+    "width": 93,
+    "height": 130
+  },
+  {
+    "folder": "70_HorizontalSlash",
+    "frames": 5,
+    "width": 130,
+    "height": 31
+  },
+  {
+    "folder": "71_PunchAction",
+    "frames": 6,
+    "width": 130,
+    "height": 124
+  },
+  {
+    "folder": "72_SlashSlam",
+    "frames": 7,
+    "width": 130,
+    "height": 115
   }
 ];
-
