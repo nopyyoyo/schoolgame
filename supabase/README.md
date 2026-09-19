@@ -15,6 +15,12 @@ supabase db push
 
 or run the SQL file directly in the Supabase SQL editor.
 
+`migration-016-player-arena-ladder.sql` creates the separate ten-level
+single-player ladder. Add or edit rows in `player_arena_levels` to extend it;
+the portal and battle app read the level definitions and per-player progress
+from the database. Rewards are granted by the token-authenticated
+`claim_player_arena_reward` database function after a ladder battle is won.
+
 ## Deploying an Edge Function
 
 ```powershell

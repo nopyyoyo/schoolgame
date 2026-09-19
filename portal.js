@@ -146,6 +146,49 @@
     </section>`;
   }
 
+  function ladderRewardLabel(level) {
+    if (level.reward_type === "money") return `${level.reward_amount} เหรียญ`;
+    return `${level.reward_catalog_id} x${level.reward_amount}`;
+  }
+
+  function playerLadderMarkup(player) {
+    const levels = Array.isArray(player.arenaLadder) ? player.arenaLadder : [];
+    if (!levels.length) {
+      return `<section class="team player-arena-ladder"><h2>ลานประลอง ไต่ขึ้นระดับสูงขึ้นเพื่อรับรางวัลจากการผ่านด่าน</h2><p>ยังไม่สามารถโหลดความคืบหน้าลานประลองได้</p></section>`;
+    }
+    const nextLevel = levels.find((level) => level.active && !level.completed
+      && (level.level_number === 1 || levels.some((previous) =>
+        previous.level_number === level.level_number - 1 && previous.completed)));
+    return `<section class="team player-arena-ladder">
+      <h2>ลานประลอง ไต่ขึ้นระดับสูงขึ้นเพื่อรับรางวัลจากการผ่านด่าน</h2>
+      <div class="arena-level-list">${levels.map((level) => {
+        const passed = level.completed;
+        const available = nextLevel?.level_number === level.level_number;
+        const label = `${level.level_name} — รางวัล: ${ladderRewardLabel(level)}`;
+        if (passed) return `<span class="arena-level-passed">${label} (ผ่านแล้ว)</span>`;
+        if (available) {
+          return `<a class="button arena-level-link" href="app/index.html?mode=player-ladder&player=${encodeURIComponent(player.id)}&level=${level.level_number}">${label}</a>`;
+        }
+        return `<span class="arena-level-locked">${label} (ยังไม่เปิด)</span>`;
+      }).join("")}</div>
+    </section>`;
+  }
+
+  async function loadPlayerLadder(player) {
+    const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
+    if (!supabase || !session?.token || session.token === "local-demo") {
+      player.arenaLadder = [];
+      return;
+    }
+    const { data, error } = await supabase.rpc("get_player_arena_state", { p_token: session.token });
+    if (error || !Array.isArray(data)) {
+      console.error("Could not load player arena ladder", error);
+      player.arenaLadder = [];
+      return;
+    }
+    player.arenaLadder = data;
+  }
+
   function wireArenaLinks() {
     const selector = document.querySelector("#arena-team");
     if (!selector) return;
@@ -221,7 +264,7 @@
         return `<article class="slot"><h3>${categoryNames[category]}</h3>${item ? catalogMarkup(category, item, "สวมใส่อยู่", "equipped") : "<p>ยังไม่มีอุปกรณ์</p>"}</article>`;
       }).join("")}
     </div></section>
-    ${isEnemy ? "" : `<section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
+    ${isEnemy ? "" : `${playerLadderMarkup(player)}<section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
       const item = findDemoItem(owned.category, owned.id);
       return item ? `<article class="catalog-card">${catalogMarkup(owned.category, item, "คลิกเพื่อดูรายละเอียด", "owned")}</article>` : "";
     }).join("") || "<p>ยังไม่มีอุปกรณ์ในคลัง</p>"}</div>
@@ -578,6 +621,7 @@
         renderProfile(selected);
       }
     } else if (selected && await authenticatePlayer(selected)) {
+      await loadPlayerLadder(selected);
       if (params.get("shop") && categoryNames[params.get("shop")]) renderShop(params.get("shop"));
       else {
         await loadAllCatalogs();

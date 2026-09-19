@@ -16,6 +16,7 @@
   const $ = (selector) => document.querySelector(selector);
   const asset = (path) => `../Character/Cut/${path}`;
   let state;
+  let ladderContext = null;
   const battleMusic = new Audio(musicConfig.battle);
   const victoryMusic = new Audio(musicConfig.victory);
   battleMusic.loop = true;
@@ -28,18 +29,40 @@
   async function loadCharactersFromSupabase() {
     if (!supabase) throw new Error("Supabase is not configured");
     const battleParams = new URLSearchParams(window.location.search);
+    const ladderMode = battleParams.get("mode") === "player-ladder";
+    if (ladderMode) {
+      const playerId = battleParams.get("player");
+      const levelNumber = Number(battleParams.get("level"));
+      const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${playerId}`) || "null");
+      if (!playerId || !Number.isInteger(levelNumber) || levelNumber < 1 || !session?.token) {
+        throw new Error("ไม่พบเซสชันผู้เล่นสำหรับลานประลองส่วนตัว");
+      }
+      const { data: ladderRows, error: ladderError } = await supabase.rpc("get_player_arena_state", { p_token: session.token });
+      if (ladderError || !Array.isArray(ladderRows)) {
+        throw new Error(ladderError?.message || "ไม่สามารถโหลดความคืบหน้าลานประลองได้");
+      }
+      const ladderLevel = ladderRows.find((row) => row.level_number === levelNumber);
+      if (!ladderLevel?.active) throw new Error("ลานประลองขั้นนี้ยังไม่เปิด");
+      const previous = ladderRows.find((row) => row.level_number === levelNumber - 1);
+      if (levelNumber > 1 && !previous?.completed) throw new Error("ต้องผ่านลานประลองขั้นก่อนหน้าก่อน");
+      ladderContext = { token: session.token, playerId, levelNumber, level: ladderLevel };
+    } else {
+      ladderContext = null;
+    }
     const requestedLevel = Number(battleParams.get("level"));
     const requestedTeam = battleParams.get("team");
     const level = Array.isArray(window.BATTLE_LEVELS)
       ? window.BATTLE_LEVELS.find((entry) => entry.id === requestedLevel && entry.open)
       : null;
-    if (battleParams.has("level") && !level) {
+    if (!ladderMode && battleParams.has("level") && !level) {
       throw new Error("This battle level is not open");
     }
-    const playerIds = requestedTeam
+    const playerIds = ladderMode
+      ? [ladderContext.playerId]
+      : requestedTeam
       ? null
       : rosterConfig?.playerIds;
-    const enemyIds = level ? level.enemyIds : rosterConfig?.enemyIds;
+    const enemyIds = ladderMode ? ladderContext.level.enemy_ids : level ? level.enemyIds : rosterConfig?.enemyIds;
     if ((!requestedTeam && !Array.isArray(playerIds)) || !Array.isArray(enemyIds) ||
         (Array.isArray(playerIds) && (playerIds.length < 1 || playerIds.length > 4)) ||
         enemyIds.length < 1 || enemyIds.length > 4) {
@@ -103,7 +126,9 @@
       }
       return character;
     };
-    const players = (requestedTeam
+    const players = (ladderMode
+      ? data.players.filter((character) => character.id === ladderContext.playerId).map((character) => character.id)
+      : requestedTeam
       ? data.players.filter((character) => character.team === requestedTeam).map((character) => character.id)
       : playerIds).map((id) => battleCharacter(getCharacter(id, requestedTeam ? null : "player")));
     if (players.length < 1 || players.length > 4) {
@@ -620,6 +645,26 @@
     else if (!living("players").length) endBattle("พ่ายแพ้ ผู้เล่นทั้งหมดล้มลงแล้ว");
   }
 
+  async function claimLadderReward() {
+    if (!ladderContext || ladderContext.rewardClaimed) return;
+    ladderContext.rewardClaimed = true;
+    const { data, error } = await supabase.rpc("claim_player_arena_reward", {
+      p_token: ladderContext.token,
+      p_level_number: ladderContext.levelNumber,
+      p_request_id: crypto.randomUUID()
+    });
+    if (error || !Array.isArray(data) || !data[0]) {
+      ladderContext.rewardClaimed = false;
+      throw new Error(error?.message || "ไม่สามารถบันทึกรางวัลลานประลองได้");
+    }
+    const reward = data[0];
+    const rewardText = reward.reward_type === "money"
+      ? `${reward.reward_amount} เหรียญ`
+      : `${reward.reward_catalog_id} x${reward.reward_amount}`;
+    state.message = `ชนะ! ผ่านลานประลองขั้นที่ ${ladderContext.levelNumber} — ได้รับ ${rewardText}`;
+    render();
+  }
+
   function endBattle(message) {
     state.ended = true;
     state.message = message;
@@ -632,6 +677,12 @@
     }
     $("#battle-result").textContent = message;
     $("#battle-result").classList.remove("hidden");
+    if (message.startsWith("ชนะ") && ladderContext) {
+      void claimLadderReward().catch((error) => {
+        state.message = `ชนะการต่อสู้ แต่บันทึกรางวัลไม่สำเร็จ: ${error.message}`;
+        render();
+      });
+    }
   }
 
   function renderStats() {

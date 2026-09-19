@@ -103,6 +103,13 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
   padding: 8px 13px;
   color: var(--muted);
 }
+.arena-level-passed {
+  display: block;
+  padding: 8px 13px;
+  color: #74d58c;
+  border: 1px solid #46915d;
+  background: #102118;
+}
 .stat-line strong { color:var(--ink); font-weight:normal; }
 .shop-links { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:12px; }
 .shop-links .button { text-align:center; }
