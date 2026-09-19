@@ -384,49 +384,49 @@
     "height": 58
   },
   {
-    "folder": "65_PunchStrike",
+    "folder": "65_PunchStrike_blue",
     "frames": 5,
     "width": 130,
     "height": 118
   },
   {
-    "folder": "66_Strike",
+    "folder": "66_Strike_blue",
     "frames": 5,
     "width": 118,
     "height": 130
   },
   {
-    "folder": "67_Uppercut",
+    "folder": "67_Uppercut_blue",
     "frames": 7,
     "width": 118,
     "height": 130
   },
   {
-    "folder": "68_SlashEffect",
+    "folder": "68_SlashEffect_blue",
     "frames": 6,
     "width": 77,
     "height": 130
   },
   {
-    "folder": "69_PunchBlast",
+    "folder": "69_PunchBlast_blue",
     "frames": 7,
     "width": 93,
     "height": 130
   },
   {
-    "folder": "70_HorizontalSlash",
+    "folder": "70_HorizontalSlash_blue",
     "frames": 5,
     "width": 130,
     "height": 31
   },
   {
-    "folder": "71_PunchAction",
+    "folder": "71_PunchAction_blue",
     "frames": 6,
     "width": 130,
     "height": 124
   },
   {
-    "folder": "72_SlashSlam",
+    "folder": "72_SlashSlam_blue",
     "frames": 7,
     "width": 130,
     "height": 115

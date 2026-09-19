@@ -38,7 +38,7 @@ window.BATTLE_CONFIG = {
     // Bare-hand fallback when neither a skill nor the equipped weapon defines
     // an attack_effect. Set this to an "Attack Effect" folder name (e.g.
     // "43_HorizontalSlash_Row_1") once you pick a default punch/kick effect.
-    defaultEffect: "65_PunchStrike"
+    defaultEffect: "65_PunchStrike_blue"
   },
   selectedBackground: 1,
   backgrounds: Array.from({ length: 10 }, (_, index) =>
