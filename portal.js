@@ -137,7 +137,7 @@
       ["green", "ทีมสีเขียว"],
       ["blue", "ทีมสีน้ำเงิน"]
     ];
-    return `<section class="team arena-links"><h2>ลานประลอง</h2>
+    return `<section class="team arena-links"><h2>ลานประลองประเภททีม ซ้อมเล่นได้ไม่จำกัด</h2>
       <label for="arena-team">เลือกทีม</label>
       <select id="arena-team">${teams.map(([id, label]) => `<option value="${id}">${label}</option>`).join("")}</select>
       <div class="arena-level-list">${levels.map((level) => level.open
