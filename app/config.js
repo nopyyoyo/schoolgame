@@ -1,7 +1,7 @@
 window.BATTLE_CONFIG = {
   cooldownThreshold: 1000,
   calculationIntervalMs: 70,
-  minimumDamage: 1,
+  minimumDamage: [1,2,2,3,3,3,3,4,4,4,4,4,5,5],
   equalSpeedMissChance: 0.05,
   hitRules: [
     { min: 1, max: 49, missChance: 0.05 },
