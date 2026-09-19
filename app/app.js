@@ -396,16 +396,25 @@
   // Priority: skill's own effect/sound (when a skill is used) > attacker's
   // equipped weapon's effect/sound (normal attack only) > bare-hand default
   // effect (config.effects.defaultEffect, sound stays null so it falls back
-  // to the generic "hit" sound).
+  // to the generic "hit" sound). Scale falls back to config.effects.defaultScale
+  // whenever the skill/weapon row doesn't set its own attack_effect_scale.
   function pickAttackAssets(caster, skill) {
     if (skill && (skill.attack_effect || skill.attack_sound)) {
-      return { effect: skill.attack_effect || null, sound: skill.attack_sound || null };
+      return {
+        effect: skill.attack_effect || null,
+        sound: skill.attack_sound || null,
+        scale: skill.attack_effect_scale || config.effects.defaultScale
+      };
     }
     const weapon = !skill ? caster.equipment?.weapon : null;
     if (weapon && (weapon.attack_effect || weapon.attack_sound)) {
-      return { effect: weapon.attack_effect || null, sound: weapon.attack_sound || null };
+      return {
+        effect: weapon.attack_effect || null,
+        sound: weapon.attack_sound || null,
+        scale: weapon.attack_effect_scale || config.effects.defaultScale
+      };
     }
-    return { effect: config.effects.defaultEffect || null, sound: null };
+    return { effect: config.effects.defaultEffect || null, sound: null, scale: config.effects.defaultScale };
   }
 
   function playAttackSound(fileName) {
@@ -417,7 +426,8 @@
   function startImpactEffect(target, assets, flip, offsetPercent) {
     const entry = assets.effect ? effectsRegistry.get(assets.effect) : null;
     if (!entry) return 0;
-    const record = { targetId: target.id, folder: assets.effect, frame: 1, flip, offsetPercent };
+    const scale = assets.scale || config.effects.defaultScale;
+    const record = { targetId: target.id, folder: assets.effect, frame: 1, flip, offsetPercent, scale };
     state.impactEffects.push(record);
     const timer = setInterval(() => {
       record.frame += 1;
@@ -645,8 +655,9 @@
     const entry = effectsRegistry.get(impact.folder);
     if (!entry) return "";
     const src = attackEffectFrameSrc(impact.folder, impact.frame);
-    const scaleX = impact.flip ? -3 : 3;
-    return `<img class="attack-effect-sprite" src="${src}" alt="" style="left:calc(50% + ${impact.offsetPercent}%); transform: translate(-50%, -50%) scale(${scaleX}, 3);">`;
+    const scale = impact.scale || config.effects.defaultScale;
+    const scaleX = impact.flip ? -scale : scale;
+    return `<img class="attack-effect-sprite" src="${src}" alt="" style="left:calc(50% + ${impact.offsetPercent}%); transform: translate(-50%, -50%) scale(${scaleX}, ${scale});">`;
   }
 
   function spriteMarkup(character) {
