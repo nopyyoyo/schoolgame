@@ -426,6 +426,36 @@
     "height": 124
   },
   {
+    "folder": "74_PunchAction_Brown",
+    "frames": 6,
+    "width": 130,
+    "height": 124
+  },
+  {
+    "folder": "75_PunchAction_Red",
+    "frames": 6,
+    "width": 130,
+    "height": 124
+  },
+  {
+    "folder": "76_PunchAction_Green",
+    "frames": 6,
+    "width": 130,
+    "height": 124
+  },
+  {
+    "folder": "77_PunchAction_White",
+    "frames": 6,
+    "width": 130,
+    "height": 124
+  },
+  {
+    "folder": "78_PunchAction_Yellow",
+    "frames": 6,
+    "width": 130,
+    "height": 124
+  },
+  {
     "folder": "72_SlashSlam_blue",
     "frames": 7,
     "width": 130,
