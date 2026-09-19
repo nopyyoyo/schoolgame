@@ -36,7 +36,7 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .game-shell {
   width: min(1500px, 100%);
   margin: 0 auto;
-  padding: 8px 14px;
+  padding: 8px 14px 18px;
 }
 
 .game-header, .command-heading {
@@ -77,6 +77,15 @@ h1 { margin-bottom: 0; font-size: clamp(1rem, 2vw, 1.35rem); }
 h2 { margin-bottom: 0; font-size: clamp(1.15rem, 2vw, 1.6rem); }
 
 .header-controls { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.header-link {
+  padding: 6px 11px;
+  border: 1px solid #6c7180;
+  border-radius: 4px;
+  color: var(--ink);
+  background: #262b3a;
+  text-decoration: none;
+}
+.header-link:hover { border-color: var(--gold); color: var(--gold); }
 button {
   border: 1px solid #6c7180;
   border-radius: 4px;
@@ -185,7 +194,7 @@ button:not(:disabled):hover { border-color: var(--gold); color: var(--gold); }
 }
 
 @media (max-width: 520px) {
-  .game-shell { padding: 5px; }
+  .game-shell { padding: 5px 5px 14px; }
   .stat-card { grid-template-columns: 38px 1fr; min-height: 65px; }
   .face-frame img { max-height: 50px; }
   .stat-line { font-size: .7rem; }

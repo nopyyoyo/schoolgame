@@ -126,11 +126,18 @@
       }
       return character;
     };
+    const playerRole = ladderMode ? null : requestedTeam ? null : "player";
     const players = (ladderMode
       ? data.players.filter((character) => character.id === ladderContext.playerId).map((character) => character.id)
       : requestedTeam
       ? data.players.filter((character) => character.team === requestedTeam).map((character) => character.id)
-      : playerIds).map((id) => battleCharacter(getCharacter(id, requestedTeam ? null : "player")));
+      : playerIds).map((id) => {
+        const character = getCharacter(id, playerRole);
+        if (ladderMode && !["player", "teacher"].includes(character.role)) {
+          throw new Error(`Character ${id} is not an eligible single-player character`);
+        }
+        return battleCharacter(character);
+      });
     if (players.length < 1 || players.length > 4) {
       throw new Error("Selected team must contain 1 to 4 players");
     }
