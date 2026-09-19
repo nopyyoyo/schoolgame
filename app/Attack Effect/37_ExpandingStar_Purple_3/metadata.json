@@ -1,0 +1,17 @@
+{
+  "name": "ExpandingStar_Purple_3",
+  "frames": 10,
+  "cell_size": [
+    41,
+    48
+  ],
+  "source_grid": [
+    0,
+    1200,
+    41,
+    48,
+    10,
+    41
+  ],
+  "strip": "ExpandingStar_Purple_3_strip_10frames_41x48.png"
+}

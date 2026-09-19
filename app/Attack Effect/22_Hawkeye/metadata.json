@@ -1,0 +1,17 @@
+{
+  "name": "Hawkeye",
+  "frames": 9,
+  "cell_size": [
+    32,
+    92
+  ],
+  "source_grid": [
+    16,
+    672,
+    32,
+    92,
+    9,
+    32
+  ],
+  "strip": "Hawkeye_strip_9frames_32x92.png"
+}

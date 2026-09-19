@@ -1,0 +1,17 @@
+{
+  "name": "Tempest",
+  "frames": 9,
+  "cell_size": [
+    40,
+    80
+  ],
+  "source_grid": [
+    16,
+    250,
+    40,
+    80,
+    9,
+    40
+  ],
+  "strip": "Tempest_strip_9frames_40x80.png"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "DiagonalSlash_Red_1",
+  "frames": 10,
+  "cell_size": [
+    41,
+    54
+  ],
+  "source_grid": [
+    0,
+    1850,
+    41,
+    54,
+    10,
+    41
+  ],
+  "strip": "DiagonalSlash_Red_1_strip_10frames_41x54.png"
+}

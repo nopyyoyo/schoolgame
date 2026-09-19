@@ -1,0 +1,17 @@
+{
+  "name": "SkyRender",
+  "frames": 6,
+  "cell_size": [
+    32,
+    48
+  ],
+  "source_grid": [
+    176,
+    88,
+    32,
+    48,
+    7,
+    32
+  ],
+  "strip": "SkyRender_strip_6frames_32x48.png"
+}

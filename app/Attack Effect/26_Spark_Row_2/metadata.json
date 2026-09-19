@@ -1,0 +1,17 @@
+{
+  "name": "Spark_Row_2",
+  "frames": 10,
+  "cell_size": [
+    41,
+    42
+  ],
+  "source_grid": [
+    0,
+    850,
+    41,
+    42,
+    10,
+    41
+  ],
+  "strip": "Spark_Row_2_strip_10frames_41x42.png"
+}

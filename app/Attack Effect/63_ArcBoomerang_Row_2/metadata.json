@@ -1,0 +1,17 @@
+{
+  "name": "ArcBoomerang_Row_2",
+  "frames": 7,
+  "cell_size": [
+    41,
+    58
+  ],
+  "source_grid": [
+    0,
+    1950,
+    41,
+    58,
+    10,
+    41
+  ],
+  "strip": "ArcBoomerang_Row_2_strip_7frames_41x58.png"
+}

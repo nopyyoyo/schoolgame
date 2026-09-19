@@ -1,0 +1,17 @@
+{
+  "name": "ExpandingStar_White_3",
+  "frames": 8,
+  "cell_size": [
+    41,
+    48
+  ],
+  "source_grid": [
+    0,
+    1100,
+    41,
+    48,
+    10,
+    41
+  ],
+  "strip": "ExpandingStar_White_3_strip_8frames_41x48.png"
+}

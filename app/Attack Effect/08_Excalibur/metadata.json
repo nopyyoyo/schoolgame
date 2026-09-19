@@ -1,0 +1,17 @@
+{
+  "name": "Excalibur",
+  "frames": 4,
+  "cell_size": [
+    32,
+    48
+  ],
+  "source_grid": [
+    0,
+    144,
+    32,
+    48,
+    5,
+    32
+  ],
+  "strip": "Excalibur_strip_4frames_32x48.png"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ashura_Kotetsu",
+  "frames": 8,
+  "cell_size": [
+    32,
+    88
+  ],
+  "source_grid": [
+    32,
+    616,
+    32,
+    88,
+    8,
+    32
+  ],
+  "strip": "Ashura_Kotetsu_strip_8frames_32x88.png"
+}

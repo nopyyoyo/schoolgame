@@ -1,0 +1,17 @@
+{
+  "name": "SoulSabreV",
+  "frames": 9,
+  "cell_size": [
+    40,
+    90
+  ],
+  "source_grid": [
+    0,
+    292,
+    40,
+    90,
+    10,
+    40
+  ],
+  "strip": "SoulSabreV_strip_9frames_40x90.png"
+}

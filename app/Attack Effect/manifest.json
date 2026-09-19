@@ -1,0 +1,1090 @@
+[
+  {
+    "name": "ThunderBlade",
+    "frames": 7,
+    "cell_size": [
+      32,
+      48
+    ],
+    "source_grid": [
+      8,
+      0,
+      32,
+      48,
+      7,
+      27
+    ],
+    "strip": "ThunderBlade_strip_7frames_32x48.png"
+  },
+  {
+    "name": "Drainer_MagicBrush",
+    "frames": 5,
+    "cell_size": [
+      32,
+      44
+    ],
+    "source_grid": [
+      0,
+      48,
+      32,
+      44,
+      5,
+      32
+    ],
+    "strip": "Drainer_MagicBrush_strip_5frames_32x44.png"
+  },
+  {
+    "name": "ChocoboBrush",
+    "frames": 4,
+    "cell_size": [
+      32,
+      48
+    ],
+    "source_grid": [
+      176,
+      48,
+      32,
+      48,
+      7,
+      32
+    ],
+    "strip": "ChocoboBrush_strip_4frames_32x48.png"
+  },
+  {
+    "name": "FlameSabre",
+    "frames": 4,
+    "cell_size": [
+      32,
+      48
+    ],
+    "source_grid": [
+      0,
+      80,
+      32,
+      48,
+      5,
+      32
+    ],
+    "strip": "FlameSabre_strip_4frames_32x48.png"
+  },
+  {
+    "name": "SkyRender",
+    "frames": 6,
+    "cell_size": [
+      32,
+      48
+    ],
+    "source_grid": [
+      176,
+      88,
+      32,
+      48,
+      7,
+      32
+    ],
+    "strip": "SkyRender_strip_6frames_32x48.png"
+  },
+  {
+    "name": "Blizzard",
+    "frames": 4,
+    "cell_size": [
+      32,
+      48
+    ],
+    "source_grid": [
+      0,
+      112,
+      32,
+      48,
+      5,
+      32
+    ],
+    "strip": "Blizzard_strip_4frames_32x48.png"
+  },
+  {
+    "name": "Strato",
+    "frames": 6,
+    "cell_size": [
+      32,
+      56
+    ],
+    "source_grid": [
+      176,
+      112,
+      32,
+      56,
+      7,
+      32
+    ],
+    "strip": "Strato_strip_6frames_32x56.png"
+  },
+  {
+    "name": "Excalibur",
+    "frames": 4,
+    "cell_size": [
+      32,
+      48
+    ],
+    "source_grid": [
+      0,
+      144,
+      32,
+      48,
+      5,
+      32
+    ],
+    "strip": "Excalibur_strip_4frames_32x48.png"
+  },
+  {
+    "name": "DaVinciBrush",
+    "frames": 5,
+    "cell_size": [
+      32,
+      48
+    ],
+    "source_grid": [
+      208,
+      144,
+      32,
+      48,
+      6,
+      32
+    ],
+    "strip": "DaVinciBrush_strip_5frames_32x48.png"
+  },
+  {
+    "name": "ValiantKnife",
+    "frames": 10,
+    "cell_size": [
+      32,
+      24
+    ],
+    "source_grid": [
+      16,
+      188,
+      32,
+      24,
+      10,
+      32
+    ],
+    "strip": "ValiantKnife_strip_10frames_32x24.png"
+  },
+  {
+    "name": "Scimitar",
+    "frames": 10,
+    "cell_size": [
+      32,
+      24
+    ],
+    "source_grid": [
+      16,
+      204,
+      32,
+      24,
+      10,
+      32
+    ],
+    "strip": "Scimitar_strip_10frames_32x24.png"
+  },
+  {
+    "name": "Crystal",
+    "frames": 10,
+    "cell_size": [
+      32,
+      24
+    ],
+    "source_grid": [
+      16,
+      218,
+      32,
+      24,
+      10,
+      32
+    ],
+    "strip": "Crystal_strip_10frames_32x24.png"
+  },
+  {
+    "name": "GoldLance",
+    "frames": 10,
+    "cell_size": [
+      32,
+      24
+    ],
+    "source_grid": [
+      16,
+      230,
+      32,
+      24,
+      10,
+      32
+    ],
+    "strip": "GoldLance_strip_10frames_32x24.png"
+  },
+  {
+    "name": "Tempest",
+    "frames": 9,
+    "cell_size": [
+      40,
+      80
+    ],
+    "source_grid": [
+      16,
+      250,
+      40,
+      80,
+      9,
+      40
+    ],
+    "strip": "Tempest_strip_9frames_40x80.png"
+  },
+  {
+    "name": "SoulSabreV",
+    "frames": 9,
+    "cell_size": [
+      40,
+      90
+    ],
+    "source_grid": [
+      0,
+      292,
+      40,
+      90,
+      10,
+      40
+    ],
+    "strip": "SoulSabreV_strip_9frames_40x90.png"
+  },
+  {
+    "name": "AtmaWeapon",
+    "frames": 8,
+    "cell_size": [
+      48,
+      150
+    ],
+    "source_grid": [
+      0,
+      350,
+      48,
+      150,
+      9,
+      48
+    ],
+    "strip": "AtmaWeapon_strip_8frames_48x150.png"
+  },
+  {
+    "name": "AuraV_Blue",
+    "frames": 8,
+    "cell_size": [
+      48,
+      150
+    ],
+    "source_grid": [
+      16,
+      410,
+      48,
+      150,
+      8,
+      48
+    ],
+    "strip": "AuraV_Blue_strip_8frames_48x150.png"
+  },
+  {
+    "name": "AuraV_DarkBlue",
+    "frames": 8,
+    "cell_size": [
+      48,
+      150
+    ],
+    "source_grid": [
+      16,
+      470,
+      48,
+      150,
+      8,
+      48
+    ],
+    "strip": "AuraV_DarkBlue_strip_8frames_48x150.png"
+  },
+  {
+    "name": "AuraV_Fire",
+    "frames": 8,
+    "cell_size": [
+      48,
+      130
+    ],
+    "source_grid": [
+      16,
+      520,
+      48,
+      130,
+      8,
+      48
+    ],
+    "strip": "AuraV_Fire_strip_8frames_48x130.png"
+  },
+  {
+    "name": "Ragnarok",
+    "frames": 8,
+    "cell_size": [
+      48,
+      100
+    ],
+    "source_grid": [
+      0,
+      548,
+      48,
+      100,
+      8,
+      48
+    ],
+    "strip": "Ragnarok_strip_8frames_48x100.png"
+  },
+  {
+    "name": "Ashura_Kotetsu",
+    "frames": 8,
+    "cell_size": [
+      32,
+      88
+    ],
+    "source_grid": [
+      32,
+      616,
+      32,
+      88,
+      8,
+      32
+    ],
+    "strip": "Ashura_Kotetsu_strip_8frames_32x88.png"
+  },
+  {
+    "name": "Hawkeye",
+    "frames": 9,
+    "cell_size": [
+      32,
+      92
+    ],
+    "source_grid": [
+      16,
+      672,
+      32,
+      92,
+      9,
+      32
+    ],
+    "strip": "Hawkeye_strip_9frames_32x92.png"
+  },
+  {
+    "name": "Sniper",
+    "frames": 9,
+    "cell_size": [
+      32,
+      96
+    ],
+    "source_grid": [
+      16,
+      720,
+      32,
+      96,
+      9,
+      32
+    ],
+    "strip": "Sniper_strip_9frames_32x96.png"
+  },
+  {
+    "name": "DeathEffect",
+    "frames": 5,
+    "cell_size": [
+      48,
+      76
+    ],
+    "source_grid": [
+      16,
+      772,
+      48,
+      76,
+      5,
+      48
+    ],
+    "strip": "DeathEffect_strip_5frames_48x76.png"
+  },
+  {
+    "name": "Spark_Row_1",
+    "frames": 10,
+    "cell_size": [
+      41,
+      42
+    ],
+    "source_grid": [
+      0,
+      820,
+      41,
+      42,
+      10,
+      41
+    ],
+    "strip": "Spark_Row_1_strip_10frames_41x42.png"
+  },
+  {
+    "name": "Spark_Row_2",
+    "frames": 10,
+    "cell_size": [
+      41,
+      42
+    ],
+    "source_grid": [
+      0,
+      850,
+      41,
+      42,
+      10,
+      41
+    ],
+    "strip": "Spark_Row_2_strip_10frames_41x42.png"
+  },
+  {
+    "name": "Spark_Row_3",
+    "frames": 10,
+    "cell_size": [
+      41,
+      42
+    ],
+    "source_grid": [
+      0,
+      880,
+      41,
+      42,
+      10,
+      41
+    ],
+    "strip": "Spark_Row_3_strip_10frames_41x42.png"
+  },
+  {
+    "name": "Spark_Row_4",
+    "frames": 10,
+    "cell_size": [
+      41,
+      42
+    ],
+    "source_grid": [
+      0,
+      910,
+      41,
+      42,
+      10,
+      41
+    ],
+    "strip": "Spark_Row_4_strip_10frames_41x42.png"
+  },
+  {
+    "name": "Spark_Row_5",
+    "frames": 10,
+    "cell_size": [
+      41,
+      42
+    ],
+    "source_grid": [
+      0,
+      940,
+      41,
+      42,
+      10,
+      41
+    ],
+    "strip": "Spark_Row_5_strip_10frames_41x42.png"
+  },
+  {
+    "name": "Spark_Row_6",
+    "frames": 10,
+    "cell_size": [
+      41,
+      42
+    ],
+    "source_grid": [
+      0,
+      970,
+      41,
+      42,
+      10,
+      41
+    ],
+    "strip": "Spark_Row_6_strip_10frames_41x42.png"
+  },
+  {
+    "name": "Spark_Row_7",
+    "frames": 10,
+    "cell_size": [
+      41,
+      42
+    ],
+    "source_grid": [
+      0,
+      1000,
+      41,
+      42,
+      10,
+      41
+    ],
+    "strip": "Spark_Row_7_strip_10frames_41x42.png"
+  },
+  {
+    "name": "ExpandingStar_White_1",
+    "frames": 10,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1020,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_White_1_strip_10frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_White_2",
+    "frames": 9,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1060,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_White_2_strip_9frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_White_3",
+    "frames": 8,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1100,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_White_3_strip_8frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Purple_1",
+    "frames": 9,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1120,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Purple_1_strip_9frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Purple_2",
+    "frames": 9,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1160,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Purple_2_strip_9frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Purple_3",
+    "frames": 10,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1200,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Purple_3_strip_10frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Blue_1",
+    "frames": 9,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1220,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Blue_1_strip_9frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Blue_2",
+    "frames": 7,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1260,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Blue_2_strip_7frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Blue_3",
+    "frames": 7,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1300,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Blue_3_strip_7frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Green_1",
+    "frames": 7,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1320,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Green_1_strip_7frames_41x48.png"
+  },
+  {
+    "name": "ExpandingStar_Green_2",
+    "frames": 7,
+    "cell_size": [
+      41,
+      48
+    ],
+    "source_grid": [
+      0,
+      1360,
+      41,
+      48,
+      10,
+      41
+    ],
+    "strip": "ExpandingStar_Green_2_strip_7frames_41x48.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_1",
+    "frames": 9,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1392,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_1_strip_9frames_31x30.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_2",
+    "frames": 9,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1410,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_2_strip_9frames_31x30.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_3",
+    "frames": 9,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1430,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_3_strip_9frames_31x30.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_4",
+    "frames": 9,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1450,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_4_strip_9frames_31x30.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_5",
+    "frames": 9,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1470,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_5_strip_9frames_31x30.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_6",
+    "frames": 9,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1490,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_6_strip_9frames_31x30.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_7",
+    "frames": 10,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1510,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_7_strip_10frames_31x30.png"
+  },
+  {
+    "name": "HorizontalSlash_Row_8",
+    "frames": 9,
+    "cell_size": [
+      31,
+      30
+    ],
+    "source_grid": [
+      40,
+      1530,
+      31,
+      30,
+      10,
+      31
+    ],
+    "strip": "HorizontalSlash_Row_8_strip_9frames_31x30.png"
+  },
+  {
+    "name": "DiagonalSlash_White_1",
+    "frames": 9,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1550,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_White_1_strip_9frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_White_2",
+    "frames": 10,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1585,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_White_2_strip_10frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_White_3",
+    "frames": 9,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1620,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_White_3_strip_9frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Yellow_1",
+    "frames": 10,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1650,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Yellow_1_strip_10frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Yellow_2",
+    "frames": 10,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1685,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Yellow_2_strip_10frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Yellow_3",
+    "frames": 10,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1720,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Yellow_3_strip_10frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Green_1",
+    "frames": 10,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1750,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Green_1_strip_10frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Green_2",
+    "frames": 10,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1785,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Green_2_strip_10frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Green_3",
+    "frames": 9,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1820,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Green_3_strip_9frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Red_1",
+    "frames": 10,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1850,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Red_1_strip_10frames_41x54.png"
+  },
+  {
+    "name": "DiagonalSlash_Red_2",
+    "frames": 8,
+    "cell_size": [
+      41,
+      54
+    ],
+    "source_grid": [
+      0,
+      1880,
+      41,
+      54,
+      10,
+      41
+    ],
+    "strip": "DiagonalSlash_Red_2_strip_8frames_41x54.png"
+  },
+  {
+    "name": "ArcBoomerang_Row_1",
+    "frames": 9,
+    "cell_size": [
+      41,
+      58
+    ],
+    "source_grid": [
+      0,
+      1910,
+      41,
+      58,
+      10,
+      41
+    ],
+    "strip": "ArcBoomerang_Row_1_strip_9frames_41x58.png"
+  },
+  {
+    "name": "ArcBoomerang_Row_2",
+    "frames": 7,
+    "cell_size": [
+      41,
+      58
+    ],
+    "source_grid": [
+      0,
+      1950,
+      41,
+      58,
+      10,
+      41
+    ],
+    "strip": "ArcBoomerang_Row_2_strip_7frames_41x58.png"
+  },
+  {
+    "name": "ArcBoomerang_Row_3",
+    "frames": 6,
+    "cell_size": [
+      41,
+      58
+    ],
+    "source_grid": [
+      0,
+      1990,
+      41,
+      58,
+      10,
+      41
+    ],
+    "strip": "ArcBoomerang_Row_3_strip_6frames_41x58.png"
+  }
+]

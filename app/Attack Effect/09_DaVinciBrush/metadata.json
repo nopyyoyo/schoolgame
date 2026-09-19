@@ -1,0 +1,17 @@
+{
+  "name": "DaVinciBrush",
+  "frames": 5,
+  "cell_size": [
+    32,
+    48
+  ],
+  "source_grid": [
+    208,
+    144,
+    32,
+    48,
+    6,
+    32
+  ],
+  "strip": "DaVinciBrush_strip_5frames_32x48.png"
+}

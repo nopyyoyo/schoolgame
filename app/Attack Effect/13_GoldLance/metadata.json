@@ -1,0 +1,17 @@
+{
+  "name": "GoldLance",
+  "frames": 10,
+  "cell_size": [
+    32,
+    24
+  ],
+  "source_grid": [
+    16,
+    230,
+    32,
+    24,
+    10,
+    32
+  ],
+  "strip": "GoldLance_strip_10frames_32x24.png"
+}

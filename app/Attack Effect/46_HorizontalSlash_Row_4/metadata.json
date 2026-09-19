@@ -1,0 +1,17 @@
+{
+  "name": "HorizontalSlash_Row_4",
+  "frames": 9,
+  "cell_size": [
+    31,
+    30
+  ],
+  "source_grid": [
+    40,
+    1450,
+    31,
+    30,
+    10,
+    31
+  ],
+  "strip": "HorizontalSlash_Row_4_strip_9frames_31x30.png"
+}

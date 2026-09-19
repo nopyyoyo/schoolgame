@@ -1,0 +1,1 @@
+v5: first frame treated as weapon/reference sprite and removed from animation when applicable; exported separately as Weapon.png

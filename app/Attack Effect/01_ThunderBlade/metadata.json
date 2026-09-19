@@ -1,0 +1,17 @@
+{
+  "name": "ThunderBlade",
+  "frames": 7,
+  "cell_size": [
+    32,
+    48
+  ],
+  "source_grid": [
+    8,
+    0,
+    32,
+    48,
+    7,
+    27
+  ],
+  "strip": "ThunderBlade_strip_7frames_32x48.png"
+}

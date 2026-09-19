@@ -1,0 +1,17 @@
+{
+  "name": "ExpandingStar_Green_1",
+  "frames": 7,
+  "cell_size": [
+    41,
+    48
+  ],
+  "source_grid": [
+    0,
+    1320,
+    41,
+    48,
+    10,
+    41
+  ],
+  "strip": "ExpandingStar_Green_1_strip_7frames_41x48.png"
+}

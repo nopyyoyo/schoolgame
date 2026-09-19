@@ -1,0 +1,17 @@
+{
+  "name": "ChocoboBrush",
+  "frames": 4,
+  "cell_size": [
+    32,
+    48
+  ],
+  "source_grid": [
+    176,
+    48,
+    32,
+    48,
+    7,
+    32
+  ],
+  "strip": "ChocoboBrush_strip_4frames_32x48.png"
+}
