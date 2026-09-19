@@ -426,6 +426,18 @@
     "height": 124
   },
   {
+    "folder": "72_SlashSlam_blue",
+    "frames": 7,
+    "width": 130,
+    "height": 115
+  },
+  {
+    "folder": "73_SlashEffect_Brown",
+    "frames": 6,
+    "width": 77,
+    "height": 130
+  },
+  {
     "folder": "74_PunchAction_Brown",
     "frames": 6,
     "width": 130,
@@ -454,11 +466,5 @@
     "frames": 6,
     "width": 130,
     "height": 124
-  },
-  {
-    "folder": "72_SlashSlam_blue",
-    "frames": 7,
-    "width": 130,
-    "height": 115
   }
 ];
