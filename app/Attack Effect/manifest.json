@@ -1,4 +1,4 @@
-[
+window.ATTACK_EFFECTS = [
   {
     "name": "ThunderBlade",
     "frames": 7,
@@ -1086,5 +1086,11 @@
       41
     ],
     "strip": "ArcBoomerang_Row_3_strip_6frames_41x58.png"
+  },
+  {
+    "folder": "73_SlashEffect_Brown",
+    "frames": 6,
+    "width": 77,
+    "height": 130
   }
-]
+];

@@ -1,0 +1,9 @@
+{
+    "name": "SlashEffect_Brown",
+    "frames": 6,
+    "cell_size": [
+        77,
+        130
+    ],
+    "source": "AnimatedAttack/slash_brown"
+}
