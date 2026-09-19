@@ -28,7 +28,7 @@ window.BATTLE_CONFIG = {
     soundDurationMs: 500,
     soundVolume: 0.85,
     // How far (in %) the effect is offset toward the attacker's side of the target.
-    offsetPercent: 14,
+    offsetPercent: 100,
     // Bare-hand fallback when neither a skill nor the equipped weapon defines
     // an attack_effect. Set this to an "Attack Effect" folder name (e.g.
     // "43_HorizontalSlash_Row_1") once you pick a default punch/kick effect.
