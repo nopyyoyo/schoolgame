@@ -652,23 +652,19 @@
     else if (!living("players").length) endBattle("พ่ายแพ้ ผู้เล่นทั้งหมดล้มลงแล้ว");
   }
 
-  async function claimLadderReward() {
-    if (!ladderContext || ladderContext.rewardClaimed) return;
-    ladderContext.rewardClaimed = true;
-    const { data, error } = await supabase.rpc("claim_player_arena_reward", {
+  async function recordLadderWin() {
+    if (!ladderContext || ladderContext.winRecorded) return;
+    ladderContext.winRecorded = true;
+    const { data, error } = await supabase.rpc("record_player_arena_win", {
       p_token: ladderContext.token,
       p_level_number: ladderContext.levelNumber,
       p_request_id: crypto.randomUUID()
     });
     if (error || !Array.isArray(data) || !data[0]) {
-      ladderContext.rewardClaimed = false;
-      throw new Error(error?.message || "ไม่สามารถบันทึกรางวัลลานประลองได้");
+      ladderContext.winRecorded = false;
+      throw new Error(error?.message || "ไม่สามารถบันทึกผลลานประลองได้");
     }
-    const reward = data[0];
-    const rewardText = reward.reward_type === "money"
-      ? `${reward.reward_amount} เหรียญ`
-      : `${reward.reward_catalog_id} x${reward.reward_amount}`;
-    state.message = `ชนะ! ผ่านลานประลองขั้นที่ ${ladderContext.levelNumber} — ได้รับ ${rewardText}`;
+    state.message = `ชนะ! ผ่านลานประลองขั้นที่ ${ladderContext.levelNumber} — กลับหน้าผู้เล่นเพื่อรับรางวัล`;
     render();
   }
 
@@ -685,8 +681,8 @@
     $("#battle-result").textContent = message;
     $("#battle-result").classList.remove("hidden");
     if (message.startsWith("ชนะ") && ladderContext) {
-      void claimLadderReward().catch((error) => {
-        state.message = `ชนะการต่อสู้ แต่บันทึกรางวัลไม่สำเร็จ: ${error.message}`;
+      void recordLadderWin().catch((error) => {
+        state.message = `ชนะการต่อสู้ แต่บันทึกผลไม่สำเร็จ: ${error.message}`;
         render();
       });
     }

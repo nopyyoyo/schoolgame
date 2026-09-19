@@ -148,7 +148,11 @@
 
   function ladderRewardLabel(level) {
     if (level.reward_type === "money") return `${level.reward_amount} เหรียญ`;
-    return `${level.reward_catalog_id} x${level.reward_amount}`;
+    const categories = level.reward_type === "equipment"
+      ? ["weapon", "armor", "shield", "accessory"]
+      : ["item"];
+    const reward = categories.map((category) => findDemoItem(category, level.reward_catalog_id)).find(Boolean);
+    return `${reward?.item_name || level.reward_catalog_id} x${level.reward_amount}`;
   }
 
   function playerLadderMarkup(player) {
@@ -165,7 +169,12 @@
         const passed = level.completed;
         const available = nextLevel?.level_number === level.level_number;
         const label = `${level.level_name} — รางวัล: ${ladderRewardLabel(level)}`;
-        if (passed) return `<span class="arena-level-passed">${label} (ผ่านแล้ว)</span>`;
+        if (passed) {
+          const claim = level.reward_claimed
+            ? "ได้รับรางวัลแล้ว"
+            : `<button data-action="claim_arena_reward" data-level="${level.level_number}">รับรางวัล</button>`;
+          return `<span class="arena-level-passed">${label} (ผ่านแล้ว) ${claim}</span>`;
+        }
         if (available) {
           return `<a class="button arena-level-link" href="app/index.html?mode=player-ladder&player=${encodeURIComponent(player.id)}&level=${level.level_number}">${label}</a>`;
         }
@@ -512,7 +521,8 @@
     const category = button.dataset.category;
     const id = button.dataset.id;
     const action = button.dataset.action;
-    if (!player || !id || !["buy", "sell", "equip", "unequip", "use_item"].includes(action)) return;
+    if (!player || (!id && action !== "claim_arena_reward") ||
+        !["buy", "sell", "equip", "unequip", "use_item", "claim_arena_reward"].includes(action)) return;
     if (action === "use_item") {
       const item = findDemoItem("item", id);
       if (!item || !(await useItemConfirmation(item))) return;
@@ -527,6 +537,19 @@
     }
     button.disabled = true;
     try {
+      if (action === "claim_arena_reward") {
+        const { error } = await supabase.rpc("claim_player_arena_reward", {
+          p_token: session.token,
+          p_level_number: Number(button.dataset.level)
+        });
+        if (error) throw new Error(error.message || "รับรางวัลไม่สำเร็จ");
+        const refreshed = await supabase.functions.invoke("get-player-portal", { body: { token: session.token } });
+        if (refreshed.error || !refreshed.data?.player) throw new Error("โหลดข้อมูลหลังรับรางวัลไม่สำเร็จ");
+        applyOnlinePlayerData(player, refreshed.data);
+        await loadPlayerLadder(player);
+        renderProfile(player);
+        return;
+      }
       const { data, error } = await supabase.functions.invoke("process-portal-transaction", {
         body: { token: session.token, action, category, catalog_id: id, request_id: crypto.randomUUID() }
       });
