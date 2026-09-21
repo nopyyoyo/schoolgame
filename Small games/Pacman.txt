@@ -1,0 +1,36 @@
+I want to create a similar to pac man 2d style game. The access will be in a new section on Player page. This is the first game but there will be more to added into the list. I prepare all graphical recourses including sounds at C:\AI Projects\Clone from Github nopyyoyo\schoolgame\Small games
+
+I want 2d grid map using \Tiles to fill each box. I want a kind of template that I can define for example map1, map2, ... with dimension (high,width) parameter, then fill each grid with probably the file name in \Tiles. Also I need to define if which grid is walkable or wall. I think it might be less work if I define it at file level with possible to override (only when needed) at map level. I have no idea what is the best approach to define each map. Whether it is database, text file, csv file. csv file seems like a good idea as I can define at row and column level (using delimiter). I open for suggestion.
+
+Map size may not fit into one screen. Player should be always in the middle of screen and the map move along when player move to the part out of screen. Of course once the map reach their border, no need to scroll further but move only player.
+
+On the map I can define player starting grid as well as enemy starting grid. They both share the same graphical using C:\AI Projects\Clone from Github nopyyoyo\schoolgame\Character\Cut\Player allow me to choose the folder name for each enemy. For player it will be the one coming through player page. 
+
+Player control can be either keyboard arrow button (up down left right) or on screen button place on bottom right of the screen for mobile controller. Use action_11 to action19. action_12 is stay-down direction. action_15 is stay-up direction. action_17 is stay-left direction and flip of action_17 is stay-right direction
+
+Action when press each button once (it is press and hold. Not repeat click for each action). The rhythm is 2 half grid action per one move. One move is one grid. At half grid there are two graphic (left hand/right hand swing) to use as alternate turn.
+In detail 
+Up -> move character half grid use action_14, move another half grid use action_15, if player hold on up botton the next half grid use action_16 and then action_15 for the remaining half grid
+Down -> move character half grid use action_11, move another half grid use action_12, if player hold on up botton the next half grid use action_13 and then action_12 for the remaining half grid
+Left -> move character half grid use action_18, move another half grid use action_17, if player hold on up botton the next half grid use action_19 and then action_17 for the remaining half grid
+
+The same graphic logic goes for enemy move.
+All enemy will be AI. I will need a place to define percentage of their behavior between.
+1. hostile -> Move in the direction toward player
+2. random -> Move randomly
+3. Moveforward -> Keep on moving straight into the same direction until hit wall. Then randomly change choose direction which is not the wall and keep on moving straight
+beside this I want to define their speed in compare with player too. Like 2 is 2 times faster then player.
+I would need to define ai type for the percentage of their movement. For example type1 (0,0,1,0.5) is 100% Moveforward, 0.5 times speed. type2 (0.5,0.3,0.2,1.5) is 50% change of hostile, 30% random, 20% Moveforward, 1.5 times speed.
+I'm not really sure if having percentage will work well (I mean AI will not move weird). If you know a better logic for this kind of pac-man game, I all ears.
+
+The size of player action graphic is not the same as tiles as well as 44 letters. Please analyse their current file dimension and scale them as you see fit. The tiles are the most important as they need to be seemless to each other. Player can be oversize compare to tiles and in that case put their feet on the bottom of the grid, in the middle for left-right. For 44 letters I think we could put it to the center of the tiles.   
+
+The objective of the game is for player to collect all 44 Thai character in C:\AI Projects\Clone from Github nopyyoyo\schoolgame\Small games\Thai_44_Rectangle_Crops. Only first 3 will show up at start randomly on the walkable grid. Player need to arrive the 01_ก first. Upon arrival the sound ก ไก่ will be played (all 44 sounds are in C:\AI Projects\Clone from Github nopyyoyo\schoolgame\Small games\Thai letter sound with the same corresponding name as their graphic file) and the next letter will be pop up randomly on map on walkable grid. If player collects all 44 letter, they win. If one of the AI touch player, they lost.
+
+There will be background music,victory music,defeat music for each map. Choose one from files in C:\AI Projects\Clone from Github nopyyoyo\schoolgame\app\Music
+
+When player win the map. Mark the level as complete and allow them to collect reward at player page. This is the same process as we built battle-level before.
+
+carefully come up with implementation plan for me to review.
+
+I may need to visualize things before proceed. Maybe it's a good idea to build a mock up, static map showing tiles, player and letter how they are arranged.
