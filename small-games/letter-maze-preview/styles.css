@@ -1,0 +1,156 @@
+:root {
+  color-scheme: dark;
+  --panel: #171b2e;
+  --panel-border: #303754;
+  --accent: #f4c95d;
+  --muted: #aeb6d0;
+  --cell-size: 32px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #0d1020;
+  color: #f6f7fb;
+  font-family: "Tahoma", "Noto Sans Thai", sans-serif;
+}
+
+.preview-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.preview-header {
+  display: flex;
+  gap: 24px;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+}
+
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 8px; font-size: clamp(1.6rem, 4vw, 2.5rem); }
+h2 { font-size: 1.1rem; }
+.subtitle, .viewport-note { color: var(--muted); }
+
+.sequence-card, .legend-panel {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.sequence-card {
+  display: grid;
+  gap: 6px;
+  min-width: 270px;
+  padding: 14px 16px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.sequence-card strong { color: var(--accent); font-size: 0.95rem; }
+.sequence-card small { color: #87e0a4; }
+
+.preview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.viewport-frame {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: #11152a;
+}
+
+.map-viewport {
+  width: min(100%, var(--map-width, calc(var(--cell-size) * 60)));
+  height: var(--map-height, calc(var(--cell-size) * 21));
+  margin: 0 auto;
+  overflow: hidden;
+  border: 3px solid #59627e;
+  background: #080b16;
+  image-rendering: pixelated;
+}
+
+.map-viewport.full-map {
+  overflow: auto;
+}
+
+.map-stage {
+  position: relative;
+  transform-origin: top left;
+}
+
+.map-cell {
+  position: absolute;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background: #e8b973;
+  background-size: cover;
+}
+
+.map-cell img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.map-cell .prop { z-index: 2; }
+.map-object {
+  position: absolute;
+  z-index: 4;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.map-object.character { width: calc(var(--cell-size) * 1.45); height: calc(var(--cell-size) * 1.65); transform: translate(-15%, -38%); }
+.map-object.letter { width: calc(var(--cell-size) * 0.72); height: calc(var(--cell-size) * 0.72); transform: translate(20%, 20%); }
+.map-object.enemy { filter: hue-rotate(145deg) saturate(1.3); }
+
+.viewport-note {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.legend-panel { padding: 20px; }
+.legend-row { display: flex; align-items: center; gap: 10px; margin: 12px 0; color: var(--muted); font-size: 0.9rem; }
+.legend-swatch { width: 28px; height: 28px; border-radius: 5px; background: #e8b973; }
+.legend-swatch.wall { background: #e8b973 url("../../Small games/Tiles/PNG/Top-Down Simple Summer_Prop - Rock 01.png") center / contain no-repeat; }
+.legend-token { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f4c95d; color: #16192a; font-weight: bold; }
+.legend-character { width: 28px; height: 28px; background: center bottom / contain no-repeat; image-rendering: pixelated; }
+.legend-character.player { background-image: url("../../Character/Cut/Player/P10S_Cut/action_15.png"); }
+.legend-character.enemy { background-image: url("../../Character/Cut/Player/P11S_Cut/action_15.png"); }
+hr { border: 0; border-top: 1px solid var(--panel-border); margin: 20px 0; }
+dl { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 0; font-size: 0.85rem; }
+dt { color: var(--muted); }
+dd { margin: 0; color: #fff; font-weight: bold; }
+.status { margin: 20px 0 0; color: #87e0a4; font-size: 0.82rem; }
+
+@media (max-width: 780px) {
+  .preview-header, .preview-layout { grid-template-columns: 1fr; display: grid; }
+  .sequence-card { min-width: 0; }
+  .preview-shell { width: min(100% - 20px, 600px); padding-top: 20px; }
+  :root { --cell-size: 24px; }
+}

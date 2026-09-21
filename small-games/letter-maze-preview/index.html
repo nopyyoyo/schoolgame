@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ตัวอย่างเกมเก็บพยัญชนะ</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="preview-shell">
+    <header class="preview-header">
+      <div>
+        <p class="eyebrow">STATIC MAP MOCK-UP</p>
+        <h1>ตัวอย่างเกมเก็บพยัญชนะ</h1>
+        <p class="subtitle">ตรวจสอบการวางช่อง แผนที่ ตัวละคร ศัตรู และลำดับตัวอักษรก่อนเริ่มระบบการเล่นจริง</p>
+      </div>
+      <div class="sequence-card">
+        <span>ลำดับที่กำหนดตายตัว</span>
+        <strong>01_ก → 02_ข → 03_ฃ</strong>
+        <small>ถัดไปหลังเก็บครบ: 04_ค</small>
+      </div>
+    </header>
+
+    <section class="preview-layout">
+      <div class="viewport-frame" aria-label="ตัวอย่างพื้นที่แสดงแผนที่">
+        <div id="map-viewport" class="map-viewport">
+          <div id="map-stage" class="map-stage"></div>
+        </div>
+        <p class="viewport-note">แผนที่เต็ม 60 × 21 ช่อง — ในเกมจริงกล้องจะเลื่อนตามผู้เล่นและหยุดที่ขอบแผนที่</p>
+      </div>
+      <aside class="legend-panel">
+        <h2>คำอธิบาย</h2>
+        <div class="legend-row"><span class="legend-swatch floor"></span><span>พื้นเดินได้</span></div>
+        <div class="legend-row"><span class="legend-swatch wall"></span><span>สิ่งกีดขวาง</span></div>
+        <div class="legend-row"><span class="legend-token">ก</span><span>ตัวอักษรที่ต้องเก็บตามลำดับ</span></div>
+        <div class="legend-row"><span class="legend-character player"></span><span>จุดเริ่มต้นผู้เล่น</span></div>
+        <div class="legend-row"><span class="legend-character enemy"></span><span>จุดเริ่มต้นศัตรู</span></div>
+        <hr>
+        <dl id="map-details"></dl>
+        <p class="status" id="preview-status">กำลังโหลดแผนที่...</p>
+      </aside>
+    </section>
+  </main>
+  <script src="./map-data.js"></script>
+  <script src="./preview.js"></script>
+</body>
+</html>
