@@ -1,4 +1,4 @@
-window.LETTER_MAZE_LAYERED_MAP = {
+{
   "format": "Layered PNG Map Builder",
   "version": 2,
   "width": 40,
@@ -16040,4 +16040,4 @@ window.LETTER_MAZE_LAYERED_MAP = {
     "Top-Down Simple Summer_Prop - Wooden Barrel.png",
     "Top-Down Simple Summer_Prop - Wooden Fence Horizontal.png"
   ]
-};
+}

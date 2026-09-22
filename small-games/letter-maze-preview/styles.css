@@ -4,7 +4,7 @@
   --panel-border: #303754;
   --accent: #f4c95d;
   --muted: #aeb6d0;
-  --cell-size: 32px;
+  --cell-size: 20px;
 }
 
 * { box-sizing: border-box; }
@@ -77,8 +77,8 @@ h2 { font-size: 1.1rem; }
 }
 
 .map-viewport {
-  width: min(100%, var(--map-width, calc(var(--cell-size) * 60)));
-  height: var(--map-height, calc(var(--cell-size) * 21));
+  width: min(100%, var(--map-width, calc(var(--cell-size) * 40)));
+  height: min(75vh, var(--map-height, calc(var(--cell-size) * 40)));
   margin: 0 auto;
   overflow: hidden;
   border: 3px solid #59627e;
@@ -86,9 +86,7 @@ h2 { font-size: 1.1rem; }
   image-rendering: pixelated;
 }
 
-.map-viewport.full-map {
-  overflow: auto;
-}
+.map-viewport.full-map { overflow: auto; }
 
 .map-stage {
   position: relative;
@@ -99,20 +97,40 @@ h2 { font-size: 1.1rem; }
   position: absolute;
   width: var(--cell-size);
   height: var(--cell-size);
-  background: #e8b973;
-  background-size: cover;
+  background: #080b16;
 }
 
-.map-cell img {
+.map-cell .layer-image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
   pointer-events: none;
 }
 
-.map-cell .prop { z-index: 2; }
+.map-cell .bg1 { z-index: 1; }
+.map-cell .bg2, .map-cell .fg {
+  left: 50%;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  transform: translateX(-50%);
+  transform-origin: bottom center;
+}
+.map-cell .bg2 { z-index: 2; }
+.map-cell .fg { z-index: 4; }
+.map-cell.blocked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border: 1px solid #ef444466;
+  background: repeating-linear-gradient(135deg, #ef444422 0 5px, transparent 5px 10px);
+}
 .map-object {
   position: absolute;
   z-index: 4;

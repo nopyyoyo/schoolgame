@@ -1,10 +1,11 @@
 const ASSET_ROOT = "../../";
-const LETTER_ROOT = `${ASSET_ROOT}Small games/Thai_44_Rectangle_Crops/`;
-const CHARACTER_ROOT = `${ASSET_ROOT}Character/Cut/Player/`;
 const TILE_ROOT = `${ASSET_ROOT}Small games/Tiles/PNG/`;
+const CHARACTER_ROOT = `${ASSET_ROOT}Character/Cut/Player/`;
+const LETTER_ROOT = `${ASSET_ROOT}Small games/Thai_44_Rectangle_Crops/`;
 const stage = document.querySelector("#map-stage");
 const details = document.querySelector("#map-details");
 const status = document.querySelector("#preview-status");
+const viewport = document.querySelector("#map-viewport");
 
 const assetUrl = (root, file) => `${root}${encodeURIComponent(file).replaceAll("%2F", "/")}`;
 
@@ -16,47 +17,73 @@ function createImage(className, source, alt) {
   return image;
 }
 
+function cellData(map, index) {
+  return map.cells[index] || {
+    bg1: map.layers.bg1?.[index] || null,
+    bg2: map.layers.bg2?.[index] || null,
+    fg: map.layers.fg?.[index] || null,
+    collision: Boolean(map.layers.collision?.[index])
+  };
+}
+
+function addLayerImage(cell, layer, file, map) {
+  if (!file) return;
+  const image = createImage(`layer-image ${layer}`, assetUrl(TILE_ROOT, file), file);
+  if (layer !== "bg1") {
+    const scale = layer === "bg2"
+      ? (map.bg2ScalePercent || 100) / 100
+      : (map.fgScalePercent || 100) / 100;
+    image.style.width = `${scale * 100}%`;
+    image.style.height = `${scale * 100}%`;
+  }
+  cell.append(image);
+}
+
 function renderMap(map) {
-  const cellSize = map.tileSize;
+  const cellSize = map.tileWidthPx || 20;
   stage.style.width = `${map.width * cellSize}px`;
   stage.style.height = `${map.height * cellSize}px`;
+  stage.style.setProperty("--cell-size", `${cellSize}px`);
 
-  map.grid.forEach((row, y) => {
-    [...row].forEach((symbol, x) => {
-      const tile = map.tiles[symbol];
-      const cell = document.createElement("div");
-      cell.className = "map-cell";
-      cell.style.left = `${x * cellSize}px`;
-      cell.style.top = `${y * cellSize}px`;
-      cell.style.backgroundImage = `url("${assetUrl(TILE_ROOT, tile.image)}")`;
-      if (tile.prop) {
-        cell.append(createImage("prop", assetUrl(TILE_ROOT, tile.prop), "สิ่งกีดขวาง"));
-      }
-      stage.append(cell);
-    });
-  });
+  for (let index = 0; index < map.width * map.height; index += 1) {
+    const x = index % map.width;
+    const y = Math.floor(index / map.width);
+    const data = cellData(map, index);
+    const cell = document.createElement("div");
+    cell.className = `map-cell${data.collision ? " blocked" : ""}`;
+    cell.style.left = `${x * cellSize}px`;
+    cell.style.top = `${y * cellSize}px`;
+    addLayerImage(cell, "bg1", data.bg1, map);
+    addLayerImage(cell, "bg2", data.bg2, map);
+    addLayerImage(cell, "fg", data.fg, map);
+    stage.append(cell);
+  }
 
-  const player = map.playerStart;
-  stage.append(createImage(
+  const player = { x: Math.floor(map.width / 2), y: Math.floor(map.height / 2) };
+  const playerImage = createImage(
     "map-object character player",
-    `${CHARACTER_ROOT}${player.characterFolder}/action_15.png`,
+    `${CHARACTER_ROOT}P10S_Cut/action_15.png`,
     "ผู้เล่น"
-  ));
-  stage.lastChild.style.left = `${player.x * cellSize}px`;
-  stage.lastChild.style.top = `${player.y * cellSize}px`;
+  );
+  playerImage.style.left = `${player.x * cellSize}px`;
+  playerImage.style.top = `${player.y * cellSize}px`;
+  stage.append(playerImage);
 
-  map.enemyStarts.forEach((enemy) => {
-    const image = createImage(
-      "map-object character enemy",
-      `${CHARACTER_ROOT}${enemy.characterFolder}/action_15.png`,
-      "ศัตรู"
-    );
-    image.style.left = `${enemy.x * cellSize}px`;
-    image.style.top = `${enemy.y * cellSize}px`;
-    stage.append(image);
-  });
+  const enemy = { x: 5, y: 5 };
+  const enemyImage = createImage(
+    "map-object character enemy",
+    `${CHARACTER_ROOT}P11S_Cut/action_15.png`,
+    "ศัตรู"
+  );
+  enemyImage.style.left = `${enemy.x * cellSize}px`;
+  enemyImage.style.top = `${enemy.y * cellSize}px`;
+  stage.append(enemyImage);
 
-  map.letters.forEach((letter) => {
+  [
+    { id: "01_ก", x: 8, y: 8 },
+    { id: "02_ข", x: 20, y: 20 },
+    { id: "03_ฃ", x: 32, y: 32 }
+  ].forEach((letter) => {
     const image = createImage(
       "map-object letter",
       assetUrl(LETTER_ROOT, `${letter.id}.png`),
@@ -67,41 +94,52 @@ function renderMap(map) {
     stage.append(image);
   });
 
-  const viewport = document.querySelector("#map-viewport");
-  viewport.classList.add("full-map");
   viewport.style.setProperty("--map-width", `${map.width * cellSize}px`);
   viewport.style.setProperty("--map-height", `${map.height * cellSize}px`);
 }
 
 function renderDetails(map) {
-  const walkable = map.grid.join("").split("").filter((symbol) => map.tiles[symbol].walkable).length;
+  const cells = Array.from({ length: map.width * map.height }, (_, index) => cellData(map, index));
+  const blocked = cells.filter((cell) => cell.collision).length;
+  const layerCount = ["bg1", "bg2", "fg"].reduce(
+    (total, layer) => total + new Set(cells.map((cell) => cell[layer]).filter(Boolean)).size,
+    0
+  );
   details.innerHTML = [
     ["ขนาดแผนที่", `${map.width} × ${map.height} ช่อง`],
-    ["ช่องเดินได้", `${walkable} ช่อง`],
-    ["ผู้เล่นเริ่มต้น", `(${map.playerStart.x}, ${map.playerStart.y})`],
-    ["ศัตรูเริ่มต้น", `${map.enemyStarts.length} ตัว`],
-    ["ตัวอักษรที่แสดง", `${map.letters.length} ตัว`]
+    ["ขนาด logical tile", `${map.tileWidthPx} × ${map.tileHeightPx} px`],
+    ["ไฟล์กราฟิกที่ใช้", `${layerCount} รายการในทุกเลเยอร์`],
+    ["ช่องกั้นการเดิน", `${blocked} ช่อง`],
+    ["เลเยอร์", "BG1 → BG2 → ผู้เล่น → FG"]
   ].map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join("");
 }
 
+function validateMap(map) {
+  if (!map || map.format !== "Layered PNG Map Builder") {
+    throw new Error("รูปแบบแผนที่ไม่ใช่ Layered PNG Map Builder");
+  }
+  if (!Number.isInteger(map.width) || !Number.isInteger(map.height) ||
+      map.width < 1 || map.height < 1) {
+    throw new Error("ขนาดแผนที่ไม่ถูกต้อง");
+  }
+  if (!Array.isArray(map.cells) || map.cells.length !== map.width * map.height) {
+    throw new Error("จำนวนข้อมูล cells ไม่ตรงกับขนาดแผนที่");
+  }
+}
+
 const loadMap = window.location.protocol === "file:"
-  ? Promise.resolve(window.LETTER_MAZE_PREVIEW_MAP)
-  : fetch("./map.json").then((response) => {
-    if (!response.ok) throw new Error(`โหลด map.json ไม่สำเร็จ (${response.status})`);
+  ? Promise.resolve(window.LETTER_MAZE_LAYERED_MAP)
+  : fetch("./layered_map_40x40.txt").then((response) => {
+    if (!response.ok) throw new Error(`โหลด layered_map_40x40.txt ไม่สำเร็จ (${response.status})`);
     return response.json();
   });
 
-loadMap
-  .then((map) => {
-    if (!map) throw new Error("ไม่พบข้อมูลแผนที่สำหรับโหมดเปิดไฟล์โดยตรง");
-    if (map.grid.length !== map.height || map.grid.some((row) => [...row].length !== map.width)) {
-      throw new Error("จำนวนแถวหรือความกว้างของ grid ไม่ตรงกับ metadata");
-    }
-    renderMap(map);
-    renderDetails(map);
-    status.textContent = "โหลดสำเร็จ — ลำดับตัวอักษรใน preview ถูกกำหนดตายตัว";
-  })
-  .catch((error) => {
-    status.textContent = `โหลดแผนที่ไม่สำเร็จ: ${error.message}`;
-    status.style.color = "#ff8d8d";
-  });
+loadMap.then((map) => {
+  validateMap(map);
+  renderMap(map);
+  renderDetails(map);
+  status.textContent = "โหลดสำเร็จ — แสดงผลจาก layered_map_40x40.txt ตามเลเยอร์จริง";
+}).catch((error) => {
+  status.textContent = `โหลดแผนที่ไม่สำเร็จ: ${error.message}`;
+  status.style.color = "#ff8d8d";
+});
