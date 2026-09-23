@@ -34,6 +34,10 @@
   let enemies = [];
   let gameOver = false;
   let gameStarted = false;
+  const sessionToken = new URLSearchParams(window.location.search).get("token");
+  const supabaseClient = window.supabase && window.SUPABASE_CONFIG
+    ? window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.publishableKey)
+    : null;
   let backgroundMusic;
 
   const assetUrl = (root, file) => `${root}${encodeURIComponent(file).replaceAll("%2F", "/")}`;
@@ -79,6 +83,17 @@
     if (backgroundMusic) {
       backgroundMusic.pause();
       backgroundMusic.currentTime = 0;
+    }
+
+    async function recordWin() {
+      if (!sessionToken || !supabaseClient) return;
+      const { error } = await supabaseClient.rpc("record_small_game_win", {
+        p_token: sessionToken,
+        p_game_id: gameConfig.gameId,
+        p_level_number: gameConfig.levelNumber,
+        p_request_id: crypto.randomUUID()
+      });
+      if (error) console.error("Could not record small game win", error);
     }
     if (soundPath) {
       const sound = new Audio(soundPath);
@@ -387,6 +402,7 @@
     renderLetterQueue(true);
     if (letterIndex >= gameConfig.letterCount) {
       finishGame("ชนะ — เก็บครบ 44 ตัวอักษรแล้ว", gameConfig.audio.victory);
+      recordWin();
       return;
     }
     const nextId = gameConfig.sequence[letterIndex + 2];

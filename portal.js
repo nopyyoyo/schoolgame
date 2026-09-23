@@ -160,6 +160,48 @@
     if (!levels.length) {
       return `<section class="team player-arena-ladder"><h2>ลานประลอง ไต่ขึ้นระดับสูงขึ้นเพื่อรับรางวัลจากการผ่านด่าน</h2><p>ยังไม่สามารถโหลดความคืบหน้าลานประลองได้</p></section>`;
     }
+
+    function smallGameMarkup(player) {
+      const state = Array.isArray(player.smallGameState) ? player.smallGameState : [];
+      const level = state[0];
+      if (!level) {
+        return `<section class="team small-game-links"><h2>เกมเก็บพยัญชนะ</h2><p>ยังไม่สามารถโหลดความคืบหน้าเกมได้</p></section>`;
+      }
+      const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
+      const launch = `small-games/letter-maze/game.html?token=${encodeURIComponent(session?.token || "")}`;
+      const reward = level.reward_type === "money"
+        ? `${level.reward_amount} เหรียญ`
+        : `${level.reward_catalog_id} x${level.reward_amount}`;
+      const status = level.reward_claimed
+        ? "ได้รับรางวัลแล้ว"
+        : level.completed
+          ? `<button data-action="claim_small_game_reward" data-game-id="${level.game_id}" data-level="${level.level_number}">รับรางวัล (${reward})</button>`
+          : "ยังไม่ผ่าน";
+      return `<section class="team small-game-links">
+        <h2>เกมเก็บพยัญชนะ</h2>
+        <p>เก็บตัวอักษรตามลำดับ ก ไก่ ถึง ฮ นกฮูก</p>
+        <p>สถานะ: ${level.completed ? "ผ่านแล้ว" : status}</p>
+        ${!level.completed ? `<a class="button" href="${launch}">เริ่มเล่น</a>` : ""}
+      </section>`;
+    }
+
+    async function loadSmallGameState(player) {
+      const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
+      if (!supabase || !session?.token || session.token === "local-demo") {
+        player.smallGameState = [];
+        return;
+      }
+      const { data, error } = await supabase.rpc("get_small_game_state", {
+        p_token: session.token,
+        p_game_id: "thai-letter-maze"
+      });
+      if (error || !Array.isArray(data)) {
+        console.error("Could not load small game state", error);
+        player.smallGameState = [];
+        return;
+      }
+      player.smallGameState = data;
+    }
     const nextLevel = levels.find((level) => level.active && !level.completed
       && (level.level_number === 1 || levels.some((previous) =>
         previous.level_number === level.level_number - 1 && previous.completed)));
@@ -273,7 +315,7 @@
         return `<article class="slot"><h3>${categoryNames[category]}</h3>${item ? catalogMarkup(category, item, "สวมใส่อยู่", "equipped") : "<p>ยังไม่มีอุปกรณ์</p>"}</article>`;
       }).join("")}
     </div></section>
-    ${isEnemy ? "" : `${playerLadderMarkup(player)}<section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
+    ${isEnemy ? "" : `${playerLadderMarkup(player)}${smallGameMarkup(player)}<section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
       const item = findDemoItem(owned.category, owned.id);
       return item ? `<article class="catalog-card">${catalogMarkup(owned.category, item, "คลิกเพื่อดูรายละเอียด", "owned")}</article>` : "";
     }).join("") || "<p>ยังไม่มีอุปกรณ์ในคลัง</p>"}</div>
@@ -521,8 +563,8 @@
     const category = button.dataset.category;
     const id = button.dataset.id;
     const action = button.dataset.action;
-    if (!player || (!id && action !== "claim_arena_reward") ||
-        !["buy", "sell", "equip", "unequip", "use_item", "claim_arena_reward"].includes(action)) return;
+    if (!player || (!id && !["claim_arena_reward", "claim_small_game_reward"].includes(action)) ||
+        !["buy", "sell", "equip", "unequip", "use_item", "claim_arena_reward", "claim_small_game_reward"].includes(action)) return;
     if (action === "use_item") {
       const item = findDemoItem("item", id);
       if (!item || !(await useItemConfirmation(item))) return;
@@ -547,6 +589,17 @@
         if (refreshed.error || !refreshed.data?.player) throw new Error("โหลดข้อมูลหลังรับรางวัลไม่สำเร็จ");
         applyOnlinePlayerData(player, refreshed.data);
         await loadPlayerLadder(player);
+        renderProfile(player);
+        return;
+      }
+      if (action === "claim_small_game_reward") {
+        const { error } = await supabase.rpc("claim_small_game_reward", {
+          p_token: session.token,
+          p_game_id: button.dataset.gameId,
+          p_level_number: Number(button.dataset.level)
+        });
+        if (error) throw new Error(error.message || "รับรางวัลเกมไม่สำเร็จ");
+        await loadSmallGameState(player);
         renderProfile(player);
         return;
       }
@@ -645,6 +698,7 @@
       }
     } else if (selected && await authenticatePlayer(selected)) {
       await loadPlayerLadder(selected);
+      await loadSmallGameState(selected);
       if (params.get("shop") && categoryNames[params.get("shop")]) renderShop(params.get("shop"));
       else {
         await loadAllCatalogs();

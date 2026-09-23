@@ -23,6 +23,11 @@ from the database. A battle win is recorded by
 player page, which calls the token-authenticated
 `claim_player_arena_reward` function exactly once.
 
+`migration-018-small-game-progression.sql` creates isolated progression for
+map-based small games. The first `thai-letter-maze` map is recorded through
+`record_small_game_win` after completion, and its reward is claimed later from
+the player page through `claim_small_game_reward`.
+
 ## Deploying an Edge Function
 
 ```powershell

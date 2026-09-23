@@ -1,4 +1,6 @@
 window.LETTER_MAZE_GAME_CONFIG = {
+  gameId: "thai-letter-maze",
+  levelNumber: 1,
   playerStart: { x: 20, y: 20, characterFolder: "P10S_Cut" },
   movement: {
     moveDurationMs: 230
