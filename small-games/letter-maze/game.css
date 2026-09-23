@@ -16,7 +16,7 @@ body { margin: 0; min-width: 320px; background: #0d1020; color: #f6f7fb; font-fa
 .game-actions { display: flex; align-items: center; gap: 6px; }
 .game-actions button, .game-actions a { border: 1px solid #59627e; border-radius: 7px; padding: 5px 9px; background: #222945; color: #fff; font: inherit; font-size: .78rem; text-decoration: none; cursor: pointer; }
 .game-actions button:hover, .game-actions a:hover { border-color: #87a7ff; background: #303b68; }
-.game-viewport { flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; border: 3px solid #59627e; background: #080b16; image-rendering: pixelated; }
+.game-viewport { flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; border: 3px solid #59627e; background: #080b16; image-rendering: pixelated; touch-action: none; user-select: none; -webkit-user-select: none; }
 .map-stage { position: absolute; transform-origin: top left; }
 .countdown { position: absolute; inset: 0; z-index: 100000; display: grid; place-items: center; pointer-events: none; color: #fff; font-size: clamp(4rem, 15vw, 10rem); font-weight: 900; text-shadow: 0 5px 0 #111, 0 0 26px #000; }
 .countdown.show { animation: countdown-pop 850ms ease both; }

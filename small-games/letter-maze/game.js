@@ -32,6 +32,7 @@
   let moving = false;
   let heldDirection = null;
   let queuedDirection = null;
+  let touchPath = [];
   let continuedMove = false;
   let holdSwingIndex = 0;
   let letterIndex = 0;
@@ -474,6 +475,43 @@
     updateCameraAt();
   }
 
+  function findTouchPath(targetX, targetY) {
+    if (!isWalkable(targetX, targetY)) return [];
+    const start = { x: player.x, y: player.y };
+    const queue = [start];
+    const previous = new Map([[`${start.x},${start.y}`, null]]);
+    const neighbors = Object.entries(directions).map(([name, direction]) => ({ name, ...direction }));
+
+    for (let index = 0; index < queue.length; index += 1) {
+      const current = queue[index];
+      if (current.x === targetX && current.y === targetY) break;
+      neighbors.forEach((direction) => {
+        const next = { x: current.x + direction.x, y: current.y + direction.y };
+        const key = `${next.x},${next.y}`;
+        if (!isWalkable(next.x, next.y) || previous.has(key)) return;
+        previous.set(key, { key: `${current.x},${current.y}`, direction: direction.name });
+        queue.push(next);
+      });
+    }
+
+    const targetKey = `${targetX},${targetY}`;
+    if (!previous.has(targetKey)) return [];
+    const path = [];
+    let key = targetKey;
+    while (key !== `${start.x},${start.y}`) {
+      const step = previous.get(key);
+      path.unshift(step.direction);
+      key = step.key;
+    }
+    return path;
+  }
+
+  function followTouchPath() {
+    if (moving || !touchPath.length) return;
+    const nextDirection = touchPath.shift();
+    tryMove(nextDirection);
+  }
+
   function tryMove(directionName) {
     if (gameOver || !gameStarted || moving || !map || !directions[directionName]) {
       queuedDirection = directionName;
@@ -532,7 +570,7 @@
         const next = queuedDirection;
         queuedDirection = null;
         tryMove(next);
-      }
+      } else followTouchPath();
     };
     requestAnimationFrame(animate);
   }
@@ -580,6 +618,20 @@
   window.addEventListener("pointerup", () => {
     if (heldDirection) stopDirection(heldDirection);
   });
+  viewport.addEventListener("pointerdown", (event) => {
+    if (!["touch", "pen"].includes(event.pointerType) || !gameStarted || gameOver || !map) return;
+    event.preventDefault();
+    const stageRect = stage.getBoundingClientRect();
+    const targetX = Math.floor((event.clientX - stageRect.left) / cellDisplaySize);
+    const targetY = Math.floor((event.clientY - stageRect.top) / cellDisplaySize);
+    if (targetX < 0 || targetX >= map.width || targetY < 0 || targetY >= map.height) return;
+    heldDirection = null;
+    queuedDirection = null;
+    continuedMove = false;
+    touchPath = findTouchPath(targetX, targetY);
+    startBackgroundMusic();
+    followTouchPath();
+  }, { passive: false });
   window.addEventListener("resize", updateCamera);
   restartButton.addEventListener("click", () => window.location.reload());
 
