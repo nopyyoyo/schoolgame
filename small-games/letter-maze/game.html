@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เกมเก็บพยัญชนะ</title>
+  <link rel="stylesheet" href="./game.css">
+</head>
+<body>
+  <main class="game-shell">
+    <section class="game-panel">
+      <div class="game-status-row">
+        <p id="game-status" class="game-status">กำลังโหลดแผนที่...</p>
+        <div class="game-actions">
+          <button id="restart-game" type="button">เริ่มเล่นใหม่</button>
+          <a href="../../index.html">กลับหน้าเวบไซต์ผู้เล่น</a>
+        </div>
+      </div>
+      <div id="game-viewport" class="game-viewport" aria-label="พื้นที่เกม">
+        <div id="map-stage" class="map-stage"></div>
+        <div id="countdown" class="countdown" aria-live="assertive"></div>
+      </div>
+      <div class="game-controls-row">
+        <div id="letter-queue" class="letter-queue" aria-label="ลำดับตัวอักษรถัดไป"></div>
+        <div class="controls" aria-label="ปุ่มควบคุม">
+          <button data-direction="up" aria-label="ขึ้น">▲</button>
+          <button data-direction="left" aria-label="ซ้าย">◀</button>
+          <button data-direction="down" aria-label="ลง">▼</button>
+          <button data-direction="right" aria-label="ขวา">▶</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="./map-data.js"></script>
+  <script src="./game-config.js"></script>
+  <script src="./map-loader.js"></script>
+  <script src="./game.js"></script>
+</body>
+</html>

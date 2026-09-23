@@ -4,7 +4,8 @@
   --panel-border: #303754;
   --accent: #f4c95d;
   --muted: #aeb6d0;
-  --cell-size: 20px;
+  --cell-size: 31px;
+  --map-top-bleed: 96px;
 }
 
 * { box-sizing: border-box; }
@@ -90,6 +91,7 @@ h2 { font-size: 1.1rem; }
 
 .map-stage {
   position: relative;
+  margin-top: var(--map-top-bleed);
   transform-origin: top left;
 }
 
@@ -113,6 +115,8 @@ h2 { font-size: 1.1rem; }
 .map-cell .bg2, .map-cell .fg {
   left: 50%;
   bottom: 0;
+  right: auto;
+  top: auto;
   width: auto;
   height: auto;
   max-width: none;
@@ -124,12 +128,7 @@ h2 { font-size: 1.1rem; }
 .map-cell .bg2 { z-index: 2; }
 .map-cell .fg { z-index: 4; }
 .map-cell.blocked::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  border: 1px solid #ef444466;
-  background: repeating-linear-gradient(135deg, #ef444422 0 5px, transparent 5px 10px);
+  display: none;
 }
 .map-object {
   position: absolute;
@@ -143,7 +142,7 @@ h2 { font-size: 1.1rem; }
 }
 
 .map-object.character { width: calc(var(--cell-size) * 1.45); height: calc(var(--cell-size) * 1.65); transform: translate(-15%, -38%); }
-.map-object.letter { width: calc(var(--cell-size) * 0.72); height: calc(var(--cell-size) * 0.72); transform: translate(20%, 20%); }
+.map-object.letter { width: calc(var(--cell-size) * 0.72); height: calc(var(--cell-size) * 0.72); transform: translate(20%, 20%); z-index: 3; }
 .map-object.enemy { filter: hue-rotate(145deg) saturate(1.3); }
 
 .viewport-note {

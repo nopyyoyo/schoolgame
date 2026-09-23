@@ -6,6 +6,7 @@ const stage = document.querySelector("#map-stage");
 const details = document.querySelector("#map-details");
 const status = document.querySelector("#preview-status");
 const viewport = document.querySelector("#map-viewport");
+const DISPLAY_CELL_SIZE = 31;
 
 const assetUrl = (root, file) => `${root}${encodeURIComponent(file).replaceAll("%2F", "/")}`;
 
@@ -33,17 +34,21 @@ function addLayerImage(cell, layer, file, map) {
     const scale = layer === "bg2"
       ? (map.bg2ScalePercent || 100) / 100
       : (map.fgScalePercent || 100) / 100;
-    image.style.width = `${scale * 100}%`;
-    image.style.height = `${scale * 100}%`;
+    const applyNaturalScale = () => {
+      const tileSize = map.tileWidthPx || 20;
+      image.style.width = `${(image.naturalWidth / tileSize) * 100 * scale}%`;
+      image.style.height = `${(image.naturalHeight / tileSize) * 100 * scale}%`;
+    };
+    if (image.complete) applyNaturalScale();
+    else image.addEventListener("load", applyNaturalScale, { once: true });
   }
   cell.append(image);
 }
 
 function renderMap(map) {
-  const cellSize = map.tileWidthPx || 20;
-  stage.style.width = `${map.width * cellSize}px`;
-  stage.style.height = `${map.height * cellSize}px`;
-  stage.style.setProperty("--cell-size", `${cellSize}px`);
+  stage.style.width = `${map.width * DISPLAY_CELL_SIZE}px`;
+  stage.style.height = `${map.height * DISPLAY_CELL_SIZE}px`;
+  stage.style.setProperty("--cell-size", `${DISPLAY_CELL_SIZE}px`);
 
   for (let index = 0; index < map.width * map.height; index += 1) {
     const x = index % map.width;
@@ -51,11 +56,12 @@ function renderMap(map) {
     const data = cellData(map, index);
     const cell = document.createElement("div");
     cell.className = `map-cell${data.collision ? " blocked" : ""}`;
-    cell.style.left = `${x * cellSize}px`;
-    cell.style.top = `${y * cellSize}px`;
+    cell.style.left = `${x * DISPLAY_CELL_SIZE}px`;
+    cell.style.top = `${y * DISPLAY_CELL_SIZE}px`;
     addLayerImage(cell, "bg1", data.bg1, map);
     addLayerImage(cell, "bg2", data.bg2, map);
     addLayerImage(cell, "fg", data.fg, map);
+    cell.dataset.gridY = String(y);
     stage.append(cell);
   }
 
@@ -65,9 +71,14 @@ function renderMap(map) {
     `${CHARACTER_ROOT}P10S_Cut/action_15.png`,
     "ผู้เล่น"
   );
-  playerImage.style.left = `${player.x * cellSize}px`;
-  playerImage.style.top = `${player.y * cellSize}px`;
+  playerImage.style.left = `${player.x * DISPLAY_CELL_SIZE}px`;
+  playerImage.style.top = `${player.y * DISPLAY_CELL_SIZE}px`;
   stage.append(playerImage);
+  playerImage.style.zIndex = String((player.y + 1) * 100);
+  document.querySelectorAll(".map-cell .fg").forEach((image) => {
+    const anchorY = Number(image.parentElement.dataset.gridY);
+    image.style.zIndex = String((anchorY + 1) * 100 - 1);
+  });
 
   const enemy = { x: 5, y: 5 };
   const enemyImage = createImage(
@@ -75,9 +86,10 @@ function renderMap(map) {
     `${CHARACTER_ROOT}P11S_Cut/action_15.png`,
     "ศัตรู"
   );
-  enemyImage.style.left = `${enemy.x * cellSize}px`;
-  enemyImage.style.top = `${enemy.y * cellSize}px`;
+  enemyImage.style.left = `${enemy.x * DISPLAY_CELL_SIZE}px`;
+  enemyImage.style.top = `${enemy.y * DISPLAY_CELL_SIZE}px`;
   stage.append(enemyImage);
+  enemyImage.style.zIndex = String((enemy.y + 1) * 100);
 
   [
     { id: "01_ก", x: 8, y: 8 },
@@ -89,13 +101,13 @@ function renderMap(map) {
       assetUrl(LETTER_ROOT, `${letter.id}.png`),
       `ตัวอักษร ${letter.id}`
     );
-    image.style.left = `${letter.x * cellSize}px`;
-    image.style.top = `${letter.y * cellSize}px`;
+    image.style.left = `${letter.x * DISPLAY_CELL_SIZE}px`;
+    image.style.top = `${letter.y * DISPLAY_CELL_SIZE}px`;
     stage.append(image);
   });
 
-  viewport.style.setProperty("--map-width", `${map.width * cellSize}px`);
-  viewport.style.setProperty("--map-height", `${map.height * cellSize}px`);
+  viewport.style.setProperty("--map-width", `${map.width * DISPLAY_CELL_SIZE}px`);
+  viewport.style.setProperty("--map-height", `${map.height * DISPLAY_CELL_SIZE}px`);
 }
 
 function renderDetails(map) {
@@ -138,7 +150,7 @@ loadMap.then((map) => {
   validateMap(map);
   renderMap(map);
   renderDetails(map);
-  status.textContent = "โหลดสำเร็จ — แสดงผลจาก layered_map_40x40.txt ตามเลเยอร์จริง";
+  status.textContent = "โหลดสำเร็จ — ใช้รูปแบบ BG2 + FG Scale ตาม builder รุ่นล่าสุด";
 }).catch((error) => {
   status.textContent = `โหลดแผนที่ไม่สำเร็จ: ${error.message}`;
   status.style.color = "#ff8d8d";

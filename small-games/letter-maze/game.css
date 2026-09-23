@@ -1,0 +1,59 @@
+:root {
+  color-scheme: dark;
+  --cell-size: 31px;
+  --top-bleed: 96px;
+  --panel: #171b2e;
+  --line: #303754;
+  --muted: #aeb6d0;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: #0d1020; color: #f6f7fb; font-family: Tahoma, "Noto Sans Thai", sans-serif; }
+.game-shell { width: min(1600px, calc(100% - 16px)); height: 100vh; margin: 0 auto; padding: 8px 0; }
+.game-panel { height: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); display: flex; flex-direction: column; }
+.game-status-row { flex: 0 0 30px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 4px 6px; }
+.game-status { margin: 0; color: var(--muted); font-size: .82rem; line-height: 22px; }
+.game-actions { display: flex; align-items: center; gap: 6px; }
+.game-actions button, .game-actions a { border: 1px solid #59627e; border-radius: 7px; padding: 5px 9px; background: #222945; color: #fff; font: inherit; font-size: .78rem; text-decoration: none; cursor: pointer; }
+.game-actions button:hover, .game-actions a:hover { border-color: #87a7ff; background: #303b68; }
+.game-viewport { flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; border: 3px solid #59627e; background: #080b16; image-rendering: pixelated; }
+.map-stage { position: absolute; transform-origin: top left; }
+.countdown { position: absolute; inset: 0; z-index: 100000; display: grid; place-items: center; pointer-events: none; color: #fff; font-size: clamp(4rem, 15vw, 10rem); font-weight: 900; text-shadow: 0 5px 0 #111, 0 0 26px #000; }
+.countdown.show { animation: countdown-pop 850ms ease both; }
+@keyframes countdown-pop { 0% { opacity: 0; transform: scale(.35); } 28% { opacity: 1; transform: scale(1.12); } 72% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
+.map-cell { position: absolute; width: var(--cell-size); height: var(--cell-size); background: #080b16; }
+.layer-image { position: absolute; image-rendering: pixelated; pointer-events: none; }
+.bg1 { inset: 0; width: 100%; height: 100%; object-fit: fill; z-index: 1; }
+.bg2, .fg { left: 50%; bottom: 0; right: auto; top: auto; max-width: none; max-height: none; object-fit: contain; transform: translateX(-50%); transform-origin: bottom center; }
+.bg2 { z-index: 2; }
+.fg { z-index: 4; }
+.blocked::after { display: none; }
+.player { position: absolute; z-index: 8; width: calc(var(--cell-size) * 1.45); height: calc(var(--cell-size) * 1.65); object-fit: contain; object-position: center bottom; image-rendering: pixelated; transform: translate(-15%, -38%); transform-origin: center bottom; pointer-events: none; }
+.player.flip { transform: translate(-15%, -38%) scaleX(-1); }
+.enemy { position: absolute; z-index: 8; width: calc(var(--cell-size) * 1.45); height: calc(var(--cell-size) * 1.65); object-fit: contain; object-position: center bottom; image-rendering: pixelated; transform: translate(-15%, -38%); pointer-events: none; filter: hue-rotate(145deg) saturate(1.3); }
+.enemy.flip { transform: translate(-15%, -38%) scaleX(-1); }
+.letter-token { position: absolute; z-index: 3; width: calc(var(--cell-size) * .72); height: calc(var(--cell-size) * .72); object-fit: contain; transform: translate(20%, 20%); image-rendering: pixelated; pointer-events: none; animation: token-attention 1.15s ease-in-out infinite; }
+.game-controls-row { flex: 0 0 78px; display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 12px; align-items: center; padding: 6px 4px 0; }
+.controls { display: grid; grid-template-columns: repeat(3, 52px); gap: 6px; justify-content: end; }
+.controls button { width: 52px; height: 44px; border: 1px solid #59627e; border-radius: 10px; background: #222945; color: #fff; font-size: 1.2rem; touch-action: none; user-select: none; }
+.controls button:first-child { grid-column: 2; }
+.controls button:nth-child(2) { grid-column: 1; }
+.controls button:nth-child(3) { grid-column: 2; }
+.controls button:nth-child(4) { grid-column: 3; }
+.controls button:active { background: #3c4d82; }
+.letter-queue { display: flex; justify-content: center; gap: 6px; min-width: 0; min-height: 68px; overflow: hidden; }
+.letter-card { flex: 1 1 0; min-width: 0; max-width: 82px; height: 68px; padding: 4px; border: 1px solid #59627e; border-radius: 8px; background: #222945; transition: transform .24s ease, opacity .24s ease; }
+.letter-card img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.letter-card.removing { transform: translateX(-140%); opacity: 0; }
+.letter-card.entering { animation: card-enter .24s ease both; }
+@keyframes token-attention { 0%, 100% { transform: translate(20%, 20%) scale(.92); } 50% { transform: translate(20%, 20%) scale(1.08); } }
+@keyframes card-enter { from { transform: translateX(140%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes card-shift { from { transform: translateX(-18%); } to { transform: translateX(0); } }
+.letter-card.shifting { animation: card-shift .24s ease both; }
+@media (max-width: 700px) {
+  .game-status-row { align-items: start; }
+  .game-actions button, .game-actions a { padding: 4px 6px; font-size: .7rem; }
+  .game-controls-row { grid-template-columns: minmax(0, 1fr) 178px; gap: 6px; }
+  .letter-card { height: 60px; }
+  .controls { justify-content: center; }
+}
