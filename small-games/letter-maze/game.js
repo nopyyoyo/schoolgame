@@ -575,7 +575,10 @@
     });
     button.addEventListener("pointerup", () => stopDirection(direction));
     button.addEventListener("pointercancel", () => stopDirection(direction));
-    button.addEventListener("pointerleave", () => stopDirection(direction));
+    button.addEventListener("lostpointercapture", () => stopDirection(direction));
+  });
+  window.addEventListener("pointerup", () => {
+    if (heldDirection) stopDirection(heldDirection);
   });
   window.addEventListener("resize", updateCamera);
   restartButton.addEventListener("click", () => window.location.reload());
