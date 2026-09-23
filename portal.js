@@ -191,7 +191,11 @@
       return `<section class="team small-game-links"><h2>เกมเก็บพยัญชนะ</h2><p>ยังไม่สามารถโหลดความคืบหน้าเกมได้</p></section>`;
     }
     const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
-    const launch = `small-games/letter-maze/game.html?token=${encodeURIComponent(session?.token || "")}`;
+    const launchParams = new URLSearchParams({
+      token: session?.token || "",
+      character: player.face || ""
+    });
+    const launch = `small-games/letter-maze/game.html?${launchParams.toString()}`;
     const reward = level.reward_type === "money"
       ? `${level.reward_amount} เหรียญ`
       : `${level.reward_catalog_id} x${level.reward_amount}`;

@@ -4,7 +4,12 @@
   const ASSET_ROOT = "../../";
   const TILE_ROOT = `${ASSET_ROOT}Small games/Tiles/PNG/`;
   const gameConfig = window.LETTER_MAZE_GAME_CONFIG;
-  const CHARACTER_ROOT = `${ASSET_ROOT}Character/Cut/Player/${gameConfig.playerStart.characterFolder}/`;
+  const requestedCharacterFolder = new URLSearchParams(window.location.search).get("character");
+  const configuredCharacterFolder = gameConfig.playerStart.characterFolder;
+  const playerCharacterFolder = /^P\d+S_Cut$/.test(requestedCharacterFolder || "")
+    ? requestedCharacterFolder
+    : configuredCharacterFolder;
+  const CHARACTER_ROOT = `${ASSET_ROOT}Character/Cut/Player/${playerCharacterFolder}/`;
   const LETTER_ROOT = gameConfig.assets.letters;
   const SOUND_ROOT = gameConfig.assets.sounds;
   const stage = document.querySelector("#map-stage");
