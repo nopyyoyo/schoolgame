@@ -32,6 +32,9 @@ the player page through `claim_small_game_reward`.
 `adjust_player_money`, which validates the teacher's active portal session
 before adding a positive or negative amount to a student's money.
 
+`migration-020-thai-letter-maze-reward.sql` sets the reward for the first
+Thai letter maze level to 150 money.
+
 ## Deploying an Edge Function
 
 ```powershell

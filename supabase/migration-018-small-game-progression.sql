@@ -35,7 +35,7 @@ alter table small_game_player_progress enable row level security;
 insert into small_game_levels
   (game_id, level_number, level_name, map_file, reward_type, reward_amount)
 values
-  ('thai-letter-maze', 1, 'เกมเก็บพยัญชนะ', 'layered_map_40x30.txt', 'money', 10)
+  ('thai-letter-maze', 1, 'เกมเก็บพยัญชนะ', 'layered_map_40x30.txt', 'money', 150)
 on conflict (game_id, level_number) do update set
   level_name = excluded.level_name,
   map_file = excluded.map_file,
