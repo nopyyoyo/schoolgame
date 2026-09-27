@@ -28,6 +28,10 @@ map-based small games. The first `thai-letter-maze` map is recorded through
 `record_small_game_win` after completion, and its reward is claimed later from
 the player page through `claim_small_game_reward`.
 
+`migration-019-teacher-money-adjustments.sql` creates
+`adjust_player_money`, which validates the teacher's active portal session
+before adding a positive or negative amount to a student's money.
+
 ## Deploying an Edge Function
 
 ```powershell

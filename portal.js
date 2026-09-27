@@ -111,6 +111,10 @@
     return Number(player.id.slice(1)) <= 3 ? "red" : Number(player.id.slice(1)) <= 6 ? "blue" : "green";
   }
 
+  function isTeacher(player) {
+    return player.team === "teacher" || player.role === "teacher";
+  }
+
   function equippedSummary(player) {
     const names = ["weapon", "armor", "shield", "accessory"].map((category) => {
       const item = findDemoItem(category, player.equipped?.[category]);
@@ -320,7 +324,7 @@
         return `<article class="slot"><h3>${categoryNames[category]}</h3>${item ? catalogMarkup(category, item, "สวมใส่อยู่", "equipped") : "<p>ยังไม่มีอุปกรณ์</p>"}</article>`;
       }).join("")}
     </div></section>
-    ${isEnemy ? "" : `${playerLadderMarkup(player)}${smallGameMarkup(player)}<section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
+    ${isEnemy ? "" : `${isTeacher(player) ? teacherMoneyAdjustmentMarkup(player) : ""}${playerLadderMarkup(player)}${smallGameMarkup(player)}<section class="team"><h2>อุปกรณ์ในคลัง</h2><div class="owned-grid">${(player.ownedEquipment || []).map((owned) => {
       const item = findDemoItem(owned.category, owned.id);
       return item ? `<article class="catalog-card">${catalogMarkup(owned.category, item, "คลิกเพื่อดูรายละเอียด", "owned")}</article>` : "";
     }).join("") || "<p>ยังไม่มีอุปกรณ์ในคลัง</p>"}</div>
@@ -328,6 +332,25 @@
       const item = findDemoItem("item", id);
       return item ? `<article class="catalog-card">${catalogMarkup("item", item, "จำนวน 1", "owned-item")}</article>` : "";
     }).join("") || "<p>ยังไม่มีไอเทมในคลัง</p>"}</div></section>${shopLinks()}`}`;
+  }
+
+  function teacherMoneyAdjustmentMarkup(teacher) {
+    const playerOptions = players
+      .filter((player) => player.role !== "enemy" && !isTeacher(player))
+      .map((player) => `<option value="${player.id}">${player.name}</option>`)
+      .join("");
+    if (!playerOptions) return "";
+    return `<section class="team money-adjustment">
+      <h2>เพิ่มหรือลดเงินผู้เล่น</h2>
+      <form id="money-adjustment-form">
+        <label for="money-adjustment-player">ผู้เล่น</label>
+        <select id="money-adjustment-player" name="playerId" required>${playerOptions}</select>
+        <label for="money-adjustment-amount">จำนวนเงิน</label>
+        <input id="money-adjustment-amount" name="amount" type="number" step="1" required placeholder="เช่น 10 หรือ -10">
+        <button type="submit">ยืนยัน</button>
+      </form>
+      <p id="money-adjustment-status" class="money-adjustment-status" aria-live="polite"></p>
+    </section>`;
   }
 
   function findDemoItem(category, id) {
@@ -639,11 +662,59 @@
     }
   }
 
+  async function handleMoneyAdjustment(form) {
+    if (!selected || !isTeacher(selected)) return;
+    const formData = new FormData(form);
+    const playerId = formData.get("playerId");
+    const amount = Number(formData.get("amount"));
+    const submitButton = form.querySelector("button[type='submit']");
+    const status = form.parentElement.querySelector("#money-adjustment-status");
+    if (!Number.isInteger(amount) || amount === 0) {
+      status.textContent = "กรุณาระบุจำนวนเต็มที่ไม่ใช่ 0";
+      return;
+    }
+
+    const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${selected.id}`) || "null");
+    if (!supabase || !session?.token || session.token === "local-demo") {
+      status.textContent = "ต้องเชื่อมต่อ Supabase เพื่อทำรายการ";
+      return;
+    }
+
+    submitButton.disabled = true;
+    status.textContent = "";
+    try {
+      const { data, error } = await supabase.rpc("adjust_player_money", {
+        p_token: session.token,
+        p_player_id: playerId,
+        p_amount: amount
+      });
+      if (error || !Array.isArray(data) || !data.length) {
+        throw new Error(error?.message || "ปรับเงินผู้เล่นไม่สำเร็จ");
+      }
+      const result = data[0];
+      const target = players.find((player) => player.id === result.player_id);
+      if (target) target.money = result.money;
+      form.reset();
+      status.textContent = `${result.player_name}: เงินคงเหลือ ${result.money} เหรียญ`;
+    } catch (error) {
+      status.textContent = error.message || "ปรับเงินผู้เล่นไม่สำเร็จ";
+    } finally {
+      submitButton.disabled = false;
+    }
+  }
+
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-action]");
     if (button) {
       event.preventDefault();
       void handleTransaction(button);
+    }
+  });
+
+  document.addEventListener("submit", (event) => {
+    if (event.target.matches("#money-adjustment-form")) {
+      event.preventDefault();
+      void handleMoneyAdjustment(event.target);
     }
   });
 
