@@ -21,7 +21,7 @@ window.THREE_POSITION_GAME_CONFIG = {
     speedTilesPerSec: 14
   },
   // After this many cleared checkpoints, announce and apply the multiplier to movement and background music (not word audio).
-  speedUp: { afterCheckpoint: 5, multiplier: 1.5 },
+  speedUp: { afterCheckpoint: 5, multiplier: 2 },
   maps: {
     main: "../../Small games/layered_map_15x40.txt",
     finish: "../../Small games/layered_map_15x20.txt"

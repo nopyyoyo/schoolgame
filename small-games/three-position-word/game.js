@@ -243,6 +243,30 @@
   backgroundMusic.volume = wordAudio.volume * cfg.audio.backgroundVolume;
   let blockedWordUrl = null;
 
+  // Result sounds are created and unlocked during the start click, so they can play later without further input.
+  const victorySound = new Audio(cfg.audio.victory);
+  const defeatSound = new Audio(cfg.audio.defeat);
+  victorySound.preload = "auto";
+  defeatSound.preload = "auto";
+  let blockedResultSound = null;
+
+  function unlockResultSounds() {
+    [victorySound, defeatSound].forEach((sound) => {
+      sound.muted = true;
+      sound.play().then(() => {
+        sound.pause();
+        sound.currentTime = 0;
+        sound.muted = false;
+      }).catch(() => { sound.muted = false; });
+    });
+  }
+
+  function playResultSound(sound) {
+    sound.muted = false;
+    sound.currentTime = 0;
+    blockedResultSound = null;
+    sound.play().catch(() => { blockedResultSound = sound; });
+  }
   function playBackgroundMusic() {
     backgroundMusic.currentTime = 0;
     backgroundMusic.play().catch(() => {});
@@ -262,6 +286,11 @@
   }
 
   function unlockAudio() {
+    if (blockedResultSound) {
+      const sound = blockedResultSound;
+      blockedResultSound = null;
+      sound.play().catch(() => { blockedResultSound = sound; });
+    }
     if (blockedWordUrl && state === "running" && wordAudio.src) {
       const url = blockedWordUrl;
       blockedWordUrl = null;
@@ -274,6 +303,7 @@
       const audio = new Audio();
       audio.preload = "auto";
       audio.src = item.soundUrl;
+      new Image().src = item.photoUrl;
     });
   }
 
@@ -281,8 +311,22 @@
     const question = promptQuestion;
     if (!question) return;
     playWord(question.correct.soundUrl);
-    promptPhoto.src = question.correct.photoUrl;
+    showPromptPhoto(question.correct.photoUrl);
+  }
+
+  // The animation starts only after the new image is decoded, otherwise the previous photo flashes behind it.
+  let photoToken = 0;
+  async function showPromptPhoto(url) {
+    const token = ++photoToken;
     promptPhoto.classList.remove("show");
+    promptPhoto.removeAttribute("src");
+    promptPhoto.src = url;
+    try {
+      await promptPhoto.decode();
+    } catch (error) {
+      // Fall through and show whatever loaded.
+    }
+    if (token !== photoToken) return;
     void promptPhoto.offsetWidth;
     promptPhoto.classList.add("show");
   }
@@ -410,7 +454,7 @@
     laneSlots.forEach((slot) => slot.classList.remove("active"));
     setStatus("ผ่านครบทั้ง 10 ด่านแล้ว!", "#87e0a4");
     stopBackgroundMusic();
-    new Audio(cfg.audio.victory).play().catch(() => {});
+    playResultSound(victorySound);
     recordWin();
   }
 
@@ -493,7 +537,7 @@
     state = "lost";
     setStatus("แพ้ — เลือกช่องผิด ศัตรูจับได้", "#ff8d8d");
     stopBackgroundMusic();
-    new Audio(cfg.audio.defeat).play().catch(() => {});
+    playResultSound(defeatSound);
     showOverlay("แพ้แล้ว — คุณเลือกช่องผิด", [
       makeButton("เล่นใหม่", () => window.location.reload()),
       makeLink("กลับหน้าเวบไซต์ผู้เล่น", "../../index.html")
@@ -545,6 +589,7 @@
   function startCountdown() {
     state = "countdown";
     overlay.hidden = true;
+    unlockResultSounds();
     playBackgroundMusic();
     runCountdown(["3", "2", "1"], () => {
       state = "running";
