@@ -40,6 +40,7 @@ body { margin: 0; min-width: 320px; background: #0d1020; color: #f6f7fb; font-fa
 @keyframes prompt-zoom { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); } 25% { opacity: 1; } 60% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
 
 .countdown { position: absolute; inset: 0; z-index: 100000; display: grid; place-items: center; pointer-events: none; color: #fff; font-size: clamp(4rem, 15vw, 10rem); font-weight: 900; text-shadow: 0 5px 0 #111, 0 0 26px #000; }
+.countdown.message { font-size: clamp(2rem, 8vw, 4.5rem); text-align: center; }
 .countdown.show { animation: countdown-pop 850ms ease both; }
 @keyframes countdown-pop { 0% { opacity: 0; transform: scale(.35); } 28% { opacity: 1; transform: scale(1.12); } 72% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
 

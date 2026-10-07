@@ -50,6 +50,8 @@
   let walkClock = 0;
   let lastTime = 0;
   let winRecorded = false;
+  // Scales game time only; word audio, photo animation and countdown timers stay in real time.
+  let speedMul = 1;
 
   const assetUrl = (root, file) => `${root}${encodeURIComponent(file).replaceAll("%2F", "/")}`;
   const setStatus = (text, color) => {
@@ -379,7 +381,26 @@
       return;
     }
     py += mainMap.height;
+    if (cleared === cfg.speedUp.afterCheckpoint) {
+      beginSpeedUp();
+      return;
+    }
     startCheckpoint(cleared + 1);
+  }
+
+  // Pauses before the next prompt so the new pace is announced and no enemies are on screen.
+  function beginSpeedUp() {
+    state = "countdown";
+    clearEnemies();
+    laneWords.forEach((word) => { word.textContent = ""; });
+    laneSlots.forEach((slot) => slot.classList.remove("active"));
+    runCountdown(["ความเร็วเพิ่มขึ้น", "3", "2", "1"], () => {
+      speedMul = cfg.speedUp.multiplier;
+      backgroundMusic.playbackRate = speedMul;
+      state = "running";
+      startCheckpoint(cleared + 1);
+      setActiveLane();
+    });
   }
 
   function beginFinish() {
@@ -510,13 +531,13 @@
     lastTime = now;
     if (state === "running") {
       // Small steps keep the fast enemies from tunnelling through the player.
-      let remaining = dt;
+      let remaining = dt * speedMul;
       while (remaining > 1e-6 && state === "running") {
         const step = Math.min(0.016, remaining);
         updateRunning(step);
         remaining -= step;
       }
-    } else if (state === "finishing") updateFinishing(dt);
+    } else if (state === "finishing") updateFinishing(dt * speedMul);
     render();
     window.requestAnimationFrame(frame);
   }
@@ -525,10 +546,17 @@
     state = "countdown";
     overlay.hidden = true;
     playBackgroundMusic();
-    const steps = ["3", "2", "1"];
+    runCountdown(["3", "2", "1"], () => {
+      state = "running";
+      startCheckpoint(1);
+    });
+  }
+
+  function runCountdown(steps, done) {
     steps.forEach((step, index) => {
       window.setTimeout(() => {
         countdown.textContent = step;
+        countdown.classList.toggle("message", step.length > 1);
         countdown.classList.remove("show");
         void countdown.offsetWidth;
         countdown.classList.add("show");
@@ -536,9 +564,8 @@
     });
     window.setTimeout(() => {
       countdown.textContent = "";
-      countdown.classList.remove("show");
-      state = "running";
-      startCheckpoint(1);
+      countdown.classList.remove("show", "message");
+      done();
     }, steps.length * 850);
   }
 
