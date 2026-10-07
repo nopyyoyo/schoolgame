@@ -1,0 +1,3042 @@
+{
+  "format": "Layered PNG Map Builder",
+  "version": 2,
+  "width": 15,
+  "height": 20,
+  "tileWidthPx": 32,
+  "tileHeightPx": 32,
+  "bg2ScalePercent": 30,
+  "fgScalePercent": 14,
+  "drawOrder": [
+    "bg1",
+    "bg2",
+    "player",
+    "fg"
+  ],
+  "layers": {
+    "bg1": [
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png",
+      "Top-Down Simple Summer_Ground 23.png"
+    ],
+    "bg2": [
+      "Top-Down Simple Summer_prop - Tree Large.png",
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      null,
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      "Top-Down Simple Summer_prop - Tree Large.png",
+      null,
+      "Top-Down Simple Summer_Prop - Tree Medium.png",
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      "Top-Down Simple Summer_prop - Tree Large.png",
+      "Top-Down Simple Summer_prop - Tree Large.png",
+      "Top-Down Simple Summer_prop - Tree Large.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      null,
+      "Top-Down Simple Summer_Prop - Tree Medium.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Blue Banner.png",
+      "Top-Down Simple Summer_Prop - Red Banner.png",
+      "Top-Down Simple Summer_Prop - Blue Banner.png",
+      "Top-Down Simple Summer_Prop - Red Banner.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Red Banner.png",
+      "Top-Down Simple Summer_Prop - Blue Banner.png",
+      "Top-Down Simple Summer_Prop - Red Banner.png",
+      "Top-Down Simple Summer_Prop - Blue Banner.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Castle Round.png",
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Castle Round.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Flag.png",
+      null,
+      "Top-Down Simple Summer_Prop - Castle Square.png",
+      null,
+      "Top-Down Simple Summer_Prop - Flag.png",
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Tree Medium.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Tree Small.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Flag.png",
+      "Top-Down Simple Summer_Prop - Bushes Small.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "Top-Down Simple Summer_Prop - Flag.png",
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Flag.png",
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Small.png",
+      "Top-Down Simple Summer_Prop - Flag.png",
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Flag.png",
+      "Top-Down Simple Summer_Prop - Bushes Large.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "Top-Down Simple Summer_Prop - Flag.png",
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Small.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Large.png",
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Red Banner.png",
+      "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Top-Down Simple Summer_Prop - Bushes Small.png",
+      "Top-Down Simple Summer_Prop - Red Banner.png",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fg": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "collision": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "cells": [
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_prop - Tree Large.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_prop - Tree Large.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_prop - Tree Large.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_prop - Tree Large.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_prop - Tree Large.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Blue Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Red Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Blue Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Red Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Red Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Blue Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Red Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Blue Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Castle Round.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Castle Round.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Castle Square.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Tree Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Large.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Flag.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Large.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Red Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Medium.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Bushes Small.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": "Top-Down Simple Summer_Prop - Red Banner.png",
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    },
+    {
+      "bg1": "Top-Down Simple Summer_Ground 23.png",
+      "bg2": null,
+      "fg": null,
+      "collision": false
+    }
+  ],
+  "usedTileFiles": [
+    "Top-Down Simple Summer_Ground 23.png",
+    "Top-Down Simple Summer_Prop - Blue Banner.png",
+    "Top-Down Simple Summer_Prop - Bushes Large.png",
+    "Top-Down Simple Summer_Prop - Bushes Medium.png",
+    "Top-Down Simple Summer_Prop - Bushes Small.png",
+    "Top-Down Simple Summer_Prop - Castle Round.png",
+    "Top-Down Simple Summer_Prop - Castle Square.png",
+    "Top-Down Simple Summer_Prop - Flag.png",
+    "Top-Down Simple Summer_Prop - Red Banner.png",
+    "Top-Down Simple Summer_prop - Tree Large.png",
+    "Top-Down Simple Summer_Prop - Tree Medium.png",
+    "Top-Down Simple Summer_Prop - Tree Small.png"
+  ]
+}
