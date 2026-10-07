@@ -224,7 +224,7 @@
       <h2>${game.title}</h2>
       <p>${game.description}</p>
       <p>สถานะ: ${level.completed ? `ผ่านแล้ว ${claim}` : "ยังไม่ผ่าน"}</p>
-      ${!level.completed ? `<a class="button" href="${launch}">เริ่มเล่น</a>` : ""}
+      <a class="button" href="${launch}">${level.completed ? "เล่นอีกครั้ง (ไม่มีรางวัล)" : "เริ่มเล่น"}</a>
     </section>`;
   }
 
