@@ -45,6 +45,7 @@
   let cleared = 0;
   let lastCorrectId = null;
   let promptPending = false;
+  let enemiesPending = false;
   let promptQuestion = null;
   let walkClock = 0;
   let lastTime = 0;
@@ -207,13 +208,14 @@
     enemies = [];
   }
 
-  function spawnEnemies(correctLane) {
+  function spawnEnemies() {
     clearEnemies();
+    enemiesPending = false;
     LANES.forEach((laneX, index) => {
-      if (index === correctLane) return;
+      if (index === promptQuestion.correctLane) return;
       const el = createSprite(cfg.enemy.characterFolder, "enemy");
       stage.append(el);
-      enemies.push({ x: laneX, y: cfg.enemy.spawnY, el });
+      enemies.push({ x: laneX, y: py - cfg.enemy.spawnAbove, el });
     });
   }
 
@@ -224,10 +226,11 @@
     lastCorrectId = question.correct.id;
     promptQuestion = question;
     promptPending = true;
+    enemiesPending = true;
     question.options.forEach((option, index) => {
       laneWords[index].textContent = option.thaiLabel;
     });
-    spawnEnemies(question.correctLane);
+    clearEnemies();
   }
 
   function playPrompt() {
@@ -241,19 +244,36 @@
   }
 
   function isBlocked(px, y) {
-    const row = Math.floor(y - cfg.collisionLookahead);
-    if (row < 0 || row >= mainMap.height) return false;
-    for (const edge of [px - cfg.playerHalfWidth, px + cfg.playerHalfWidth]) {
-      const col = Math.floor(edge);
-      const target = col >= 0 && col < mainMap.width ? mainMap.cells[row * mainMap.width + col] : null;
-      if (!target || target.collision) return true;
+    for (const probe of [y - cfg.collisionLookahead, y + cfg.collisionRear]) {
+      const row = Math.floor(probe);
+      if (row < 0 || row >= mainMap.height) continue;
+      for (const edge of [px - cfg.playerHalfWidth, px + cfg.playerHalfWidth]) {
+        const col = Math.floor(edge);
+        const target = col >= 0 && col < mainMap.width ? mainMap.cells[row * mainMap.width + col] : null;
+        if (!target || target.collision) return true;
+      }
     }
     return false;
+  }
+
+  // Lateral and forward speeds are equal, so a lane change is a 45-degree diagonal.
+  function diagonalClear(fromX, fromY, toX) {
+    const length = Math.abs(toX - fromX);
+    const direction = Math.sign(toX - fromX);
+    // The margin covers frames spent turning around before the retreat actually starts.
+    const margin = 0.25;
+    for (let step = 0; step <= length + margin + 1e-6; step += 0.05) {
+      const travelled = Math.min(step, length);
+      if (isBlocked(fromX + direction * travelled, fromY - step - margin)) return false;
+    }
+    return true;
   }
 
   function requestLane(lane) {
     if (state !== "running" || lat.returning || lane < 0 || lane >= LANES.length) return;
     if (lane === lat.target) return;
+    const midChange = Math.abs(x - LANES[lat.lane]) > 1e-6;
+    if (midChange && Math.sign(LANES[lane] - x) !== Math.sign(LANES[lat.target] - x)) return;
     lat.target = lane;
     setActiveLane();
   }
@@ -264,12 +284,22 @@
     if (Math.abs(distance) > 1e-6) {
       nextX = x + Math.sign(distance) * Math.min(SPEED * dt, Math.abs(distance));
     }
-    // A blocked lane change is abandoned and the player heads back to the lane it came from.
-    if (!lat.returning && isBlocked(nextX, py)) {
-      lat.target = lat.lane;
-      lat.returning = true;
-      setActiveLane();
-      return;
+    if (!lat.returning && nextX !== x) {
+      // Keep going only while the path stays clear; otherwise stop at the nearest reachable lane.
+      if (isBlocked(nextX, py) || !diagonalClear(nextX, py, LANES[lat.target])) {
+        const step = Math.sign(distance);
+        let safe = lat.lane;
+        for (let lane = lat.target - step; lane !== lat.lane; lane -= step) {
+          if (Math.sign(LANES[lane] - x) === step && !isBlocked(nextX, py) && diagonalClear(nextX, py, LANES[lane])) {
+            safe = lane;
+            break;
+          }
+        }
+        lat.target = safe;
+        lat.returning = true;
+        setActiveLane();
+        return;
+      }
     }
     x = nextX;
     if (Math.abs(LANES[lat.target] - x) < 1e-6) {
@@ -280,8 +310,9 @@
   }
 
   function updateEnemies(dt) {
+    if (enemiesPending && py <= cfg.enemy.triggerY) spawnEnemies();
     enemies.forEach((enemy) => {
-      enemy.y = Math.min(cfg.enemy.stopY, enemy.y + cfg.enemy.speedTilesPerSec * dt);
+      enemy.y += cfg.enemy.speedTilesPerSec * dt;
     });
     if (enemies.some((enemy) => Math.abs(enemy.x - x) < 0.6 && Math.abs(enemy.y - py) < 0.7)) lose();
   }
@@ -422,7 +453,7 @@
     stage.style.transform = `translateY(${Math.round(screenTop - (py - 0.5) * cell)}px)`;
 
     enemies.forEach((enemy) => {
-      const moving = enemy.y < cfg.enemy.stopY && state === "running";
+      const moving = state === "running";
       setSprite(enemy.el, moving ? WALK.down[frameIndex] : 12, false);
       enemy.el.style.left = `${(enemy.x - 0.5) * cell}px`;
       enemy.el.style.top = `${(enemy.y - 0.5) * cell}px`;
@@ -433,8 +464,15 @@
   function frame(now) {
     const dt = Math.min(0.05, (now - lastTime) / 1000 || 0);
     lastTime = now;
-    if (state === "running") updateRunning(dt);
-    else if (state === "finishing") updateFinishing(dt);
+    if (state === "running") {
+      // Small steps keep the fast enemies from tunnelling through the player.
+      let remaining = dt;
+      while (remaining > 1e-6 && state === "running") {
+        const step = Math.min(0.016, remaining);
+        updateRunning(step);
+        remaining -= step;
+      }
+    } else if (state === "finishing") updateFinishing(dt);
     render();
     window.requestAnimationFrame(frame);
   }
