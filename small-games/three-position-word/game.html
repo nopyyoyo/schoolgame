@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เกมเลือกคำศัพท์ 3 ช่องทาง</title>
+  <link rel="stylesheet" href="./game.css">
+</head>
+<body>
+  <main class="game-shell">
+    <section class="game-panel">
+      <div class="game-status-row">
+        <p id="game-status" class="game-status">กำลังโหลดเกม...</p>
+        <div class="game-actions">
+          <button id="restart-game" type="button">เริ่มเล่นใหม่</button>
+          <a href="../../index.html">กลับหน้าเวบไซต์ผู้เล่น</a>
+        </div>
+      </div>
+      <div id="game-frame" class="game-frame">
+        <div id="game-viewport" class="game-viewport" aria-label="พื้นที่เกม">
+          <div id="map-stage" class="map-stage"></div>
+          <div id="lane-hud" class="lane-hud">
+            <div class="lane-slot" data-lane="0"><button type="button" class="lane-arrow" aria-label="ช่องซ้าย">◀</button><div class="lane-word"></div></div>
+            <div class="lane-slot" data-lane="1"><button type="button" class="lane-arrow" aria-label="ช่องกลาง">▲</button><div class="lane-word"></div></div>
+            <div class="lane-slot" data-lane="2"><button type="button" class="lane-arrow" aria-label="ช่องขวา">▶</button><div class="lane-word"></div></div>
+          </div>
+          <img id="prompt-photo" class="prompt-photo" alt="">
+          <div id="countdown" class="countdown" aria-live="assertive"></div>
+          <div id="overlay" class="overlay" hidden>
+            <div class="overlay-box">
+              <p id="overlay-message"></p>
+              <div class="overlay-actions" id="overlay-actions"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../config/supabase.js"></script>
+  <script src="./game-config.js"></script>
+  <script src="../letter-maze/map-loader.js"></script>
+  <script src="./game.js"></script>
+</body>
+</html>

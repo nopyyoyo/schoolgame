@@ -188,50 +188,65 @@
     </section>`;
   }
 
-  function smallGameMarkup(player) {
-    const state = Array.isArray(player.smallGameState) ? player.smallGameState : [];
-    const level = state[0];
+  const smallGames = [
+    {
+      gameId: "thai-letter-maze",
+      title: "เกมเก็บพยัญชนะ",
+      description: "เก็บตัวอักษรตามลำดับ ก ไก่ ถึง ฮ นกฮูก",
+      launchPath: "small-games/letter-maze/game.html"
+    },
+    {
+      gameId: "three-position-word",
+      title: "เกมเลือกคำศัพท์ 3 ช่องทาง",
+      description: "ฟังเสียงแล้ววิ่งเข้าช่องที่มีคำศัพท์ถูกต้อง ผ่านให้ครบ 10 ด่าน",
+      launchPath: "small-games/three-position-word/game.html"
+    }
+  ];
+
+  function smallGameCardMarkup(player, game) {
+    const level = (player.smallGameState?.[game.gameId] || [])[0];
     if (!level) {
-      return `<section class="team small-game-links"><h2>เกมเก็บพยัญชนะ</h2><p>ยังไม่สามารถโหลดความคืบหน้าเกมได้</p></section>`;
+      return `<section class="team small-game-links"><h2>${game.title}</h2><p>ยังไม่สามารถโหลดความคืบหน้าเกมได้</p></section>`;
     }
     const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
     const launchParams = new URLSearchParams({
       token: session?.token || "",
       character: player.face || ""
     });
-    const launch = `small-games/letter-maze/game.html?${launchParams.toString()}`;
+    const launch = `${game.launchPath}?${launchParams.toString()}`;
     const reward = level.reward_type === "money"
       ? `${level.reward_amount} เหรียญ`
       : `${level.reward_catalog_id} x${level.reward_amount}`;
-    const status = level.reward_claimed
+    const claim = level.reward_claimed
       ? "ได้รับรางวัลแล้ว"
-      : level.completed
-        ? `<button data-action="claim_small_game_reward" data-game-id="${level.game_id}" data-level="${level.level_number}">รับรางวัล (${reward})</button>`
-        : "ยังไม่ผ่าน";
+      : `<button data-action="claim_small_game_reward" data-game-id="${level.game_id}" data-level="${level.level_number}">รับรางวัล (${reward})</button>`;
     return `<section class="team small-game-links">
-      <h2>เกมเก็บพยัญชนะ</h2>
-      <p>เก็บตัวอักษรตามลำดับ ก ไก่ ถึง ฮ นกฮูก</p>
-      <p>สถานะ: ${level.completed ? "ผ่านแล้ว" : status}</p>
+      <h2>${game.title}</h2>
+      <p>${game.description}</p>
+      <p>สถานะ: ${level.completed ? `ผ่านแล้ว ${claim}` : "ยังไม่ผ่าน"}</p>
       ${!level.completed ? `<a class="button" href="${launch}">เริ่มเล่น</a>` : ""}
     </section>`;
   }
 
+  function smallGameMarkup(player) {
+    return smallGames.map((game) => smallGameCardMarkup(player, game)).join("");
+  }
+
   async function loadSmallGameState(player) {
     const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
-    if (!supabase || !session?.token || session.token === "local-demo") {
-      player.smallGameState = [];
-      return;
-    }
-    const { data, error } = await supabase.rpc("get_small_game_state", {
-      p_token: session.token,
-      p_game_id: "thai-letter-maze"
-    });
-    if (error || !Array.isArray(data)) {
-      console.error("Could not load small game state", error);
-      player.smallGameState = [];
-      return;
-    }
-    player.smallGameState = data;
+    player.smallGameState = {};
+    if (!supabase || !session?.token || session.token === "local-demo") return;
+    await Promise.all(smallGames.map(async (game) => {
+      const { data, error } = await supabase.rpc("get_small_game_state", {
+        p_token: session.token,
+        p_game_id: game.gameId
+      });
+      if (error || !Array.isArray(data)) {
+        console.error("Could not load small game state", error);
+        return;
+      }
+      player.smallGameState[game.gameId] = data;
+    }));
   }
 
   async function loadPlayerLadder(player) {

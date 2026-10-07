@@ -35,6 +35,10 @@ before adding a positive or negative amount to a student's money.
 `migration-020-thai-letter-maze-reward.sql` sets the reward for the first
 Thai letter maze level to 150 money.
 
+`migration-021-three-position-word.sql` registers the `three-position-word`
+small game with a 150 money reward. It reuses `record_small_game_win` and
+`claim_small_game_reward`.
+
 ## Deploying an Edge Function
 
 ```powershell

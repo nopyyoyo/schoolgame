@@ -1,0 +1,9 @@
+backpack@กระเป๋า
+pen@ปากกา
+pencil@ดินสอ
+book@หนังสือ
+notebook@สมุด
+table@โต๊ะ
+chair@เก้าอี้
+ruler@ไม้บรรทัด
+eraser@ยางลบ	
