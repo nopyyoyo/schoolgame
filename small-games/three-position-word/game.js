@@ -233,10 +233,38 @@
     clearEnemies();
   }
 
+  // Browsers can block audio that starts without a recent user gesture, so a rejected word is replayed on the next input.
+  const wordAudio = new Audio();
+  let blockedWordUrl = null;
+
+  function playWord(url) {
+    wordAudio.pause();
+    wordAudio.src = url;
+    wordAudio.currentTime = 0;
+    blockedWordUrl = null;
+    wordAudio.play().catch(() => { blockedWordUrl = url; });
+  }
+
+  function unlockAudio() {
+    if (blockedWordUrl && state === "running" && wordAudio.src) {
+      const url = blockedWordUrl;
+      blockedWordUrl = null;
+      wordAudio.play().catch(() => { blockedWordUrl = url; });
+    }
+  }
+
+  function preloadWords() {
+    catalog.forEach((item) => {
+      const audio = new Audio();
+      audio.preload = "auto";
+      audio.src = item.soundUrl;
+    });
+  }
+
   function playPrompt() {
     const question = promptQuestion;
     if (!question) return;
-    new Audio(question.correct.soundUrl).play().catch(() => {});
+    playWord(question.correct.soundUrl);
     promptPhoto.src = question.correct.photoUrl;
     promptPhoto.classList.remove("show");
     void promptPhoto.offsetWidth;
@@ -523,6 +551,8 @@
     event.preventDefault();
     requestLane(lat.target + (event.key === "ArrowLeft" ? -1 : 1));
   });
+  document.addEventListener("keydown", unlockAudio);
+  document.addEventListener("pointerdown", unlockAudio);
   window.addEventListener("resize", layout);
   document.querySelector("#restart-game").addEventListener("click", () => window.location.reload());
 
@@ -535,6 +565,7 @@
       ]);
       if (mainMap.width !== COLS || finishMap.width !== COLS) throw new Error("แผนที่ต้องกว้าง 15 ช่อง");
       catalog = await loadCatalog();
+      preloadWords();
       buildStage();
       resetRun();
       window.requestAnimationFrame(frame);
