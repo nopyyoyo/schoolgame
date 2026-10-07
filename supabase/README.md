@@ -39,6 +39,10 @@ Thai letter maze level to 150 money.
 small game with a 150 money reward. It reuses `record_small_game_win` and
 `claim_small_game_reward`.
 
+`migration-022-three-position-word-level-2.sql` adds the sound-only second
+level of `three-position-word` and requires each player to complete the
+preceding level before its result can be recorded.
+
 ## Deploying an Edge Function
 
 ```powershell

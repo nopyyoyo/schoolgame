@@ -3,6 +3,12 @@
 
   const cfg = window.THREE_POSITION_GAME_CONFIG;
   const params = new URLSearchParams(window.location.search);
+  const levelNumber = Number(params.get("level") || cfg.levelNumber);
+  const levelConfig = cfg.levels?.[levelNumber];
+  if (!Number.isInteger(levelNumber) || !levelConfig) {
+    document.querySelector("#game-status").textContent = "ไม่พบด่านเกมที่เลือก";
+    return;
+  }
   const requestedCharacter = params.get("character");
   const characterFolder = /^P\d+S_Cut$/.test(requestedCharacter || "")
     ? requestedCharacter
@@ -30,6 +36,7 @@
   const overlayActions = document.querySelector("#overlay-actions");
   const laneSlots = [...document.querySelectorAll(".lane-slot")];
   const laneWords = laneSlots.map((slot) => slot.querySelector(".lane-word"));
+  promptPhoto.hidden = !levelConfig.showPromptPhoto;
 
   let mainMap;
   let finishMap;
@@ -175,9 +182,9 @@
     const checks = await Promise.all(entries.map(async (entry) => ({
       entry,
       sound: await assetExists(entry.soundUrl),
-      photo: await assetExists(entry.photoUrl)
+      photo: !levelConfig.showPromptPhoto || await assetExists(entry.photoUrl)
     })));
-    const missing = checks.filter((check) => !check.sound || !check.photo)
+    const missing = checks.filter((check) => !check.sound || (levelConfig.showPromptPhoto && !check.photo))
       .map((check) => `${check.entry.id}${check.sound ? "" : " (เสียง)"}${check.photo ? "" : " (รูป)"}`);
     if (missing.length) throw new Error(`ไฟล์ไม่ครบ: ${missing.join(", ")}`);
     if (entries.length < 3) throw new Error("ต้องมีคำศัพท์อย่างน้อย 3 คำ");
@@ -303,7 +310,7 @@
       const audio = new Audio();
       audio.preload = "auto";
       audio.src = item.soundUrl;
-      new Image().src = item.photoUrl;
+      if (levelConfig.showPromptPhoto) new Image().src = item.photoUrl;
     });
   }
 
@@ -311,7 +318,7 @@
     const question = promptQuestion;
     if (!question) return;
     playWord(question.correct.soundUrl);
-    showPromptPhoto(question.correct.photoUrl);
+    if (levelConfig.showPromptPhoto) showPromptPhoto(question.correct.photoUrl);
   }
 
   // The animation starts only after the new image is decoded, otherwise the previous photo flashes behind it.
@@ -481,7 +488,7 @@
     const { error } = await supabaseClient.rpc("record_small_game_win", {
       p_token: sessionToken,
       p_game_id: cfg.gameId,
-      p_level_number: cfg.levelNumber,
+      p_level_number: levelNumber,
       p_request_id: crypto.randomUUID()
     });
     if (error) {

@@ -111,6 +111,32 @@ h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:clamp(.75rem,2vw,1.
   background: #102118;
 }
 .arena-level-passed button { margin-left: 8px; padding: 4px 9px; }
+.small-game-level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.small-game-level {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 13px;
+}
+.small-game-level-passed {
+  color: #74d58c;
+  border: 1px solid #46915d;
+  background: #102118;
+}
+.small-game-level-locked { color: var(--muted); }
+.small-game-level-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.small-game-level-actions button { padding: 4px 9px; }
 .stat-line strong { color:var(--ink); font-weight:normal; }
 .shop-links { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:12px; }
 .shop-links .button { text-align:center; }

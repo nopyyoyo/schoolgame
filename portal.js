@@ -204,27 +204,46 @@
   ];
 
   function smallGameCardMarkup(player, game) {
-    const level = (player.smallGameState?.[game.gameId] || [])[0];
-    if (!level) {
+    const levels = player.smallGameState?.[game.gameId] || [];
+    if (!levels.length) {
       return `<section class="team small-game-links"><h2>${game.title}</h2><p>ยังไม่สามารถโหลดความคืบหน้าเกมได้</p></section>`;
     }
     const session = JSON.parse(sessionStorage.getItem(`school-game-player-session-${player.id}`) || "null");
-    const launchParams = new URLSearchParams({
-      token: session?.token || "",
-      character: player.face || ""
-    });
-    const launch = `${game.launchPath}?${launchParams.toString()}`;
-    const reward = level.reward_type === "money"
-      ? `${level.reward_amount} เหรียญ`
-      : `${level.reward_catalog_id} x${level.reward_amount}`;
-    const claim = level.reward_claimed
-      ? "ได้รับรางวัลแล้ว"
-      : `<button data-action="claim_small_game_reward" data-game-id="${level.game_id}" data-level="${level.level_number}">รับรางวัล (${reward})</button>`;
+    const nextLevel = levels.find((level) => level.active && !level.completed
+      && (level.level_number === 1 || levels.some((previous) =>
+        previous.level_number === level.level_number - 1 && previous.completed)));
+    const levelMarkup = levels.map((level) => {
+      const launchParams = new URLSearchParams({
+        token: session?.token || "",
+        character: player.face || "",
+        level: String(level.level_number)
+      });
+      const launch = `${game.launchPath}?${launchParams.toString()}`;
+      const reward = level.reward_type === "money"
+        ? `${level.reward_amount} เหรียญ`
+        : `${level.reward_catalog_id} x${level.reward_amount}`;
+      const label = `${level.level_name} — รางวัล: ${reward}`;
+      if (level.completed) {
+        const claim = level.reward_claimed
+          ? "<span>ได้รับรางวัลแล้ว</span>"
+          : `<button data-action="claim_small_game_reward" data-game-id="${level.game_id}" data-level="${level.level_number}">รับรางวัล (${reward})</button>`;
+        return `<div class="small-game-level small-game-level-passed">
+          <span>${label} (ผ่านแล้ว)</span>
+          <div class="small-game-level-actions">${claim}<a class="button" href="${launch}">เล่นอีกครั้ง</a></div>
+        </div>`;
+      }
+      if (nextLevel?.level_number === level.level_number) {
+        return `<div class="small-game-level">
+          <span>${label}</span>
+          <div class="small-game-level-actions"><a class="button" href="${launch}">เริ่มเล่น</a></div>
+        </div>`;
+      }
+      return `<div class="small-game-level small-game-level-locked">${label} (ยังไม่เปิด)</div>`;
+    }).join("");
     return `<section class="team small-game-links">
       <h2>${game.title}</h2>
       <p>${game.description}</p>
-      <p>สถานะ: ${level.completed ? `ผ่านแล้ว ${claim}` : "ยังไม่ผ่าน"}</p>
-      <a class="button" href="${launch}">${level.completed ? "เล่นอีกครั้ง (ไม่มีรางวัล)" : "เริ่มเล่น"}</a>
+      <div class="small-game-level-list">${levelMarkup}</div>
     </section>`;
   }
 

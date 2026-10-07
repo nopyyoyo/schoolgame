@@ -1,6 +1,10 @@
 window.THREE_POSITION_GAME_CONFIG = {
   gameId: "three-position-word",
   levelNumber: 1,
+  levels: {
+    1: { showPromptPhoto: true },
+    2: { showPromptPhoto: false }
+  },
   characterFolder: "P10S_Cut",
   columns: 15,
   visibleRows: 24,
