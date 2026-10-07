@@ -32,6 +32,8 @@ window.THREE_POSITION_GAME_CONFIG = {
     characters: "../../Character/Cut/Player/"
   },
   audio: {
+    background: "../../app/Music/01. Ground Theme.mp3",
+    backgroundVolume: 0.6,
     victory: "../../app/Music/106 Fanfare.mp3",
     defeat: "../../app/Sounds/Mario Death.mp3"
   }

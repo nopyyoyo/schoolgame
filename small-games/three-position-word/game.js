@@ -235,7 +235,21 @@
 
   // Browsers can block audio that starts without a recent user gesture, so a rejected word is replayed on the next input.
   const wordAudio = new Audio();
+  const backgroundMusic = new Audio(cfg.audio.background);
+  backgroundMusic.loop = true;
+  backgroundMusic.preload = "auto";
+  backgroundMusic.volume = wordAudio.volume * cfg.audio.backgroundVolume;
   let blockedWordUrl = null;
+
+  function playBackgroundMusic() {
+    backgroundMusic.currentTime = 0;
+    backgroundMusic.play().catch(() => {});
+  }
+
+  function stopBackgroundMusic() {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+  }
 
   function playWord(url) {
     wordAudio.pause();
@@ -374,6 +388,7 @@
     laneWords.forEach((word) => { word.textContent = ""; });
     laneSlots.forEach((slot) => slot.classList.remove("active"));
     setStatus("ผ่านครบทั้ง 10 ด่านแล้ว!", "#87e0a4");
+    stopBackgroundMusic();
     new Audio(cfg.audio.victory).play().catch(() => {});
     recordWin();
   }
@@ -456,6 +471,7 @@
     if (state !== "running") return;
     state = "lost";
     setStatus("แพ้ — เลือกช่องผิด ศัตรูจับได้", "#ff8d8d");
+    stopBackgroundMusic();
     new Audio(cfg.audio.defeat).play().catch(() => {});
     showOverlay("แพ้แล้ว — คุณเลือกช่องผิด", [
       makeButton("เล่นใหม่", () => window.location.reload()),
@@ -508,6 +524,7 @@
   function startCountdown() {
     state = "countdown";
     overlay.hidden = true;
+    playBackgroundMusic();
     const steps = ["3", "2", "1"];
     steps.forEach((step, index) => {
       window.setTimeout(() => {
