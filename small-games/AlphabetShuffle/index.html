@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:," />
+  <title>Alphabet Shuffle</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --surface: #f7f7f3;
+      --ink: #17201c;
+      --muted: #5f6b65;
+      --line: #dfe4df;
+      --accent: #e94f37;
+      --accent-ink: #ffffff;
+      --middle: #e94f37;
+      --high: #2379ba;
+      --low: #25845d;
+      --button-shadow: #a82c1b;
+      --chip: #eef1ed;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #151816;
+        --surface: #202522;
+        --ink: #f7faf7;
+        --muted: #b6c0ba;
+        --line: #3b433e;
+        --accent: #ff735e;
+        --accent-ink: #1c100d;
+        --middle: #ff735e;
+        --high: #65b8ef;
+        --low: #63c994;
+        --button-shadow: #9e3020;
+        --chip: #2a302c;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Tahoma, "Leelawadee UI", sans-serif;
+      overscroll-behavior: none;
+    }
+    button { font: inherit; }
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .app {
+      min-height: 100svh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(14px, 2.5vh, 26px);
+      width: min(100%, 1080px);
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+    .topline strong { color: var(--ink); font-weight: 700; }
+    .counter {
+      min-width: 62px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(230px, 0.46fr);
+      align-items: center;
+      gap: clamp(24px, 5vw, 72px);
+    }
+
+    .card-wrap {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+    }
+    .card {
+      position: relative;
+      isolation: isolate;
+      width: min(100%, 560px);
+      min-height: min(61vh, 620px);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 32px 32px 32px 8px;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 18% 17%, color-mix(in srgb, var(--current) 14%, transparent) 0 54px, transparent 55px),
+        linear-gradient(150deg, transparent 0 67%, color-mix(in srgb, var(--current) 8%, transparent) 67% 100%);
+    }
+    .card-inner {
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: clamp(4px, 1.2vh, 12px);
+      padding: 30px;
+      text-align: center;
+    }
+    .glyph {
+      color: var(--current);
+      font-size: clamp(148px, 26vw, 286px);
+      font-weight: 700;
+      line-height: .83;
+      letter-spacing: -.06em;
+      text-indent: -.06em;
+      text-shadow: 0 3px 0 color-mix(in srgb, var(--current) 22%, transparent);
+    }
+    .name-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 13px;
+      min-height: 64px;
+    }
+    .picture {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--current) 12%, var(--bg));
+      font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+      font-size: 35px;
+      line-height: 1;
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current) 18%, transparent);
+    }
+    .name {
+      font-size: clamp(31px, 5.6vw, 54px);
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: -.025em;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 29px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .class-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--current);
+    }
+    .old-mark {
+      display: none;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .old-mark.show { display: inline-block; }
+
+    .rail {
+      align-self: stretch;
+      display: grid;
+      align-content: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .rail-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .alphabet-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .mini {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--bg);
+      color: var(--muted);
+      font-size: clamp(18px, 2.4vw, 25px);
+      font-weight: 700;
+      transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+    .mini.active {
+      background: var(--current);
+      border-color: var(--current);
+      color: var(--accent-ink);
+    }
+
+    .controls {
+      display: grid;
+      justify-items: center;
+      gap: 9px;
+      padding-top: 2px;
+    }
+    .shuffle-button {
+      width: min(100%, 460px);
+      min-height: 62px;
+      border: 0;
+      border-radius: 18px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-size: 21px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 5px 0 var(--button-shadow);
+      touch-action: manipulation;
+      transform: translateY(0);
+    }
+    .shuffle-button:active:not(:disabled) {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 var(--button-shadow);
+    }
+    .shuffle-button:focus-visible {
+      outline: 4px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      outline-offset: 4px;
+    }
+    .shuffle-button:disabled {
+      cursor: wait;
+      opacity: .8;
+    }
+    .hint {
+      min-height: 20px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .is-shuffling .glyph,
+    .is-shuffling .name-row { animation: pop 130ms ease-out; }
+    @keyframes pop {
+      from { opacity: .55; transform: scale(.965); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 720px) {
+      .app { gap: 12px; }
+      .stage { grid-template-columns: 1fr; gap: 13px; align-content: center; }
+      .card { min-height: min(52vh, 470px); border-radius: 26px 26px 26px 7px; }
+      .glyph { font-size: clamp(150px, 42vw, 225px); }
+      .name { font-size: clamp(31px, 9vw, 45px); }
+      .rail { align-self: auto; }
+      .rail-label { display: none; }
+      .alphabet-grid { grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 3px; }
+      .mini { border-radius: 5px; font-size: clamp(12px, 3.7vw, 18px); }
+      .controls { position: sticky; bottom: max(10px, env(safe-area-inset-bottom)); }
+      .shuffle-button { min-height: 58px; border-radius: 16px; }
+      .hint { display: none; }
+    }
+
+    @media (max-width: 390px), (max-height: 680px) {
+      .card { min-height: min(47vh, 360px); }
+      .glyph { font-size: clamp(128px, 38vw, 180px); }
+      .picture { width: 46px; height: 46px; flex-basis: 46px; font-size: 29px; }
+      .name { font-size: clamp(28px, 8vw, 38px); }
+      .meta { margin-top: 2px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="topline">
+      <span><strong>พยัญชนะไทย</strong> · 44 ตัว</span>
+      <span class="counter" id="counter" aria-label="ลำดับพยัญชนะ">1 / 44</span>
+    </div>
+
+    <section class="stage" aria-label="พยัญชนะที่สุ่มได้">
+      <div class="card-wrap">
+        <article class="card" id="card" style="--current: var(--middle)">
+          <div class="card-inner">
+            <div class="glyph" id="glyph" aria-hidden="true">ก</div>
+            <div class="name-row">
+              <span class="picture" id="picture" role="img" aria-label="ไก่">🐓</span>
+              <span class="name" id="name">ก ไก่</span>
+            </div>
+            <div class="meta">
+              <span class="class-dot" aria-hidden="true"></span>
+              <span id="className">อักษรกลาง</span>
+              <span class="old-mark" id="oldMark">พยัญชนะโบราณ</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="rail" aria-label="พยัญชนะไทยทั้ง 44 ตัว">
+        <div class="rail-label"><span>ทั้งหมด 44 ตัว</span><span>ตัวที่เลือกจะแสดงสี</span></div>
+        <div class="alphabet-grid" id="alphabetGrid"></div>
+      </aside>
+    </section>
+
+    <div class="controls">
+      <button class="shuffle-button" id="shuffleButton" type="button">เริ่มสุ่ม</button>
+      <p class="hint" id="hint">เสียงจะเร็วในตอนแรก แล้วค่อย ๆ ช้าลงจนหยุด</p>
+    </div>
+
+    <div id="liveStatus" class="sr-only" aria-live="polite"></div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var letters = [
+        ["ก", "ไก่", "🐓", "กลาง"], ["ข", "ไข่", "🥚", "สูง"], ["ฃ", "ขวด", "🫙", "สูง", true],
+        ["ค", "ควาย", "🐃", "ต่ำ"], ["ฅ", "คน", "🧍", "ต่ำ", true], ["ฆ", "ระฆัง", "🔔", "ต่ำ"],
+        ["ง", "งู", "🐍", "ต่ำ"], ["จ", "จาน", "🍽️", "กลาง"], ["ฉ", "ฉิ่ง", "🥁", "สูง"],
+        ["ช", "ช้าง", "🐘", "ต่ำ"], ["ซ", "โซ่", "🔗", "ต่ำ"], ["ฌ", "เฌอ", "🌳", "ต่ำ"],
+        ["ญ", "หญิง", "👩", "ต่ำ"], ["ฎ", "ชฎา", "👑", "กลาง"], ["ฏ", "ปฏัก", "🦯", "กลาง"],
+        ["ฐ", "ฐาน", "🧱", "สูง"], ["ฑ", "มณโฑ", "👸", "ต่ำ"], ["ฒ", "ผู้เฒ่า", "👴", "ต่ำ"],
+        ["ณ", "เณร", "🧑‍🦲", "ต่ำ"], ["ด", "เด็ก", "🧒", "กลาง"], ["ต", "เต่า", "🐢", "กลาง"],
+        ["ถ", "ถุง", "🛍️", "สูง"], ["ท", "ทหาร", "🪖", "ต่ำ"], ["ธ", "ธง", "🚩", "ต่ำ"],
+        ["น", "หนู", "🐭", "ต่ำ"], ["บ", "ใบไม้", "🍃", "กลาง"], ["ป", "ปลา", "🐟", "กลาง"],
+        ["ผ", "ผึ้ง", "🐝", "สูง"], ["ฝ", "ฝา", "⭕", "สูง"], ["พ", "พาน", "🏆", "ต่ำ"],
+        ["ฟ", "ฟัน", "🦷", "ต่ำ"], ["ภ", "สำเภา", "⛵", "ต่ำ"], ["ม", "ม้า", "🐎", "ต่ำ"],
+        ["ย", "ยักษ์", "👹", "ต่ำ"], ["ร", "เรือ", "🚤", "ต่ำ"], ["ล", "ลิง", "🐒", "ต่ำ"],
+        ["ว", "แหวน", "💍", "ต่ำ"], ["ศ", "ศาลา", "🛖", "สูง"], ["ษ", "ฤๅษี", "🧙", "สูง"],
+        ["ส", "เสือ", "🐅", "สูง"], ["ห", "หีบ", "🧰", "สูง"], ["ฬ", "จุฬา", "🪁", "ต่ำ"],
+        ["อ", "อ่าง", "🛁", "กลาง"], ["ฮ", "นกฮูก", "🦉", "ต่ำ"]
+      ];
+
+      var app = document.getElementById("app");
+      var card = document.getElementById("card");
+      var glyph = document.getElementById("glyph");
+      var picture = document.getElementById("picture");
+      var name = document.getElementById("name");
+      var className = document.getElementById("className");
+      var oldMark = document.getElementById("oldMark");
+      var counter = document.getElementById("counter");
+      var grid = document.getElementById("alphabetGrid");
+      var button = document.getElementById("shuffleButton");
+      var hint = document.getElementById("hint");
+      var liveStatus = document.getElementById("liveStatus");
+      var currentIndex = 0;
+      var isRunning = false;
+      var audioContext = null;
+      var miniCells = [];
+      var classColor = { "กลาง": "var(--middle)", "สูง": "var(--high)", "ต่ำ": "var(--low)" };
+
+      letters.forEach(function (item, index) {
+        var cell = document.createElement("div");
+        cell.className = "mini" + (index === 0 ? " active" : "");
+        if (index === 0) cell.style.setProperty("--current", classColor[item[3]]);
+        cell.textContent = item[0];
+        cell.setAttribute("aria-hidden", "true");
+        grid.appendChild(cell);
+        miniCells.push(cell);
+      });
+
+      function showLetter(index) {
+        var item = letters[index];
+        currentIndex = index;
+        card.style.setProperty("--current", classColor[item[3]]);
+        glyph.textContent = item[0];
+        picture.textContent = item[2];
+        picture.setAttribute("aria-label", item[1]);
+        name.textContent = item[0] + " " + item[1];
+        className.textContent = "อักษร" + item[3];
+        oldMark.classList.toggle("show", !!item[4]);
+        counter.textContent = (index + 1) + " / 44";
+        miniCells.forEach(function (cell, cellIndex) {
+          cell.classList.toggle("active", cellIndex === index);
+          if (cellIndex === index) cell.style.setProperty("--current", classColor[item[3]]);
+        });
+        app.classList.remove("is-shuffling");
+        void app.offsetWidth;
+        app.classList.add("is-shuffling");
+      }
+
+      function ensureAudio() {
+        if (!audioContext) {
+          var AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) audioContext = new AudioCtx();
+        }
+        if (audioContext && audioContext.state === "suspended") audioContext.resume();
+      }
+
+      function tick(step) {
+        if (!audioContext) return;
+        var now = audioContext.currentTime;
+        var osc = audioContext.createOscillator();
+        var gain = audioContext.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(630 + (step % 4) * 42, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.055, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(now);
+        osc.stop(now + 0.055);
+      }
+
+      function finishSound() {
+        if (!audioContext) return;
+        var now = audioContext.currentTime;
+        [523.25, 659.25, 783.99].forEach(function (frequency, index) {
+          var osc = audioContext.createOscillator();
+          var gain = audioContext.createGain();
+          var start = now + index * 0.09;
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(frequency, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.11, start + 0.018);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.34);
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+          osc.start(start);
+          osc.stop(start + 0.36);
+        });
+      }
+
+      function randomDifferent(previous) {
+        var next = previous;
+        while (next === previous) next = Math.floor(Math.random() * letters.length);
+        return next;
+      }
+
+      function shuffle() {
+        if (isRunning) return;
+        isRunning = true;
+        ensureAudio();
+        button.disabled = true;
+        button.textContent = "กำลังสุ่ม…";
+        hint.textContent = "ฟังจังหวะที่ค่อย ๆ ช้าลง";
+        liveStatus.textContent = "กำลังสุ่มพยัญชนะ";
+
+        var step = 0;
+        var totalSteps = 25 + Math.floor(Math.random() * 7);
+        var previousFinal = currentIndex;
+
+        function advance() {
+          var next = randomDifferent(currentIndex);
+          if (step === totalSteps - 1 && next === previousFinal) next = (next + 1) % letters.length;
+          showLetter(next);
+          tick(step);
+          step += 1;
+
+          if (step < totalSteps) {
+            var progress = step / totalSteps;
+            var delay = 62 + Math.pow(progress, 3.15) * 610;
+            window.setTimeout(advance, delay);
+          } else {
+            window.setTimeout(function () {
+              finishSound();
+              isRunning = false;
+              button.disabled = false;
+              button.textContent = "สุ่มอีกครั้ง";
+              hint.textContent = "ได้ “" + letters[currentIndex][0] + " " + letters[currentIndex][1] + "”";
+              liveStatus.textContent = "สุ่มได้ " + letters[currentIndex][0] + " " + letters[currentIndex][1];
+            }, 180);
+          }
+        }
+
+        advance();
+      }
+
+      button.addEventListener("click", shuffle);
+    })();
+  </script>
+</body>
+</html>
