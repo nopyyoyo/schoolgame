@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f2f0ea" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Color Shuffle</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --page: #f2f0ea;
+        --ink: #171817;
+        --muted: #62645f;
+        --button-bg: #171817;
+        --button-ink: #ffffff;
+        --button-border: rgba(255, 255, 255, 0.14);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page: #171817;
+          --ink: #f7f6f1;
+          --muted: #afb1aa;
+          --button-bg: #f7f6f1;
+          --button-ink: #171817;
+          --button-border: rgba(0, 0, 0, 0.08);
+        }
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { min-height: 100%; }
+
+      body {
+        margin: 0;
+        min-width: 280px;
+        min-height: 100svh;
+        overflow: hidden;
+        background: var(--page);
+        color: var(--ink);
+        font-family: Tahoma, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        transition: background-color 90ms linear, color 90ms linear;
+      }
+
+      main {
+        min-height: 100svh;
+        position: relative;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        padding: max(20px, env(safe-area-inset-top)) 20px max(22px, env(safe-area-inset-bottom));
+      }
+
+      .stage {
+        min-height: 0;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 24px 12px 18px;
+      }
+
+      .word-wrap {
+        display: grid;
+        place-items: center;
+        min-height: 11rem;
+      }
+
+      #colorWord {
+        margin: 0;
+        font-size: clamp(4rem, 21vw, 9rem);
+        font-weight: 600;
+        line-height: 0.96;
+        letter-spacing: -0.045em;
+        text-wrap: balance;
+        text-shadow: 0 2px 0 rgba(0, 0, 0, 0.04);
+      }
+
+      #colorWord.ready {
+        font-size: clamp(2.7rem, 13vw, 5.5rem);
+        letter-spacing: -0.035em;
+      }
+
+      .hint {
+        margin: 18px 0 0;
+        color: var(--muted);
+        font-size: clamp(0.95rem, 4vw, 1.15rem);
+        font-weight: 400;
+      }
+
+      .controls {
+        width: min(100%, 32rem);
+        justify-self: center;
+        padding-top: 18px;
+      }
+
+      button {
+        width: 100%;
+        min-height: 64px;
+        border: 1px solid var(--button-border);
+        border-radius: 18px;
+        padding: 14px 24px;
+        background: var(--button-bg);
+        color: var(--button-ink);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+        font: 500 clamp(1.15rem, 5vw, 1.35rem)/1.2 Tahoma, sans-serif;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: transform 120ms ease, opacity 150ms ease, background-color 90ms linear, color 90ms linear;
+      }
+
+      button:active:not(:disabled) { transform: translateY(2px); }
+
+      button:focus-visible {
+        outline: 4px solid currentColor;
+        outline-offset: 4px;
+      }
+
+      button:disabled {
+        cursor: default;
+        opacity: 0.62;
+        box-shadow: none;
+      }
+
+      body.has-color .hint { color: currentColor; opacity: 0.76; }
+
+      body.has-color button {
+        --button-bg: rgba(12, 13, 14, 0.86);
+        --button-ink: #ffffff;
+        --button-border: rgba(255, 255, 255, 0.22);
+        backdrop-filter: blur(10px);
+      }
+
+      body.has-color.light-ink button {
+        --button-bg: rgba(255, 255, 255, 0.9);
+        --button-ink: #111311;
+        --button-border: rgba(0, 0, 0, 0.12);
+      }
+
+      body.finished #colorWord {
+        animation: settle 560ms cubic-bezier(.18,.78,.22,1);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @keyframes settle {
+        0% { transform: scale(0.88); }
+        58% { transform: scale(1.055); }
+        100% { transform: scale(1); }
+      }
+
+      @media (min-width: 700px) {
+        main { padding-inline: 32px; }
+        .controls { padding-bottom: 12px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body, button { transition: none; }
+        body.finished #colorWord { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="stage" aria-label="ผลการสุ่มสี">
+        <div>
+          <div class="word-wrap">
+            <p id="colorWord" class="ready">พร้อม!</p>
+          </div>
+          <p class="hint" id="hint">กดปุ่มเพื่อเริ่มสุ่มสี</p>
+        </div>
+      </section>
+
+      <div class="controls">
+        <button id="shuffleButton" type="button">เริ่มสุ่มสี</button>
+      </div>
+      <p id="announcement" class="sr-only" aria-live="polite"></p>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var colors = [
+          { name: "แดง", hex: "#d92929", ink: "#ffffff", lightInk: false },
+          { name: "เขียว", hex: "#18864b", ink: "#ffffff", lightInk: false },
+          { name: "เหลือง", hex: "#ffd43b", ink: "#17140a", lightInk: true },
+          { name: "ส้ม", hex: "#f47a20", ink: "#201007", lightInk: true },
+          { name: "ขาว", hex: "#f7f7f4", ink: "#161716", lightInk: true },
+          { name: "ดำ", hex: "#111214", ink: "#ffffff", lightInk: false },
+          { name: "น้ำเงิน", hex: "#174aa5", ink: "#ffffff", lightInk: false },
+          { name: "ฟ้า", hex: "#56c4e8", ink: "#10232b", lightInk: true },
+          { name: "ม่วง", hex: "#7b3db5", ink: "#ffffff", lightInk: false },
+          { name: "ชมพู", hex: "#f28ab2", ink: "#29111b", lightInk: true },
+          { name: "น้ำตาล", hex: "#77482f", ink: "#ffffff", lightInk: false }
+        ];
+
+        var button = document.getElementById("shuffleButton");
+        var word = document.getElementById("colorWord");
+        var hint = document.getElementById("hint");
+        var announcement = document.getElementById("announcement");
+        var audioContext = null;
+        var running = false;
+        var lastIndex = -1;
+        var timer = null;
+
+        function randomIndex(max) {
+          if (window.crypto && window.crypto.getRandomValues) {
+            var values = new Uint32Array(1);
+            window.crypto.getRandomValues(values);
+            return values[0] % max;
+          }
+          return Math.floor(Math.random() * max);
+        }
+
+        function nextColor() {
+          var index = randomIndex(colors.length);
+          while (index === lastIndex && colors.length > 1) {
+            index = randomIndex(colors.length);
+          }
+          lastIndex = index;
+          return colors[index];
+        }
+
+        function ensureAudio() {
+          if (!audioContext) {
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) audioContext = new AudioCtx();
+          }
+          if (audioContext && audioContext.state === "suspended") {
+            audioContext.resume();
+          }
+        }
+
+        function playTick(step) {
+          if (!audioContext) return;
+          var now = audioContext.currentTime;
+          var oscillator = audioContext.createOscillator();
+          var gain = audioContext.createGain();
+          oscillator.type = "sine";
+          oscillator.frequency.setValueAtTime(420 + (step % 4) * 55, now);
+          gain.gain.setValueAtTime(0.075, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+          oscillator.connect(gain);
+          gain.connect(audioContext.destination);
+          oscillator.start(now);
+          oscillator.stop(now + 0.05);
+        }
+
+        function playFinish() {
+          if (!audioContext) return;
+          var now = audioContext.currentTime;
+          [523.25, 659.25, 783.99].forEach(function (frequency, index) {
+            var oscillator = audioContext.createOscillator();
+            var gain = audioContext.createGain();
+            var start = now + index * 0.095;
+            oscillator.type = index === 2 ? "triangle" : "sine";
+            oscillator.frequency.setValueAtTime(frequency, start);
+            gain.gain.setValueAtTime(0.001, start);
+            gain.gain.exponentialRampToValueAtTime(0.13, start + 0.018);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+            oscillator.start(start);
+            oscillator.stop(start + 0.27);
+          });
+        }
+
+        function showColor(color) {
+          document.body.style.backgroundColor = color.hex;
+          document.body.style.color = color.ink;
+          document.body.classList.add("has-color");
+          document.body.classList.toggle("light-ink", !color.lightInk);
+          word.classList.remove("ready");
+          word.textContent = color.name;
+        }
+
+        function finish(color) {
+          running = false;
+          timer = null;
+          document.body.classList.add("finished");
+          button.disabled = false;
+          button.textContent = "สุ่มอีกครั้ง";
+          hint.textContent = "สีที่ได้";
+          announcement.textContent = "ผลการสุ่มคือ สี" + color.name;
+          playFinish();
+        }
+
+        function startShuffle() {
+          if (running) return;
+          running = true;
+          clearTimeout(timer);
+          ensureAudio();
+          document.body.classList.remove("finished");
+          button.disabled = true;
+          button.textContent = "กำลังสุ่ม…";
+          hint.textContent = "";
+          announcement.textContent = "";
+
+          var totalSteps = 30;
+          var step = 0;
+          var current = null;
+
+          function advance() {
+            current = nextColor();
+            showColor(current);
+            playTick(step);
+            step += 1;
+
+            if (step >= totalSteps) {
+              finish(current);
+              return;
+            }
+
+            var progress = step / (totalSteps - 1);
+            var delay = 48 + 650 * Math.pow(progress, 3.15);
+            timer = window.setTimeout(advance, delay);
+          }
+
+          advance();
+        }
+
+        button.addEventListener("click", startShuffle);
+      }());
+    </script>
+  </body>
+</html>
