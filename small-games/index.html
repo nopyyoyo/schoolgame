@@ -167,6 +167,103 @@
       .colors .visual { background: #e8edf1; }
     }
 
+    .classroom .visual {
+      background-color: #e8f4e8;
+      background-image: linear-gradient(
+        180deg,
+        transparent 0 74%,
+        color-mix(in srgb, #74a06f 28%, transparent) 74% 75%,
+        transparent 75%
+      );
+    }
+
+    .classroom-items {
+      position: relative;
+      width: clamp(7rem, 31vw, 12rem);
+      height: clamp(5.1rem, 22vw, 8.2rem);
+      transform: rotate(-1deg);
+    }
+
+    .backpack {
+      position: absolute;
+      left: 3%;
+      bottom: 4%;
+      width: 43%;
+      height: 72%;
+      border: 3px solid #173c58;
+      border-radius: 38% 38% 22% 22%;
+      background: #ef6d4b;
+      box-shadow: inset 0 -8px 0 rgba(110, 33, 24, .12);
+    }
+
+    .backpack::before {
+      content: "";
+      position: absolute;
+      left: 24%;
+      top: -23%;
+      width: 44%;
+      height: 27%;
+      border: 3px solid #173c58;
+      border-bottom: 0;
+      border-radius: 50% 50% 0 0;
+    }
+
+    .backpack::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 13%;
+      height: 23%;
+      border: 2px solid #173c58;
+      border-radius: .45rem;
+      background: #ff9b69;
+    }
+
+    .book-stack {
+      position: absolute;
+      right: 1%;
+      bottom: 3%;
+      width: 50%;
+      height: 42%;
+    }
+
+    .book-stack::before,
+    .book-stack::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      width: 100%;
+      height: 38%;
+      border: 3px solid #173c58;
+      border-radius: .35rem .75rem .75rem .35rem;
+    }
+
+    .book-stack::before {
+      top: 4%;
+      background: #f1c843;
+      transform: rotate(4deg);
+    }
+
+    .book-stack::after {
+      bottom: 0;
+      right: 7%;
+      background: #4c9bc8;
+      transform: rotate(-3deg);
+    }
+
+    .pencil {
+      position: absolute;
+      right: 8%;
+      top: 2%;
+      width: 48%;
+      height: 14%;
+      border: 3px solid #173c58;
+      border-radius: 999px 0 0 999px;
+      background: linear-gradient(90deg, #ef7a9d 0 14%, #f3ca47 14% 86%, #e0b78e 86%);
+      transform: rotate(-18deg);
+    }
+
     .swatches {
       display: grid;
       grid-template-columns: repeat(3, clamp(2.3rem, 10vw, 4.35rem));
@@ -267,7 +364,7 @@
         <h1>เลือกเกม</h1>
         <p>แตะเกมที่อยากเล่น แล้วเริ่มสนุกได้เลย</p>
       </div>
-      <div class="count" aria-label="มีสองเกม">2 เกม</div>
+      <div class="count" aria-label="มีสามเกม">3 เกม</div>
     </header>
 
     <nav class="game-grid" aria-label="เกมทั้งหมด">
@@ -295,6 +392,23 @@
           <div>
             <h2>สุ่มสี</h2>
             <p>สีไทย 11 สี</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card classroom" href="./ClassroomObjShuffle/" aria-label="เปิดเกมสุ่มสิ่งของในห้องเรียน">
+        <div class="visual" aria-hidden="true">
+          <div class="classroom-items">
+            <span class="backpack"></span>
+            <span class="book-stack"></span>
+            <span class="pencil"></span>
+          </div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>สุ่มสิ่งของในห้องเรียน</h2>
+            <p>สิ่งของ 9 อย่าง</p>
           </div>
           <span class="arrow" aria-hidden="true">›</span>
         </div>
