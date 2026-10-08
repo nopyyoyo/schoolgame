@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
-  <link rel="icon" href="data:," />
   <title>สุ่มสิ่งของในห้องเรียน</title>
   <style>
     :root {
@@ -34,6 +33,7 @@
     }
     * { box-sizing: border-box; }
     html, body { min-height: 100%; }
+    html, body, button { font-family: Tahoma, sans-serif; }
     body {
       margin: 0;
       background:
@@ -42,7 +42,6 @@
         var(--bg);
       background-size: 28px 28px;
       color: var(--ink);
-      font-family: Tahoma, "Noto Sans Thai", sans-serif;
       overflow-x: hidden;
     }
     button { font: inherit; }
@@ -185,57 +184,11 @@
       .shuffle-button { color: #082218; }
     }
     .shuffle-button:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 var(--green-press); }
-    .shuffle-button:focus-visible, .sound-toggle:focus-visible, .credits-button:focus-visible {
+    .shuffle-button:focus-visible, .sound-toggle:focus-visible {
       outline: 4px solid var(--yellow);
       outline-offset: 3px;
     }
     .shuffle-button:disabled { cursor: wait; opacity: .82; }
-    .credits-button {
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      font-size: .78rem;
-      min-height: 32px;
-      cursor: pointer;
-    }
-
-    dialog {
-      width: min(calc(100% - 32px), 560px);
-      max-height: min(78svh, 650px);
-      color: var(--ink);
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 0;
-      box-shadow: var(--shadow);
-    }
-    dialog::backdrop { background: rgba(7, 18, 14, .68); }
-    .credits-head {
-      position: sticky;
-      top: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 20px 12px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--line);
-    }
-    .credits-head h2 { margin: 0; font-size: 1.18rem; }
-    .close-button {
-      width: 42px;
-      height: 42px;
-      border: 0;
-      border-radius: 50%;
-      background: var(--bg);
-      color: var(--ink);
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-    .credits-list { margin: 0; padding: 14px 22px 22px 42px; }
-    .credits-list li { padding: 6px 0; }
-    .credits-list a { color: var(--green); font-weight: 700; }
     .sr-only {
       position: absolute;
       width: 1px;
@@ -253,7 +206,6 @@
       .label { min-height: 82px; padding: 10px 16px 12px; }
       .image-wrap { padding: 18px; }
       .shuffle-button { min-height: 54px; }
-      .credits-button { min-height: 24px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .card.landed { animation: none; }
@@ -274,7 +226,7 @@
     <section class="stage" aria-label="สิ่งของที่สุ่มได้">
       <div class="card" id="card">
         <div class="image-wrap">
-          <img id="objectImage" src="../Small%20games/object%20photo/backpack.png" alt="กระเป๋านักเรียน" width="800" height="600" />
+          <img id="objectImage" src="https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/backpack.png" alt="กระเป๋านักเรียน" width="800" height="600" />
         </div>
         <div class="label"><p id="objectWord">กระเป๋า</p></div>
       </div>
@@ -283,40 +235,21 @@
 
     <div class="controls">
       <button class="shuffle-button" id="shuffleButton" type="button">เริ่มสุ่ม</button>
-      <button class="credits-button" id="creditsButton" type="button">ที่มารูปภาพ</button>
     </div>
   </main>
-
-  <dialog id="creditsDialog">
-    <div class="credits-head">
-      <h2>ที่มารูปภาพ</h2>
-      <button class="close-button" id="closeCredits" type="button" aria-label="ปิด">×</button>
-    </div>
-    <ol class="credits-list">
-      <li><a href="https://www.Vecteezy.com/free-photos/school-backpack" target="_blank" rel="noopener">กระเป๋า — Vecteezy</a></li>
-      <li><a href="https://www.Vecteezy.com/free-photos/rectangle-button" target="_blank" rel="noopener">ยางลบ — Vecteezy</a></li>
-      <li><a href="https://mahik.ua/linijka-derevyana-30sm-harkiv" target="_blank" rel="noopener">ไม้บรรทัด — Mahik</a></li>
-      <li><a href="https://www.Vecteezy.com/photo/49939323-white-background-macro-ink-writing-instrument-office-supplies-tool-stationery-item-penmanship-ballpoint-pen-creativity-isolated-ballpoint-pen-with-blue-cap-on-white-background" target="_blank" rel="noopener">ปากกา — Vecteezy</a></li>
-      <li><a href="https://www.Vecteezy.com/photo/50630712-yellow-pencil-isolated-on-white-background" target="_blank" rel="noopener">ดินสอ — Vecteezy</a></li>
-      <li><a href="https://alingar.ru/product/code_98620/" target="_blank" rel="noopener">สมุด — Alingar</a></li>
-      <li><a href="https://jooinn.com/books-isolated.html" target="_blank" rel="noopener">หนังสือ — Jooinn</a></li>
-      <li><a href="https://noithathoaphatvn.net/danh-muc/noi-that-truong-hoc/" target="_blank" rel="noopener">โต๊ะ — Hòa Phát</a></li>
-      <li><a href="https://www.navarroaubanell.com/producto/silla-dosca-escuela-navarroaubanell/" target="_blank" rel="noopener">เก้าอี้ — Navarro Aubanell</a></li>
-    </ol>
-  </dialog>
 
   <script>
     (function () {
       var objects = [
-        { word: "กระเป๋า", image: "../Small%20games/object%20photo/backpack.png", alt: "กระเป๋านักเรียน" },
-        { word: "ยางลบ", image: "../Small%20games/object%20photo/eraser.png", alt: "ยางลบสีชมพู" },
-        { word: "ไม้บรรทัด", image: "../Small%20games/object%20photo/ruler.png", alt: "ไม้บรรทัดไม้" },
-        { word: "ปากกา", image: "../Small%20games/object%20photo/pen.png", alt: "ปากกาลูกลื่นสีน้ำเงิน" },
-        { word: "ดินสอ", image: "../Small%20games/object%20photo/pencil.png", alt: "ดินสอสีเหลือง" },
-        { word: "สมุด", image: "../Small%20games/object%20photo/notebook.png", alt: "สมุดเรียน" },
-        { word: "หนังสือ", image: "../Small%20games/object%20photo/book.png", alt: "หนังสือ" },
-        { word: "โต๊ะ", image: "../Small%20games/object%20photo/table.png", alt: "โต๊ะนักเรียน" },
-        { word: "เก้าอี้", image: "../Small%20games/object%20photo/chair.png", alt: "เก้าอี้นักเรียน" }
+        { word: "กระเป๋า", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/backpack.png", alt: "กระเป๋านักเรียน" },
+        { word: "ยางลบ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/eraser.png", alt: "ยางลบสีชมพู" },
+        { word: "ไม้บรรทัด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/ruler.png", alt: "ไม้บรรทัดไม้" },
+        { word: "ปากกา", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pen.png", alt: "ปากกาลูกลื่นสีน้ำเงิน" },
+        { word: "ดินสอ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pencil.png", alt: "ดินสอสีเหลือง" },
+        { word: "สมุด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/notebook.png", alt: "สมุดเรียน" },
+        { word: "หนังสือ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/book.png", alt: "หนังสือ" },
+        { word: "โต๊ะ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/table.png", alt: "โต๊ะนักเรียน" },
+        { word: "เก้าอี้", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/chair.png", alt: "เก้าอี้นักเรียน" }
       ];
 
       var image = document.getElementById("objectImage");
@@ -325,7 +258,6 @@
       var button = document.getElementById("shuffleButton");
       var soundToggle = document.getElementById("soundToggle");
       var resultStatus = document.getElementById("resultStatus");
-      var creditsDialog = document.getElementById("creditsDialog");
       var currentIndex = 0;
       var lastFinalIndex = 0;
       var running = false;
@@ -344,6 +276,8 @@
         word.textContent = item.word;
         currentIndex = index;
       }
+
+      showItem(0);
 
       function randomDifferent(excluded) {
         var index;
@@ -433,16 +367,6 @@
           ensureAudio();
           tone(520, .09, .06, "sine", 0);
         }
-      });
-      document.getElementById("creditsButton").addEventListener("click", function () {
-        creditsDialog.showModal();
-      });
-      document.getElementById("closeCredits").addEventListener("click", function () {
-        creditsDialog.close();
-      });
-      creditsDialog.addEventListener("click", function (event) {
-        var rect = creditsDialog.getBoundingClientRect();
-        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) creditsDialog.close();
       });
     }());
   </script>
