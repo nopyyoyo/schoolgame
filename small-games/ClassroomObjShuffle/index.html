@@ -67,23 +67,22 @@
       font-weight: 700;
     }
     .sound-toggle {
-      min-width: 44px;
       min-height: 44px;
       display: inline-grid;
       place-items: center;
+      padding: 8px 12px;
       border: 1px solid var(--line);
-      border-radius: 50%;
+      border-radius: 12px;
       color: var(--ink);
       background: var(--surface);
+      font-size: clamp(.82rem, 3.2vw, .95rem);
+      font-weight: 700;
+      white-space: nowrap;
       cursor: pointer;
       box-shadow: 0 3px 0 var(--line);
       -webkit-tap-highlight-color: transparent;
     }
     .sound-toggle:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
-    .sound-toggle svg { width: 22px; height: 22px; }
-    .sound-toggle .sound-off { display: none; }
-    .sound-toggle[aria-pressed="false"] .sound-on { display: none; }
-    .sound-toggle[aria-pressed="false"] .sound-off { display: block; }
 
     .stage {
       min-height: 0;
@@ -217,10 +216,7 @@
   <main class="app">
     <div class="topline">
       <p class="prompt">ดูรูป แล้วอ่านคำให้ดัง!</p>
-      <button class="sound-toggle" id="soundToggle" type="button" aria-label="ปิดเสียง" aria-pressed="true">
-        <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9H3Zm12.5 3a3.5 3.5 0 0 0-1.7-3v6a3.5 3.5 0 0 0 1.7-3Zm-1.7-7.7v2.1a6 6 0 0 1 0 11.2v2.1a8 8 0 0 0 0-15.4Z"/></svg>
-        <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9H3Zm12.6 3 2.2-2.2-1.4-1.4-2.2 2.2L12 8.4 10.6 9.8l2.2 2.2-2.2 2.2 1.4 1.4 2.2-2.2 2.2 2.2 1.4-1.4-2.2-2.2Z"/></svg>
-      </button>
+      <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">✅ เปิดเสียงอ่าน</button>
     </div>
 
     <section class="stage" aria-label="สิ่งของที่สุ่มได้">
@@ -241,15 +237,15 @@
   <script>
     (function () {
       var objects = [
-        { word: "กระเป๋า", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/backpack.png", alt: "กระเป๋านักเรียน" },
-        { word: "ยางลบ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/eraser.png", alt: "ยางลบสีชมพู" },
-        { word: "ไม้บรรทัด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/ruler.png", alt: "ไม้บรรทัดไม้" },
-        { word: "ปากกา", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pen.png", alt: "ปากกาลูกลื่นสีน้ำเงิน" },
-        { word: "ดินสอ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pencil.png", alt: "ดินสอสีเหลือง" },
-        { word: "สมุด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/notebook.png", alt: "สมุดเรียน" },
-        { word: "หนังสือ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/book.png", alt: "หนังสือ" },
-        { word: "โต๊ะ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/table.png", alt: "โต๊ะนักเรียน" },
-        { word: "เก้าอี้", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/chair.png", alt: "เก้าอี้นักเรียน" }
+        { word: "กระเป๋า", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/backpack.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/backpack.mp3", alt: "กระเป๋านักเรียน" },
+        { word: "ยางลบ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/eraser.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/eraser.mp3", alt: "ยางลบสีชมพู" },
+        { word: "ไม้บรรทัด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/ruler.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/ruler.mp3", alt: "ไม้บรรทัดไม้" },
+        { word: "ปากกา", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pen.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/pen.mp3", alt: "ปากกาลูกลื่นสีน้ำเงิน" },
+        { word: "ดินสอ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pencil.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/pencil.mp3", alt: "ดินสอสีเหลือง" },
+        { word: "สมุด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/notebook.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/notebook.mp3", alt: "สมุดเรียน" },
+        { word: "หนังสือ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/book.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/book.mp3", alt: "หนังสือ" },
+        { word: "โต๊ะ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/table.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/table.mp3", alt: "โต๊ะนักเรียน" },
+        { word: "เก้าอี้", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/chair.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/chair.mp3", alt: "เก้าอี้นักเรียน" }
       ];
 
       var image = document.getElementById("objectImage");
@@ -261,8 +257,11 @@
       var currentIndex = 0;
       var lastFinalIndex = 0;
       var running = false;
-      var soundOn = true;
+      var readingOn = true;
       var audioContext = null;
+      var readingAudio = new Audio();
+      readingAudio.preload = "auto";
+      readingAudio.volume = 0.12;
 
       objects.forEach(function (item) {
         var preload = new Image();
@@ -295,7 +294,7 @@
       }
 
       function tone(frequency, duration, volume, type, delay) {
-        if (!soundOn || !audioContext) return;
+        if (!audioContext) return;
         var start = audioContext.currentTime + (delay || 0);
         var oscillator = audioContext.createOscillator();
         var gain = audioContext.createGain();
@@ -320,11 +319,45 @@
         tone(783.99, .42, .09, "sine", .18);
       }
 
+      function unlockReadingAudio(index) {
+        if (!readingOn) return;
+        readingAudio.src = objects[index].sound;
+        readingAudio.load();
+        readingAudio.volume = 0;
+        var unlockPromise = readingAudio.play();
+
+        function finishUnlock() {
+          readingAudio.pause();
+          try { readingAudio.currentTime = 0; } catch (error) {}
+          readingAudio.volume = 0.12;
+        }
+
+        if (unlockPromise && typeof unlockPromise.then === "function") {
+          unlockPromise.then(finishUnlock).catch(function () {
+            readingAudio.volume = 0.12;
+          });
+        } else {
+          finishUnlock();
+        }
+      }
+
+      function playReading(index) {
+        readingAudio.src = objects[index].sound;
+        readingAudio.currentTime = 0;
+        var playPromise = readingAudio.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(function () {});
+        }
+      }
+
       function shuffle() {
         if (running) return;
         running = true;
         ensureAudio();
+        var finalIndex = randomDifferent(lastFinalIndex);
+        unlockReadingAudio(finalIndex);
         button.disabled = true;
+        soundToggle.disabled = true;
         button.textContent = "กำลังสุ่ม…";
         resultStatus.textContent = "";
         card.classList.remove("landed");
@@ -333,8 +366,7 @@
         var step = 0;
 
         function advance() {
-          var next = randomDifferent(currentIndex);
-          if (step === totalSteps - 1 && next === lastFinalIndex) next = randomDifferent(lastFinalIndex);
+          var next = step === totalSteps - 1 ? finalIndex : randomDifferent(currentIndex);
           showItem(next);
           tick(step);
           step += 1;
@@ -350,8 +382,13 @@
             void card.offsetWidth;
             card.classList.add("landed");
             button.disabled = false;
+            soundToggle.disabled = false;
             button.textContent = "สุ่มอีกครั้ง";
-            finishSound();
+            if (readingOn) {
+              playReading(currentIndex);
+            } else {
+              finishSound();
+            }
             resultStatus.textContent = "สุ่มได้ " + objects[currentIndex].word;
           }
         }
@@ -360,12 +397,12 @@
 
       button.addEventListener("click", shuffle);
       soundToggle.addEventListener("click", function () {
-        soundOn = !soundOn;
-        soundToggle.setAttribute("aria-pressed", soundOn ? "true" : "false");
-        soundToggle.setAttribute("aria-label", soundOn ? "ปิดเสียง" : "เปิดเสียง");
-        if (soundOn) {
-          ensureAudio();
-          tone(520, .09, .06, "sine", 0);
+        readingOn = !readingOn;
+        soundToggle.setAttribute("aria-pressed", readingOn ? "true" : "false");
+        soundToggle.textContent = readingOn ? "✅ เปิดเสียงอ่าน" : "❌ ปิดเสียงอ่าน";
+        if (!readingOn) {
+          readingAudio.pause();
+          readingAudio.currentTime = 0;
         }
       });
     }());
