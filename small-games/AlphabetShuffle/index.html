@@ -331,7 +331,7 @@
     <div class="topline">
       <span><strong>พยัญชนะไทย</strong> · 44 ตัว</span>
       <div class="top-actions">
-        <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="true">เปิดเสียงอ่าน</button>
+        <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="true">✅ เปิดเสียงอ่าน</button>
         <span class="counter" id="counter" aria-label="ลำดับพยัญชนะ">1 / 44</span>
       </div>
     </div>
@@ -500,6 +500,7 @@
           currentReadingAudio.currentTime = 0;
         }
         currentReadingAudio = new Audio("../../Small%20games/Thai%20letter%20sound/" + soundFiles[index]);
+        currentReadingAudio.volume = 0.18;
         currentReadingAudio.play().catch(function () {});
       }
 
@@ -554,7 +555,7 @@
 
       readingToggle.addEventListener("click", function () {
         readingSoundOn = !readingSoundOn;
-        readingToggle.textContent = readingSoundOn ? "เปิดเสียงอ่าน" : "ปิดเสียงอ่าน";
+        readingToggle.textContent = readingSoundOn ? "✅ เปิดเสียงอ่าน" : "❌ ปิดเสียงอ่าน";
         readingToggle.setAttribute("aria-pressed", readingSoundOn ? "true" : "false");
         if (!readingSoundOn && currentReadingAudio) {
           currentReadingAudio.pause();
