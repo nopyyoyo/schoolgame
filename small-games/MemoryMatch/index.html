@@ -111,6 +111,66 @@
       flex-wrap: wrap;
     }
 
+    .mode-selector {
+      display: inline-flex;
+      gap: 7px;
+      margin-top: 12px;
+      padding: 4px;
+      border: 2px solid var(--border);
+      border-radius: 14px 8px 14px 8px;
+      background: var(--panel);
+      box-shadow: 0 3px 0 rgba(23, 48, 74, .12);
+    }
+
+    .mode-button {
+      min-height: 42px;
+      padding: 8px 13px;
+      border: 0;
+      border-radius: 9px 5px 9px 5px;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .mode-button[aria-pressed="true"] {
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 3px 0 var(--blue-dark);
+    }
+
+    .mode-button:active { transform: translateY(2px); }
+
+    .score-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px 16px;
+      margin: 0 0 12px;
+      padding: 11px 14px;
+      border: 2px solid var(--border);
+      border-radius: 12px 7px 12px 7px;
+      background: var(--panel);
+      box-shadow: 0 3px 0 rgba(23, 48, 74, .12);
+      font-weight: 700;
+    }
+
+    .score-panel[hidden] { display: none; }
+
+    .scoreboard {
+      color: var(--ink);
+      font-size: clamp(.93rem, 3.3vw, 1.08rem);
+    }
+
+    .turn-indicator {
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: #2e2b1d;
+      background: var(--yellow);
+      white-space: nowrap;
+    }
+
     .moves {
       min-height: 46px;
       display: inline-flex;
@@ -397,6 +457,10 @@
       .controls { justify-content: space-between; }
       .moves { flex: 0 0 auto; }
       .sound-toggle { flex: 1 1 auto; }
+      .mode-selector { display: flex; width: 100%; }
+      .mode-button { flex: 1 1 0; padding-left: 8px; padding-right: 8px; }
+      .score-panel { grid-template-columns: 1fr; text-align: center; gap: 8px; }
+      .turn-indicator { justify-self: center; }
       .board-wrap { padding: 8px; }
       .board { gap: 8px; }
     }
@@ -425,12 +489,21 @@
       <div class="title-group">
         <h1>จับคู่</h1>
         <p class="instruction">เปิดไพ่ 2 ใบ แล้วจับคู่รูปภาพกับคำศัพท์ให้ครบ</p>
+        <div class="mode-selector" role="group" aria-label="เลือกจำนวนผู้เล่น">
+          <button class="mode-button" id="singleMode" type="button" aria-pressed="true">👤 1 คน</button>
+          <button class="mode-button" id="twoPlayerMode" type="button" aria-pressed="false">👥 2 คน</button>
+        </div>
       </div>
       <div class="controls">
         <div class="moves" aria-label="จำนวนครั้งที่เปิดไพ่สองใบ">ครั้งที่ <span id="moveCount">0</span></div>
         <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">✅ เปิดเสียงอ่าน</button>
       </div>
     </header>
+
+    <section class="score-panel" id="scorePanel" aria-label="คะแนนและตาของผู้เล่น" hidden>
+      <div class="scoreboard">ผู้เล่น 1: <span id="playerOneScore">0</span> แต้ม <span aria-hidden="true">|</span> ผู้เล่น 2: <span id="playerTwoScore">0</span> แต้ม</div>
+      <div class="turn-indicator" id="turnIndicator" aria-live="polite">ตาของผู้เล่น 1</div>
+    </section>
 
     <section class="board-wrap" aria-label="กระดานจับคู่คำศัพท์">
       <div class="board" id="board"></div>
@@ -440,7 +513,8 @@
   <div class="win-layer" id="winLayer" hidden>
     <section class="win-box" role="dialog" aria-modal="true" aria-labelledby="winTitle">
       <h2 class="win-title" id="winTitle">🎉 เก่งมาก!</h2>
-      <p class="win-score">จับคู่ครบใน <strong id="finalMoves">0</strong> ครั้ง</p>
+      <p class="win-score" id="singlePlayerResult">จับคู่ครบใน <strong id="finalMoves">0</strong> ครั้ง</p>
+      <p class="win-score" id="twoPlayerResult" hidden></p>
       <button class="play-again" id="playAgain" type="button">เล่นอีกครั้ง</button>
     </section>
   </div>
@@ -470,8 +544,17 @@
       var moveCountEl = document.getElementById("moveCount");
       var finalMovesEl = document.getElementById("finalMoves");
       var winLayer = document.getElementById("winLayer");
+      var winTitle = document.getElementById("winTitle");
+      var singlePlayerResult = document.getElementById("singlePlayerResult");
+      var twoPlayerResult = document.getElementById("twoPlayerResult");
       var playAgain = document.getElementById("playAgain");
       var soundToggle = document.getElementById("soundToggle");
+      var singleModeButton = document.getElementById("singleMode");
+      var twoPlayerModeButton = document.getElementById("twoPlayerMode");
+      var scorePanel = document.getElementById("scorePanel");
+      var playerOneScore = document.getElementById("playerOneScore");
+      var playerTwoScore = document.getElementById("playerTwoScore");
+      var turnIndicator = document.getElementById("turnIndicator");
       var statusEl = document.getElementById("status");
 
       var firstCard = null;
@@ -479,6 +562,11 @@
       var boardLocked = false;
       var moves = 0;
       var matches = 0;
+      var gameMode = "single";
+      var currentPlayer = 0;
+      var scores = [0, 0];
+      var turnTimer = null;
+      var winTimer = null;
       var readingEnabled = true;
       var audioContext = null;
       var readingAudio = new Audio();
@@ -673,6 +761,27 @@
         boardLocked = false;
       }
 
+      function updatePlayerPanel() {
+        playerOneScore.textContent = String(scores[0]);
+        playerTwoScore.textContent = String(scores[1]);
+        turnIndicator.textContent = "ตาของผู้เล่น " + String(currentPlayer + 1);
+      }
+
+      function advancePlayer() {
+        if (gameMode !== "two") return;
+        currentPlayer = currentPlayer === 0 ? 1 : 0;
+        updatePlayerPanel();
+      }
+
+      function setGameMode(nextMode) {
+        if (nextMode === gameMode) return;
+        gameMode = nextMode;
+        singleModeButton.setAttribute("aria-pressed", String(gameMode === "single"));
+        twoPlayerModeButton.setAttribute("aria-pressed", String(gameMode === "two"));
+        scorePanel.hidden = gameMode !== "two";
+        buildGame();
+      }
+
       function handleCard(card, item) {
         unlockReadingAudio();
         if (boardLocked || card === firstCard || card.classList.contains("is-matched") || card.classList.contains("is-flipped")) return;
@@ -702,19 +811,25 @@
           firstCard.setAttribute("aria-label", "จับคู่แล้ว " + matchedItem.word);
           secondCard.setAttribute("aria-label", "จับคู่แล้ว " + matchedItem.word);
           matches += 1;
+          if (gameMode === "two") {
+            scores[currentPlayer] += 1;
+            updatePlayerPanel();
+          }
           playMatchChime();
           playReading(matchedItem);
           statusEl.textContent = "จับคู่ " + matchedItem.word + " ถูกต้อง";
+          advancePlayer();
           clearTurn();
 
           if (matches === activePack.length) {
-            window.setTimeout(showWin, 720);
+            winTimer = window.setTimeout(showWin, 720);
           }
         } else {
           var cardOne = firstCard;
           var cardTwo = secondCard;
           statusEl.textContent = "ยังไม่ตรงกัน ลองใหม่อีกครั้ง";
-          window.setTimeout(function () {
+          advancePlayer();
+          turnTimer = window.setTimeout(function () {
             setCardClosed(cardOne);
             setCardClosed(cardTwo);
             clearTurn();
@@ -726,11 +841,33 @@
         readingAudio.pause();
         playWinFanfare();
         finalMovesEl.textContent = String(moves);
+
+        if (gameMode === "two") {
+          if (scores[0] > scores[1]) {
+            winTitle.textContent = "ผู้เล่น 1 ชนะ! 🎉";
+          } else if (scores[1] > scores[0]) {
+            winTitle.textContent = "ผู้เล่น 2 ชนะ! 🎉";
+          } else {
+            winTitle.textContent = "เสมอกัน!";
+          }
+          twoPlayerResult.textContent = "ผู้เล่น 1: " + scores[0] + " แต้ม · ผู้เล่น 2: " + scores[1] + " แต้ม";
+          singlePlayerResult.hidden = true;
+          twoPlayerResult.hidden = false;
+        } else {
+          winTitle.textContent = "🎉 เก่งมาก!";
+          singlePlayerResult.hidden = false;
+          twoPlayerResult.hidden = true;
+        }
+
         winLayer.hidden = false;
         playAgain.focus();
       }
 
       function buildGame() {
+        window.clearTimeout(turnTimer);
+        window.clearTimeout(winTimer);
+        turnTimer = null;
+        winTimer = null;
         readingAudio.pause();
         readingAudio.currentTime = 0;
         board.innerHTML = "";
@@ -739,7 +876,14 @@
         boardLocked = false;
         moves = 0;
         matches = 0;
+        currentPlayer = 0;
+        scores = [0, 0];
         moveCountEl.textContent = "0";
+        scorePanel.hidden = gameMode !== "two";
+        updatePlayerPanel();
+        winTitle.textContent = "🎉 เก่งมาก!";
+        singlePlayerResult.hidden = false;
+        twoPlayerResult.hidden = true;
         winLayer.hidden = true;
 
         var deck = [];
@@ -766,6 +910,8 @@
         }
       });
 
+      singleModeButton.addEventListener("click", function () { setGameMode("single"); });
+      twoPlayerModeButton.addEventListener("click", function () { setGameMode("two"); });
       playAgain.addEventListener("click", buildGame);
       winLayer.addEventListener("click", function (event) {
         if (event.target === winLayer) playAgain.focus();

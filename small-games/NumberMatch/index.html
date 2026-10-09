@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:," />
+  <title>จับคู่ตัวเลข</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #e8f5f7;
+      --bg-2: #cdebed;
+      --ink: #12343b;
+      --muted: #42646b;
+      --panel: #ffffff;
+      --panel-soft: #f3fbfc;
+      --line: #9fcfd3;
+      --primary: #087d78;
+      --primary-strong: #05625f;
+      --primary-text: #ffffff;
+      --sun: #f5bd24;
+      --sun-soft: #fff0ac;
+      --word: #ffffff;
+      --num: #ffe27a;
+      --back: #117f7a;
+      --back-2: #0a6967;
+      --matched: #4ba966;
+      --matched-soft: #d8f4df;
+      --shadow: 0 5px 0 rgba(9, 74, 75, .19);
+      --shadow-small: 0 3px 0 rgba(9, 74, 75, .16);
+      font-family: Tahoma, "Noto Sans Thai", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d2529;
+        --bg-2: #15383c;
+        --ink: #f0fbfc;
+        --muted: #bbd8dc;
+        --panel: #17383d;
+        --panel-soft: #21464a;
+        --line: #397176;
+        --primary: #36bcb3;
+        --primary-strong: #77d8d1;
+        --primary-text: #062827;
+        --sun: #f5c84a;
+        --sun-soft: #5b4b19;
+        --word: #21464a;
+        --num: #5e4d18;
+        --back: #168c86;
+        --back-2: #0b6562;
+        --matched: #63c77c;
+        --matched-soft: #254f35;
+        --shadow: 0 5px 0 rgba(0, 0, 0, .28);
+        --shadow-small: 0 3px 0 rgba(0, 0, 0, .25);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      background:
+        radial-gradient(circle at 15px 15px, rgba(8,125,120,.09) 2px, transparent 2.5px) 0 0 / 30px 30px,
+        linear-gradient(160deg, var(--bg), var(--bg-2));
+      color: var(--ink);
+      font-family: Tahoma, "Noto Sans Thai", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { font: inherit; }
+    .page {
+      width: min(100%, 860px);
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 12px max(28px, env(safe-area-inset-bottom));
+    }
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px 18px;
+      align-items: end;
+      margin: 0 2px 14px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 7vw, 2.55rem);
+      line-height: 1.12;
+      letter-spacing: -.02em;
+    }
+    .hint {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: .96rem;
+      line-height: 1.45;
+    }
+    .pair-chip {
+      align-self: center;
+      white-space: nowrap;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: var(--sun-soft);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: .86rem;
+      border: 1px solid color-mix(in srgb, var(--sun) 75%, var(--line));
+    }
+
+    .control-panel {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 18px 18px 11px 11px;
+      padding: 10px;
+      box-shadow: var(--shadow-small);
+      margin-bottom: 14px;
+    }
+    .mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .mode-btn {
+      min-height: 48px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-soft);
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .16s, border-color .16s, transform .1s;
+    }
+    .mode-btn:active { transform: translateY(2px); }
+    .mode-btn[aria-pressed="true"] {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--primary-text);
+    }
+    .status-row {
+      min-height: 52px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px 14px;
+      text-align: center;
+    }
+    .moves, .turn {
+      font-weight: 700;
+      font-size: 1.02rem;
+    }
+    .scoreboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+    }
+    .player-score {
+      flex: 1 1 140px;
+      max-width: 230px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--panel-soft);
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    .player-score.active {
+      border-color: var(--sun);
+      background: var(--sun-soft);
+    }
+    .turn { width: 100%; color: var(--primary-strong); }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      perspective: 1000px;
+    }
+    .card {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1.44 / 1;
+      min-height: 66px;
+      padding: 0;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      cursor: pointer;
+      perspective: 800px;
+      outline-offset: 3px;
+    }
+    .card-inner {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transition: transform .34s cubic-bezier(.2,.78,.32,1);
+    }
+    .card.is-flipped .card-inner,
+    .card.is-matched .card-inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 12px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border: 2px solid rgba(255,255,255,.55);
+      box-shadow: var(--shadow);
+    }
+    .card-back {
+      background:
+        linear-gradient(45deg, transparent 43%, rgba(255,255,255,.12) 43% 50%, transparent 50% 93%, rgba(255,255,255,.12) 93%) 0 0 / 22px 22px,
+        linear-gradient(135deg, var(--back), var(--back-2));
+      color: #fff6c4;
+      font-weight: 700;
+      font-size: clamp(1.35rem, 6vw, 2.2rem);
+      text-shadow: 0 2px 0 rgba(0,0,0,.2);
+    }
+    .card-back::after {
+      content: "๑๒๓";
+      display: grid;
+      place-items: center;
+      width: 72%;
+      height: 52%;
+      border: 2px solid rgba(255,255,255,.65);
+      border-radius: 999px;
+      background: rgba(0,0,0,.08);
+      line-height: 1;
+    }
+    .card-front {
+      transform: rotateY(180deg);
+      padding: 7px;
+      color: var(--ink);
+      background: var(--word);
+      border-color: var(--line);
+    }
+    .card[data-kind="numeral"] .card-front { background: var(--num); }
+    .card-text {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      white-space: nowrap;
+      line-height: 1.05;
+      font-weight: 700;
+      font-size: clamp(1.15rem, 6vw, 2.2rem);
+    }
+    .card[data-kind="numeral"] .card-text {
+      font-size: clamp(1.8rem, 9vw, 3.4rem);
+    }
+    .card.is-matched .face { box-shadow: 0 0 0 3px var(--matched), var(--shadow); }
+    .card.is-matched .card-front { background: var(--matched-soft); }
+    .card.is-matched::after {
+      content: "✓";
+      position: absolute;
+      z-index: 4;
+      top: -6px;
+      right: -5px;
+      width: 25px;
+      height: 25px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      background: var(--matched);
+      font-weight: 700;
+      border: 2px solid var(--panel);
+      animation: pop .34s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(.2) rotate(-20deg); }
+      70% { transform: scale(1.2) rotate(7deg); }
+      100% { transform: scale(1); }
+    }
+
+    .win-panel {
+      margin-top: 16px;
+      padding: 18px 15px;
+      border-radius: 14px;
+      text-align: center;
+      background: var(--panel);
+      border: 3px solid var(--sun);
+      box-shadow: var(--shadow);
+    }
+    .win-panel[hidden] { display: none; }
+    .win-title {
+      margin: 0;
+      font-size: clamp(1.6rem, 7vw, 2.2rem);
+      line-height: 1.2;
+    }
+    .win-detail { margin: 7px 0 14px; color: var(--muted); font-weight: 700; }
+    .again-btn {
+      min-height: 50px;
+      padding: 10px 24px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--primary);
+      color: var(--primary-text);
+      font-weight: 700;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 0 var(--primary-strong);
+      cursor: pointer;
+    }
+    .again-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-strong); }
+
+    @media (min-width: 560px) {
+      .page { padding-inline: 20px; }
+      .game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+      .card { min-height: 90px; }
+    }
+    @media (min-width: 760px) {
+      .game-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .card { min-height: 102px; }
+      .control-panel { padding: 12px; }
+    }
+    @media (max-width: 390px) {
+      .intro { grid-template-columns: 1fr; gap: 5px; }
+      .pair-chip { justify-self: start; }
+      .game-grid { gap: 8px; }
+      .card { border-radius: 10px; }
+      .face { border-radius: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card-inner { transition-duration: .01ms; }
+      .card.is-matched::after { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="intro">
+      <div>
+        <h1>จับคู่ตัวเลข</h1>
+        <p class="hint">เปิดไพ่ 2 ใบ แล้วจับคู่ตัวเลขกับคำภาษาไทย</p>
+      </div>
+      <div class="pair-chip">10 คู่ · 20 ใบ</div>
+    </header>
+
+    <section class="control-panel" aria-label="เลือกโหมดและดูคะแนน">
+      <div class="mode-switch" role="group" aria-label="เลือกจำนวนผู้เล่น">
+        <button class="mode-btn" id="onePlayerBtn" type="button" aria-pressed="true">👤 1 คน</button>
+        <button class="mode-btn" id="twoPlayerBtn" type="button" aria-pressed="false">👥 2 คน</button>
+      </div>
+      <div class="status-row" id="statusRow" aria-live="polite"></div>
+    </section>
+
+    <section class="game-grid" id="gameGrid" aria-label="ไพ่จับคู่ตัวเลข"></section>
+
+    <section class="win-panel" id="winPanel" hidden aria-live="assertive">
+      <h2 class="win-title" id="winTitle"></h2>
+      <p class="win-detail" id="winDetail"></p>
+      <button class="again-btn" id="againBtn" type="button">เล่นอีกครั้ง</button>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var pairs = [
+        { id: 1, numeral: '๑', word: 'หนึ่ง' },
+        { id: 2, numeral: '๒', word: 'สอง' },
+        { id: 3, numeral: '๓', word: 'สาม' },
+        { id: 4, numeral: '๔', word: 'สี่' },
+        { id: 5, numeral: '๕', word: 'ห้า' },
+        { id: 6, numeral: '๖', word: 'หก' },
+        { id: 7, numeral: '๗', word: 'เจ็ด' },
+        { id: 8, numeral: '๘', word: 'แปด' },
+        { id: 9, numeral: '๙', word: 'เก้า' },
+        { id: 10, numeral: '๑๐', word: 'สิบ' }
+      ];
+
+      var grid = document.getElementById('gameGrid');
+      var statusRow = document.getElementById('statusRow');
+      var onePlayerBtn = document.getElementById('onePlayerBtn');
+      var twoPlayerBtn = document.getElementById('twoPlayerBtn');
+      var winPanel = document.getElementById('winPanel');
+      var winTitle = document.getElementById('winTitle');
+      var winDetail = document.getElementById('winDetail');
+      var againBtn = document.getElementById('againBtn');
+
+      var mode = 1;
+      var firstCard = null;
+      var secondCard = null;
+      var locked = false;
+      var moves = 0;
+      var matchedPairs = 0;
+      var currentPlayer = 1;
+      var scores = [0, 0];
+      var audioContext = null;
+      var flipTimer = null;
+
+      function shuffle(items) {
+        for (var i = items.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var temp = items[i];
+          items[i] = items[j];
+          items[j] = temp;
+        }
+        return items;
+      }
+
+      function buildDeck() {
+        var deck = [];
+        pairs.forEach(function (pair) {
+          deck.push({ pairId: pair.id, kind: 'numeral', value: pair.numeral });
+          deck.push({ pairId: pair.id, kind: 'word', value: pair.word });
+        });
+        return shuffle(deck);
+      }
+
+      function unlockAudio() {
+        var AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!audioContext) audioContext = new AudioCtx();
+        if (audioContext.state === 'suspended') audioContext.resume();
+      }
+
+      function tone(frequency, start, duration, volume, type) {
+        if (!audioContext) return;
+        var oscillator = audioContext.createOscillator();
+        var gain = audioContext.createGain();
+        oscillator.type = type || 'sine';
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(volume, start + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+        oscillator.start(start);
+        oscillator.stop(start + duration + 0.02);
+      }
+
+      function playFlip() {
+        if (!audioContext) return;
+        tone(410, audioContext.currentTime, 0.055, 0.045, 'square');
+      }
+
+      function playMatch() {
+        if (!audioContext) return;
+        var now = audioContext.currentTime;
+        tone(523.25, now, 0.13, 0.09, 'sine');
+        tone(659.25, now + 0.1, 0.15, 0.09, 'sine');
+        tone(783.99, now + 0.2, 0.2, 0.08, 'sine');
+      }
+
+      function playWin() {
+        if (!audioContext) return;
+        var now = audioContext.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach(function (note, index) {
+          tone(note, now + index * 0.12, index === 3 ? 0.45 : 0.18, 0.1, 'triangle');
+        });
+      }
+
+      function createCard(item, index) {
+        var card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'card';
+        card.dataset.pairId = String(item.pairId);
+        card.dataset.kind = item.kind;
+        card.setAttribute('aria-label', 'ไพ่คว่ำใบที่ ' + (index + 1));
+        card.innerHTML = '<span class="card-inner">' +
+          '<span class="face card-back" aria-hidden="true"></span>' +
+          '<span class="face card-front"><span class="card-text">' + item.value + '</span></span>' +
+          '</span>';
+        card.addEventListener('click', function () { handleCard(card, item.value); });
+        return card;
+      }
+
+      function fitCardText(card) {
+        var front = card.querySelector('.card-front');
+        var text = card.querySelector('.card-text');
+        var size = card.dataset.kind === 'numeral' ? 54 : 38;
+        var min = 16;
+        text.style.fontSize = size + 'px';
+        while (size > min && (text.scrollWidth > front.clientWidth - 14 || text.scrollHeight > front.clientHeight - 14)) {
+          size -= 1;
+          text.style.fontSize = size + 'px';
+        }
+      }
+
+      function renderStatus() {
+        if (mode === 1) {
+          statusRow.innerHTML = '<div class="moves">จำนวนครั้ง: ' + moves + '</div>';
+        } else {
+          statusRow.innerHTML = '<div class="scoreboard">' +
+            '<div class="player-score ' + (currentPlayer === 1 ? 'active' : '') + '">ผู้เล่น 1: ' + scores[0] + ' แต้ม</div>' +
+            '<div class="player-score ' + (currentPlayer === 2 ? 'active' : '') + '">ผู้เล่น 2: ' + scores[1] + ' แต้ม</div>' +
+            '</div><div class="turn">ตาของผู้เล่น ' + currentPlayer + '</div>';
+        }
+      }
+
+      function resetGame() {
+        if (flipTimer) {
+          clearTimeout(flipTimer);
+          flipTimer = null;
+        }
+        firstCard = null;
+        secondCard = null;
+        locked = false;
+        moves = 0;
+        matchedPairs = 0;
+        currentPlayer = 1;
+        scores = [0, 0];
+        winPanel.hidden = true;
+        grid.innerHTML = '';
+        buildDeck().forEach(function (item, index) {
+          grid.appendChild(createCard(item, index));
+        });
+        renderStatus();
+      }
+
+      function handleCard(card, value) {
+        unlockAudio();
+        if (locked || card.classList.contains('is-flipped') || card.classList.contains('is-matched')) return;
+
+        card.classList.add('is-flipped');
+        card.setAttribute('aria-label', value);
+        fitCardText(card);
+        playFlip();
+
+        if (!firstCard) {
+          firstCard = card;
+          return;
+        }
+
+        secondCard = card;
+        locked = true;
+        moves += 1;
+        var isMatch = firstCard.dataset.pairId === secondCard.dataset.pairId && firstCard.dataset.kind !== secondCard.dataset.kind;
+
+        if (isMatch) {
+          firstCard.classList.add('is-matched');
+          secondCard.classList.add('is-matched');
+          firstCard.disabled = true;
+          secondCard.disabled = true;
+          matchedPairs += 1;
+          if (mode === 2) scores[currentPlayer - 1] += 1;
+          playMatch();
+          finishTurn(true);
+        } else {
+          flipTimer = setTimeout(function () {
+            if (firstCard) {
+              firstCard.classList.remove('is-flipped');
+              firstCard.setAttribute('aria-label', 'ไพ่คว่ำ');
+            }
+            if (secondCard) {
+              secondCard.classList.remove('is-flipped');
+              secondCard.setAttribute('aria-label', 'ไพ่คว่ำ');
+            }
+            flipTimer = null;
+            finishTurn(false);
+          }, 720);
+        }
+      }
+
+      function finishTurn(wasMatch) {
+        if (mode === 2) currentPlayer = currentPlayer === 1 ? 2 : 1;
+        firstCard = null;
+        secondCard = null;
+        locked = false;
+        renderStatus();
+        if (matchedPairs === pairs.length) showWin();
+      }
+
+      function showWin() {
+        locked = true;
+        if (mode === 1) {
+          winTitle.textContent = '🎉 เก่งมาก!';
+          winDetail.textContent = 'จับคู่ครบ 10 คู่ ใน ' + moves + ' ครั้ง';
+        } else {
+          if (scores[0] > scores[1]) {
+            winTitle.textContent = 'ผู้เล่น 1 ชนะ! 🎉';
+          } else if (scores[1] > scores[0]) {
+            winTitle.textContent = 'ผู้เล่น 2 ชนะ! 🎉';
+          } else {
+            winTitle.textContent = 'เสมอกัน!';
+          }
+          winDetail.textContent = 'ผู้เล่น 1: ' + scores[0] + ' แต้ม · ผู้เล่น 2: ' + scores[1] + ' แต้ม';
+        }
+        winPanel.hidden = false;
+        playWin();
+        winPanel.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
+      }
+
+      function setMode(nextMode) {
+        mode = nextMode;
+        onePlayerBtn.setAttribute('aria-pressed', mode === 1 ? 'true' : 'false');
+        twoPlayerBtn.setAttribute('aria-pressed', mode === 2 ? 'true' : 'false');
+        resetGame();
+      }
+
+      onePlayerBtn.addEventListener('click', function () { unlockAudio(); setMode(1); });
+      twoPlayerBtn.addEventListener('click', function () { unlockAudio(); setMode(2); });
+      againBtn.addEventListener('click', function () { unlockAudio(); resetGame(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      window.addEventListener('resize', function () {
+        var visibleCards = grid.querySelectorAll('.is-flipped, .is-matched');
+        Array.prototype.forEach.call(visibleCards, fitCardText);
+      });
+
+      resetGame();
+    }());
+  </script>
+</body>
+</html>
