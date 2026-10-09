@@ -80,6 +80,27 @@
       color: var(--muted);
     }
     .topline strong { color: var(--ink); font-weight: 700; }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .reading-toggle {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .reading-toggle:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      outline-offset: 2px;
+    }
     .counter {
       min-width: 62px;
       text-align: right;
@@ -289,6 +310,10 @@
     }
 
     @media (max-width: 390px), (max-height: 680px) {
+      .topline { gap: 8px; font-size: 14px; }
+      .top-actions { gap: 5px; }
+      .reading-toggle { padding-inline: 10px; font-size: 13px; }
+      .counter { min-width: 50px; }
       .card { min-height: min(47vh, 360px); }
       .glyph { font-size: clamp(128px, 38vw, 180px); }
       .picture { width: 46px; height: 46px; flex-basis: 46px; font-size: 29px; }
@@ -305,7 +330,10 @@
   <main class="app" id="app">
     <div class="topline">
       <span><strong>พยัญชนะไทย</strong> · 44 ตัว</span>
-      <span class="counter" id="counter" aria-label="ลำดับพยัญชนะ">1 / 44</span>
+      <div class="top-actions">
+        <button class="reading-toggle" id="readingToggle" type="button" aria-pressed="true">เปิดเสียงอ่าน</button>
+        <span class="counter" id="counter" aria-label="ลำดับพยัญชนะ">1 / 44</span>
+      </div>
     </div>
 
     <section class="stage" aria-label="พยัญชนะที่สุ่มได้">
@@ -361,6 +389,16 @@
         ["ส", "เสือ", "🐅", "สูง"], ["ห", "หีบ", "🧰", "สูง"], ["ฬ", "จุฬา", "🪁", "ต่ำ"],
         ["อ", "อ่าง", "🛁", "กลาง"], ["ฮ", "นกฮูก", "🦉", "ต่ำ"]
       ];
+      var soundFiles = [
+        "01_ก.mp3", "02_ข.mp3", "03_ฃ.mp3", "04_ค.mp3", "05_ฅ.mp3", "06_ฆ.mp3",
+        "07_ง.mp3", "08_จ.mp3", "09_ฉ.mp3", "10_ช.mp3", "11_ซ.mp3", "12_ฌ.mp3",
+        "13_ญ.mp3", "14_ฎ.mp3", "15_ฏ.mp3", "16_ฐ.mp3", "17_ฑ.mp3", "18_ฒ.mp3",
+        "19_ณ.mp3", "20_ด.mp3", "21_ต.mp3", "22_ถ.mp3", "23_ท.mp3", "24_ธ.mp3",
+        "25_น.mp3", "26_บ.mp3", "27_ป.mp3", "28_ผ.mp3", "29_ฝ.mp3", "30_พ.mp3",
+        "31_ฟ.mp3", "32_ภ.mp3", "33_ม.mp3", "34_ย.mp3", "35_ร.mp3", "36_ล.mp3",
+        "37_ว.mp3", "38_ศ.mp3", "39_ษ.mp3", "40_ส.mp3", "41_ห.mp3", "42_ฬ.mp3",
+        "43_อ.mp3", "44_ฮ.mp3"
+      ];
 
       var app = document.getElementById("app");
       var card = document.getElementById("card");
@@ -372,10 +410,13 @@
       var counter = document.getElementById("counter");
       var grid = document.getElementById("alphabetGrid");
       var button = document.getElementById("shuffleButton");
+      var readingToggle = document.getElementById("readingToggle");
       var hint = document.getElementById("hint");
       var liveStatus = document.getElementById("liveStatus");
       var currentIndex = 0;
       var isRunning = false;
+      var readingSoundOn = true;
+      var currentReadingAudio = null;
       var audioContext = null;
       var miniCells = [];
       var classColor = { "กลาง": "var(--middle)", "สูง": "var(--high)", "ต่ำ": "var(--low)" };
@@ -453,6 +494,15 @@
         });
       }
 
+      function playReading(index) {
+        if (currentReadingAudio) {
+          currentReadingAudio.pause();
+          currentReadingAudio.currentTime = 0;
+        }
+        currentReadingAudio = new Audio("../../Small%20games/Thai%20letter%20sound/" + soundFiles[index]);
+        currentReadingAudio.play().catch(function () {});
+      }
+
       function randomDifferent(previous) {
         var next = previous;
         while (next === previous) next = Math.floor(Math.random() * letters.length);
@@ -485,7 +535,11 @@
             window.setTimeout(advance, delay);
           } else {
             window.setTimeout(function () {
-              finishSound();
+              if (readingSoundOn) {
+                playReading(currentIndex);
+              } else {
+                finishSound();
+              }
               isRunning = false;
               button.disabled = false;
               button.textContent = "สุ่มอีกครั้ง";
@@ -497,6 +551,16 @@
 
         advance();
       }
+
+      readingToggle.addEventListener("click", function () {
+        readingSoundOn = !readingSoundOn;
+        readingToggle.textContent = readingSoundOn ? "เปิดเสียงอ่าน" : "ปิดเสียงอ่าน";
+        readingToggle.setAttribute("aria-pressed", readingSoundOn ? "true" : "false");
+        if (!readingSoundOn && currentReadingAudio) {
+          currentReadingAudio.pause();
+          currentReadingAudio.currentTime = 0;
+        }
+      });
 
       button.addEventListener("click", shuffle);
     })();
