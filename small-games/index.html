@@ -101,6 +101,8 @@
       gap: .85rem;
     }
 
+    .game-card:nth-child(5) { grid-column: 1 / -1; }
+
     .game-card {
       position: relative;
       display: grid;
@@ -196,6 +198,81 @@
       color: var(--ink);
       font-size: .55em;
       opacity: .7;
+    }
+
+    .memory .visual {
+      background-color: #e9f1ff;
+      background-image:
+        radial-gradient(circle at 15% 22%, rgba(23, 105, 170, .12) 0 .22rem, transparent .24rem),
+        radial-gradient(circle at 83% 78%, rgba(228, 88, 38, .12) 0 .22rem, transparent .24rem);
+      background-size: 2.5rem 2.5rem, 2.9rem 2.9rem;
+    }
+
+    .match-pair {
+      position: relative;
+      width: clamp(8.5rem, 34vw, 13rem);
+      height: clamp(5.1rem, 21vw, 7.8rem);
+    }
+
+    .match-card {
+      position: absolute;
+      display: grid;
+      width: 58%;
+      height: 72%;
+      place-items: center;
+      border: 3px solid #173c58;
+      border-radius: .65rem;
+      background: #fff;
+      color: #173c58;
+      box-shadow: 0 5px 0 rgba(23, 60, 88, .16);
+    }
+
+    .match-card:first-child {
+      left: 3%;
+      top: 5%;
+      transform: rotate(-7deg);
+    }
+
+    .match-card:last-child {
+      right: 2%;
+      bottom: 3%;
+      background: #f3c84b;
+      font-size: clamp(1.05rem, 4.8vw, 1.65rem);
+      font-weight: 700;
+      transform: rotate(6deg);
+    }
+
+    .mini-bag {
+      position: relative;
+      width: 48%;
+      height: 58%;
+      border: 2px solid #173c58;
+      border-radius: 38% 38% 22% 22%;
+      background: #ef6d4b;
+    }
+
+    .mini-bag::before {
+      content: "";
+      position: absolute;
+      left: 24%;
+      top: -26%;
+      width: 44%;
+      height: 28%;
+      border: 2px solid #173c58;
+      border-bottom: 0;
+      border-radius: 50% 50% 0 0;
+    }
+
+    .mini-bag::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 12%;
+      height: 23%;
+      border: 2px solid #173c58;
+      border-radius: .25rem;
+      background: #ff9b69;
     }
 
     .classroom .visual {
@@ -367,8 +444,13 @@
 
     @media (min-width: 42rem) {
       main { padding-inline: 1.5rem; }
-      .game-grid { gap: 1.2rem; }
-      .game-card { min-height: 19rem; }
+      .game-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 1.2rem;
+      }
+      .game-card { grid-column: span 2; min-height: 19rem; }
+      .game-card:nth-child(4) { grid-column: 2 / span 2; }
+      .game-card:nth-child(5) { grid-column: 4 / span 2; }
       .visual { min-height: 12rem; }
       .card-copy { padding: 1rem 1.15rem 1.1rem; }
     }
@@ -395,7 +477,7 @@
         <h1>เลือกเกม</h1>
         <p>แตะเกมที่อยากเล่น แล้วเริ่มสนุกได้เลย</p>
       </div>
-      <div class="count" aria-label="มีสี่เกม">4 เกม</div>
+      <div class="count" aria-label="มีห้าเกม">5 เกม</div>
     </header>
 
     <nav class="game-grid" aria-label="เกมทั้งหมด">
@@ -453,6 +535,22 @@
           <div>
             <h2>สุ่มตัวเลข</h2>
             <p>เลขไทย ๑–๒๐</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card memory" href="./MemoryMatch/" aria-label="เปิดเกมจับคู่คำศัพท์ไทย">
+        <div class="visual" aria-hidden="true">
+          <div class="match-pair">
+            <span class="match-card"><span class="mini-bag"></span></span>
+            <span class="match-card">กระเป๋า</span>
+          </div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>จับคู่</h2>
+            <p>ภาพกับคำศัพท์ไทย</p>
           </div>
           <span class="arrow" aria-hidden="true">›</span>
         </div>
