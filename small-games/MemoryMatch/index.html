@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:," />
+  <title>จับคู่คำศัพท์ไทย</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #f7fbff;
+      --paper-line: #dcecf7;
+      --ink: #17304a;
+      --muted: #536b7d;
+      --panel: #ffffff;
+      --panel-soft: #eef8fb;
+      --border: #bad3df;
+      --blue: #147da0;
+      --blue-dark: #0a607e;
+      --yellow: #ffd24d;
+      --yellow-soft: #fff2b7;
+      --coral: #ed6a5a;
+      --green: #1d9b72;
+      --card-back: #1688ae;
+      --card-back-deep: #0d6889;
+      --shadow: 0 6px 0 rgba(23, 48, 74, .16), 0 10px 24px rgba(23, 48, 74, .10);
+      --card-shadow: 0 4px 0 rgba(23, 48, 74, .20), 0 8px 16px rgba(23, 48, 74, .12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #102331;
+        --paper-line: #173747;
+        --ink: #f3f8fb;
+        --muted: #bdd0db;
+        --panel: #183443;
+        --panel-soft: #17303d;
+        --border: #386070;
+        --blue: #42b8d5;
+        --blue-dark: #a5e8f4;
+        --yellow: #ffd55a;
+        --yellow-soft: #574d20;
+        --coral: #ff8d7f;
+        --green: #4cd5a7;
+        --card-back: #1786a8;
+        --card-back-deep: #0b5d79;
+        --shadow: 0 6px 0 rgba(0, 0, 0, .28), 0 10px 24px rgba(0, 0, 0, .24);
+        --card-shadow: 0 4px 0 rgba(0, 0, 0, .30), 0 8px 16px rgba(0, 0, 0, .20);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-height: 100%; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: Tahoma, sans-serif;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 31px,
+        var(--paper-line) 32px,
+        var(--paper-line) 33px
+      );
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .page {
+      width: min(100%, 1020px);
+      margin: 0 auto;
+      padding: max(16px, env(safe-area-inset-top)) 12px max(28px, env(safe-area-inset-bottom));
+    }
+
+    .game-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 10px 16px;
+      margin: 0 0 16px;
+    }
+
+    .title-group { min-width: 0; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 8vw, 3.35rem);
+      line-height: 1;
+      letter-spacing: -.03em;
+      color: var(--blue-dark);
+    }
+
+    .instruction {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: clamp(.94rem, 3.4vw, 1.08rem);
+      line-height: 1.5;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .moves {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 13px;
+      border: 2px solid var(--border);
+      border-radius: 14px 8px 14px 8px;
+      background: var(--panel);
+      box-shadow: 0 3px 0 rgba(23, 48, 74, .12);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    #moveCount {
+      display: inline-grid;
+      place-items: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 6px;
+      border-radius: 50%;
+      background: var(--yellow);
+      color: #2e2b1d;
+    }
+
+    .sound-toggle,
+    .play-again {
+      min-height: 46px;
+      border: 0;
+      border-radius: 10px 16px 10px 16px;
+      padding: 10px 14px;
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 4px 0 var(--blue-dark);
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .sound-toggle:active,
+    .play-again:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--blue-dark); }
+
+    .sound-toggle[aria-pressed="false"] {
+      color: var(--ink);
+      background: var(--panel);
+      border: 2px solid var(--border);
+      box-shadow: 0 3px 0 rgba(23, 48, 74, .16);
+    }
+
+    .board-wrap {
+      padding: 10px;
+      border: 2px solid var(--border);
+      border-radius: 18px 8px 18px 8px;
+      background: var(--panel-soft);
+      box-shadow: var(--shadow);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      aspect-ratio: 1.5;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      perspective: 900px;
+      touch-action: manipulation;
+    }
+
+    .card:focus-visible { outline: 4px solid var(--coral); outline-offset: 4px; border-radius: 15px; }
+
+    .card-inner {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transition: transform .4s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .card.is-flipped .card-inner,
+    .card.is-matched .card-inner { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, .82);
+      border-radius: 15px 7px 15px 7px;
+      box-shadow: var(--card-shadow);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .card-back {
+      background-color: var(--card-back);
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,.28) 0 5px, transparent 6px),
+        radial-gradient(circle at 75% 75%, rgba(255,210,77,.6) 0 5px, transparent 6px),
+        linear-gradient(135deg, transparent 42%, rgba(255,255,255,.11) 43% 57%, transparent 58%);
+      background-size: 34px 34px, 34px 34px, 34px 34px;
+      background-position: 0 0, 0 0, 0 0;
+      color: #fff;
+      text-shadow: 0 3px 0 var(--card-back-deep);
+      font-size: clamp(2rem, 11vw, 4.5rem);
+      font-weight: 700;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
+      background: var(--panel);
+    }
+
+    .card-front.photo { padding: 7px; }
+
+    .card-front.photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 9px;
+    }
+
+    .card-front.word {
+      padding: 8px;
+      color: var(--ink);
+      background:
+        linear-gradient(transparent 70%, color-mix(in srgb, var(--yellow) 58%, transparent) 70% 86%, transparent 86%),
+        var(--panel);
+      font-size: clamp(1.08rem, 5.3vw, 2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      text-align: center;
+      word-break: keep-all;
+    }
+
+    .word-label {
+      display: inline-block;
+      max-width: 100%;
+      white-space: nowrap;
+    }
+
+    .card.is-matched { cursor: default; }
+
+    .card.is-matched .card-face {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px var(--green), var(--card-shadow);
+      animation: matched-pop .58s cubic-bezier(.2,.85,.25,1.25);
+    }
+
+    .card.is-matched::after {
+      content: "★";
+      position: absolute;
+      z-index: 5;
+      top: -8px;
+      right: -6px;
+      color: var(--yellow);
+      text-shadow: 0 2px 0 #a87900;
+      font-size: 26px;
+      animation: star-pop .7s ease-out both;
+      pointer-events: none;
+    }
+
+    @keyframes matched-pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.09) rotate(-2deg); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes star-pop {
+      0% { opacity: 0; transform: scale(.2) rotate(-80deg); }
+      50% { opacity: 1; transform: scale(1.35) rotate(12deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    .win-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(7, 35, 51, .68);
+    }
+
+    .win-layer[hidden] { display: none; }
+
+    .win-box {
+      position: relative;
+      width: min(100%, 430px);
+      padding: 28px 22px 24px;
+      border: 4px solid var(--yellow);
+      border-radius: 24px 10px 24px 10px;
+      background: var(--panel);
+      box-shadow: 0 12px 0 rgba(0,0,0,.18), 0 24px 60px rgba(0,0,0,.28);
+      text-align: center;
+      animation: win-in .48s cubic-bezier(.18,.88,.28,1.25) both;
+    }
+
+    .win-box::before,
+    .win-box::after {
+      content: "★";
+      position: absolute;
+      color: var(--coral);
+      font-size: 30px;
+    }
+
+    .win-box::before { top: 16px; left: 20px; transform: rotate(-18deg); }
+    .win-box::after { top: 17px; right: 20px; color: var(--green); transform: rotate(18deg); }
+
+    .win-title {
+      margin: 0;
+      color: var(--blue-dark);
+      font-size: clamp(2rem, 10vw, 3rem);
+      line-height: 1.1;
+    }
+
+    .win-score {
+      margin: 14px 0 20px;
+      color: var(--muted);
+      font-size: 1.15rem;
+    }
+
+    .win-score strong { color: var(--ink); font-size: 1.35em; }
+
+    .play-again {
+      min-width: 170px;
+      min-height: 52px;
+      background: var(--green);
+      box-shadow: 0 4px 0 #0f6f51;
+      font-size: 1.08rem;
+    }
+
+    .status {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes win-in {
+      from { opacity: 0; transform: scale(.76) rotate(-3deg); }
+      to { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    @media (min-width: 560px) {
+      .page { padding-left: 20px; padding-right: 20px; }
+      .board-wrap { padding: 15px; }
+      .board { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+      .card-front.photo { padding: 10px; }
+    }
+
+    @media (min-width: 880px) {
+      .board { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      .game-head { grid-template-columns: 1fr; align-items: start; }
+      .controls { justify-content: space-between; }
+      .moves { flex: 0 0 auto; }
+      .sound-toggle { flex: 1 1 auto; }
+      .board-wrap { padding: 8px; }
+      .board { gap: 8px; }
+    }
+
+    @media (max-width: 360px) {
+      .page { padding-left: 8px; padding-right: 8px; }
+      .board-wrap { padding: 6px; }
+      .board { gap: 6px; }
+      .card-face { border-width: 2px; border-radius: 11px 5px 11px 5px; }
+      .card-front.word { font-size: 1rem; padding: 5px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+      .card-inner { transition-duration: .01ms; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="game-head">
+      <div class="title-group">
+        <h1>จับคู่</h1>
+        <p class="instruction">เปิดไพ่ 2 ใบ แล้วจับคู่รูปภาพกับคำศัพท์ให้ครบ</p>
+      </div>
+      <div class="controls">
+        <div class="moves" aria-label="จำนวนครั้งที่เปิดไพ่สองใบ">ครั้งที่ <span id="moveCount">0</span></div>
+        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">✅ เปิดเสียงอ่าน</button>
+      </div>
+    </header>
+
+    <section class="board-wrap" aria-label="กระดานจับคู่คำศัพท์">
+      <div class="board" id="board"></div>
+    </section>
+  </main>
+
+  <div class="win-layer" id="winLayer" hidden>
+    <section class="win-box" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+      <h2 class="win-title" id="winTitle">🎉 เก่งมาก!</h2>
+      <p class="win-score">จับคู่ครบใน <strong id="finalMoves">0</strong> ครั้ง</p>
+      <button class="play-again" id="playAgain" type="button">เล่นอีกครั้ง</button>
+    </section>
+  </div>
+
+  <p class="status" id="status" aria-live="polite"></p>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var packs = {
+        classroom: [
+          { id: "backpack", word: "กระเป๋า", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/backpack.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/backpack.mp3" },
+          { id: "book", word: "หนังสือ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/book.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/book.mp3" },
+          { id: "chair", word: "เก้าอี้", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/chair.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/chair.mp3" },
+          { id: "eraser", word: "ยางลบ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/eraser.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/eraser.mp3" },
+          { id: "notebook", word: "สมุด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/notebook.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/notebook.mp3" },
+          { id: "pen", word: "ปากกา", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pen.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/pen.mp3" },
+          { id: "pencil", word: "ดินสอ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pencil.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/pencil.mp3" },
+          { id: "ruler", word: "ไม้บรรทัด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/ruler.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/ruler.mp3" },
+          { id: "table", word: "โต๊ะ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/table.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/table.mp3" }
+        ]
+      };
+
+      var activePack = packs.classroom;
+      var board = document.getElementById("board");
+      var moveCountEl = document.getElementById("moveCount");
+      var finalMovesEl = document.getElementById("finalMoves");
+      var winLayer = document.getElementById("winLayer");
+      var playAgain = document.getElementById("playAgain");
+      var soundToggle = document.getElementById("soundToggle");
+      var statusEl = document.getElementById("status");
+
+      var firstCard = null;
+      var secondCard = null;
+      var boardLocked = false;
+      var moves = 0;
+      var matches = 0;
+      var readingEnabled = true;
+      var audioContext = null;
+      var readingAudio = new Audio();
+      var audioUnlockPromise = null;
+      var audioUnlocked = false;
+
+      readingAudio.preload = "auto";
+      readingAudio.volume = 0.82;
+
+      function shuffle(items) {
+        var result = items.slice();
+        for (var i = result.length - 1; i > 0; i -= 1) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var temp = result[i];
+          result[i] = result[j];
+          result[j] = temp;
+        }
+        return result;
+      }
+
+      function getAudioContext() {
+        if (!audioContext) {
+          var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioContext = new AudioContextClass();
+        }
+        if (audioContext && audioContext.state === "suspended") {
+          audioContext.resume().catch(function () {});
+        }
+        return audioContext;
+      }
+
+      function playToneSequence(notes) {
+        var ctx = getAudioContext();
+        if (!ctx) return;
+        var start = ctx.currentTime;
+        notes.forEach(function (note) {
+          var oscillator = ctx.createOscillator();
+          var gain = ctx.createGain();
+          oscillator.type = note.type || "sine";
+          oscillator.frequency.setValueAtTime(note.frequency, start + note.delay);
+          gain.gain.setValueAtTime(0.0001, start + note.delay);
+          gain.gain.exponentialRampToValueAtTime(note.volume || 0.16, start + note.delay + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + note.delay + note.duration);
+          oscillator.connect(gain);
+          gain.connect(ctx.destination);
+          oscillator.start(start + note.delay);
+          oscillator.stop(start + note.delay + note.duration + 0.03);
+        });
+      }
+
+      function playFlipTick() {
+        playToneSequence([{ frequency: 540, delay: 0, duration: 0.055, volume: 0.08, type: "triangle" }]);
+      }
+
+      function playMatchChime() {
+        playToneSequence([
+          { frequency: 659.25, delay: 0, duration: 0.14, volume: 0.12, type: "sine" },
+          { frequency: 783.99, delay: 0.09, duration: 0.18, volume: 0.13, type: "sine" },
+          { frequency: 987.77, delay: 0.18, duration: 0.25, volume: 0.14, type: "sine" }
+        ]);
+      }
+
+      function playWinFanfare() {
+        playToneSequence([
+          { frequency: 523.25, delay: 0, duration: 0.16, volume: 0.14, type: "triangle" },
+          { frequency: 659.25, delay: 0.14, duration: 0.16, volume: 0.14, type: "triangle" },
+          { frequency: 783.99, delay: 0.28, duration: 0.16, volume: 0.15, type: "triangle" },
+          { frequency: 1046.5, delay: 0.42, duration: 0.42, volume: 0.18, type: "triangle" }
+        ]);
+      }
+
+      function unlockReadingAudio() {
+        getAudioContext();
+        if (audioUnlocked) return Promise.resolve();
+        if (audioUnlockPromise) return audioUnlockPromise;
+
+        readingAudio.pause();
+        readingAudio.src = activePack[0].sound;
+        readingAudio.currentTime = 0;
+        readingAudio.muted = true;
+        readingAudio.volume = 0;
+
+        var playAttempt = readingAudio.play();
+        audioUnlockPromise = Promise.resolve(playAttempt).then(function () {
+          readingAudio.pause();
+          readingAudio.currentTime = 0;
+          readingAudio.muted = false;
+          readingAudio.volume = 0.82;
+          audioUnlocked = true;
+        }).catch(function () {
+          readingAudio.pause();
+          readingAudio.currentTime = 0;
+          readingAudio.muted = false;
+          readingAudio.volume = 0.82;
+          audioUnlockPromise = null;
+        });
+        return audioUnlockPromise;
+      }
+
+      function playReading(item) {
+        if (!readingEnabled) return;
+        Promise.resolve(audioUnlockPromise).then(function () {
+          if (!readingEnabled) return;
+          readingAudio.pause();
+          readingAudio.currentTime = 0;
+          readingAudio.muted = false;
+          readingAudio.volume = 0.82;
+          readingAudio.src = item.sound;
+          readingAudio.play().catch(function () {});
+        });
+      }
+
+      function fitWordLabel(label) {
+        var face = label.parentElement;
+        var faceStyle = window.getComputedStyle(face);
+        var maxSize = parseFloat(faceStyle.fontSize);
+        var availableWidth = face.clientWidth
+          - parseFloat(faceStyle.paddingLeft)
+          - parseFloat(faceStyle.paddingRight)
+          - 12;
+        var availableHeight = face.clientHeight
+          - parseFloat(faceStyle.paddingTop)
+          - parseFloat(faceStyle.paddingBottom)
+          - 8;
+        var size = maxSize;
+
+        label.style.fontSize = maxSize + "px";
+        while (size > 12 && (label.scrollWidth > availableWidth || label.scrollHeight > availableHeight)) {
+          size -= 0.5;
+          label.style.fontSize = size + "px";
+        }
+      }
+
+      function fitAllWordLabels() {
+        Array.prototype.forEach.call(board.querySelectorAll(".word-label"), fitWordLabel);
+      }
+
+      function makeCard(item, kind, index) {
+        var card = document.createElement("button");
+        card.type = "button";
+        card.className = "card";
+        card.dataset.pair = item.id;
+        card.dataset.kind = kind;
+        card.dataset.index = String(index);
+        card.setAttribute("aria-label", "ไพ่คว่ำ แตะเพื่อเปิด");
+
+        var inner = document.createElement("span");
+        inner.className = "card-inner";
+
+        var back = document.createElement("span");
+        back.className = "card-face card-back";
+        back.setAttribute("aria-hidden", "true");
+        back.textContent = "?";
+
+        var front = document.createElement("span");
+        front.className = "card-face card-front " + kind;
+        front.setAttribute("aria-hidden", "true");
+
+        if (kind === "photo") {
+          var image = document.createElement("img");
+          image.src = item.image;
+          image.alt = "รูป" + item.word;
+          image.draggable = false;
+          front.appendChild(image);
+        } else {
+          var wordLabel = document.createElement("span");
+          wordLabel.className = "word-label";
+          wordLabel.textContent = item.word;
+          front.appendChild(wordLabel);
+        }
+
+        inner.appendChild(back);
+        inner.appendChild(front);
+        card.appendChild(inner);
+        card.addEventListener("click", function () { handleCard(card, item); });
+        return card;
+      }
+
+      function setCardOpen(card, item) {
+        card.classList.add("is-flipped");
+        card.setAttribute("aria-label", (card.dataset.kind === "photo" ? "รูป" : "คำว่า ") + item.word);
+      }
+
+      function setCardClosed(card) {
+        card.classList.remove("is-flipped");
+        card.setAttribute("aria-label", "ไพ่คว่ำ แตะเพื่อเปิด");
+      }
+
+      function clearTurn() {
+        firstCard = null;
+        secondCard = null;
+        boardLocked = false;
+      }
+
+      function handleCard(card, item) {
+        unlockReadingAudio();
+        if (boardLocked || card === firstCard || card.classList.contains("is-matched") || card.classList.contains("is-flipped")) return;
+
+        playFlipTick();
+        setCardOpen(card, item);
+
+        if (!firstCard) {
+          firstCard = card;
+          statusEl.textContent = "เปิดไพ่ใบแรกแล้ว";
+          return;
+        }
+
+        secondCard = card;
+        boardLocked = true;
+        moves += 1;
+        moveCountEl.textContent = String(moves);
+
+        if (firstCard.dataset.pair === secondCard.dataset.pair) {
+          var matchedItem = activePack.find(function (entry) { return entry.id === item.id; });
+          firstCard.classList.remove("is-flipped");
+          secondCard.classList.remove("is-flipped");
+          firstCard.classList.add("is-matched");
+          secondCard.classList.add("is-matched");
+          firstCard.disabled = true;
+          secondCard.disabled = true;
+          firstCard.setAttribute("aria-label", "จับคู่แล้ว " + matchedItem.word);
+          secondCard.setAttribute("aria-label", "จับคู่แล้ว " + matchedItem.word);
+          matches += 1;
+          playMatchChime();
+          playReading(matchedItem);
+          statusEl.textContent = "จับคู่ " + matchedItem.word + " ถูกต้อง";
+          clearTurn();
+
+          if (matches === activePack.length) {
+            window.setTimeout(showWin, 720);
+          }
+        } else {
+          var cardOne = firstCard;
+          var cardTwo = secondCard;
+          statusEl.textContent = "ยังไม่ตรงกัน ลองใหม่อีกครั้ง";
+          window.setTimeout(function () {
+            setCardClosed(cardOne);
+            setCardClosed(cardTwo);
+            clearTurn();
+          }, 850);
+        }
+      }
+
+      function showWin() {
+        readingAudio.pause();
+        playWinFanfare();
+        finalMovesEl.textContent = String(moves);
+        winLayer.hidden = false;
+        playAgain.focus();
+      }
+
+      function buildGame() {
+        readingAudio.pause();
+        readingAudio.currentTime = 0;
+        board.innerHTML = "";
+        firstCard = null;
+        secondCard = null;
+        boardLocked = false;
+        moves = 0;
+        matches = 0;
+        moveCountEl.textContent = "0";
+        winLayer.hidden = true;
+
+        var deck = [];
+        activePack.forEach(function (item) {
+          deck.push({ item: item, kind: "photo" });
+          deck.push({ item: item, kind: "word" });
+        });
+
+        shuffle(deck).forEach(function (entry, index) {
+          board.appendChild(makeCard(entry.item, entry.kind, index));
+        });
+        window.requestAnimationFrame(fitAllWordLabels);
+        statusEl.textContent = "เริ่มเกมใหม่แล้ว";
+      }
+
+      soundToggle.addEventListener("click", function () {
+        unlockReadingAudio();
+        readingEnabled = !readingEnabled;
+        soundToggle.setAttribute("aria-pressed", String(readingEnabled));
+        soundToggle.textContent = readingEnabled ? "✅ เปิดเสียงอ่าน" : "❌ ปิดเสียงอ่าน";
+        if (!readingEnabled) {
+          readingAudio.pause();
+          readingAudio.currentTime = 0;
+        }
+      });
+
+      playAgain.addEventListener("click", buildGame);
+      winLayer.addEventListener("click", function (event) {
+        if (event.target === winLayer) playAgain.focus();
+      });
+
+      document.addEventListener("pointerdown", function firstGesture() {
+        unlockReadingAudio();
+        document.removeEventListener("pointerdown", firstGesture);
+      }, { passive: true });
+
+      window.addEventListener("resize", fitAllWordLabels);
+      buildGame();
+    }());
+  </script>
+</body>
+</html>
