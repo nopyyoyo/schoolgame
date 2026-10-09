@@ -260,8 +260,11 @@
       var readingOn = true;
       var audioContext = null;
       var readingAudio = new Audio();
+      var readingVolume = 0.12;
       readingAudio.preload = "auto";
-      readingAudio.volume = 0.12;
+      readingAudio.src = objects[0].sound;
+      readingAudio.volume = readingVolume;
+      readingAudio.load();
 
       objects.forEach(function (item) {
         var preload = new Image();
@@ -319,31 +322,25 @@
         tone(783.99, .42, .09, "sine", .18);
       }
 
-      function unlockReadingAudio(index) {
+      function unlockReadingAudio() {
         if (!readingOn) return;
-        readingAudio.src = objects[index].sound;
-        readingAudio.load();
         readingAudio.volume = 0;
         var unlockPromise = readingAudio.play();
+        readingAudio.pause();
+        try { readingAudio.currentTime = 0; } catch (error) {}
+        readingAudio.volume = readingVolume;
 
-        function finishUnlock() {
-          readingAudio.pause();
-          try { readingAudio.currentTime = 0; } catch (error) {}
-          readingAudio.volume = 0.12;
-        }
-
-        if (unlockPromise && typeof unlockPromise.then === "function") {
-          unlockPromise.then(finishUnlock).catch(function () {
-            readingAudio.volume = 0.12;
+        if (unlockPromise && typeof unlockPromise.catch === "function") {
+          unlockPromise.catch(function () {
+            readingAudio.volume = readingVolume;
           });
-        } else {
-          finishUnlock();
         }
       }
 
       function playReading(index) {
         readingAudio.src = objects[index].sound;
         readingAudio.currentTime = 0;
+        readingAudio.volume = readingVolume;
         var playPromise = readingAudio.play();
         if (playPromise && typeof playPromise.catch === "function") {
           playPromise.catch(function () {});
@@ -355,7 +352,7 @@
         running = true;
         ensureAudio();
         var finalIndex = randomDifferent(lastFinalIndex);
-        unlockReadingAudio(finalIndex);
+        unlockReadingAudio();
         button.disabled = true;
         soundToggle.disabled = true;
         button.textContent = "กำลังสุ่ม…";
