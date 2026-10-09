@@ -167,6 +167,37 @@
       .colors .visual { background: #e8edf1; }
     }
 
+    .numbers .visual {
+      background-color: #ffe9df;
+      background-image:
+        radial-gradient(circle at 18% 28%, rgba(228, 88, 38, .17) 0 .28rem, transparent .3rem),
+        radial-gradient(circle at 82% 72%, rgba(23, 105, 170, .17) 0 .28rem, transparent .3rem);
+      background-size: 2.7rem 2.7rem, 3.1rem 3.1rem;
+    }
+
+    .thai-numbers {
+      display: flex;
+      align-items: baseline;
+      gap: .16em;
+      color: #c94e22;
+      font-size: clamp(2.45rem, 12vw, 4.9rem);
+      font-weight: 700;
+      line-height: 1;
+      transform: rotate(2deg);
+    }
+
+    .thai-numbers span:nth-child(2) {
+      color: var(--blue-deep);
+      font-size: .72em;
+      transform: translateY(.12em);
+    }
+
+    .thai-numbers span:nth-child(3) {
+      color: var(--ink);
+      font-size: .55em;
+      opacity: .7;
+    }
+
     .classroom .visual {
       background-color: #e8f4e8;
       background-image: linear-gradient(
@@ -364,7 +395,7 @@
         <h1>เลือกเกม</h1>
         <p>แตะเกมที่อยากเล่น แล้วเริ่มสนุกได้เลย</p>
       </div>
-      <div class="count" aria-label="มีสามเกม">3 เกม</div>
+      <div class="count" aria-label="มีสี่เกม">4 เกม</div>
     </header>
 
     <nav class="game-grid" aria-label="เกมทั้งหมด">
@@ -409,6 +440,19 @@
           <div>
             <h2>สุ่มสิ่งของในห้องเรียน</h2>
             <p>สิ่งของ 9 อย่าง</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card numbers" href="./NumberShuffle/" aria-label="เปิดเกมสุ่มตัวเลข">
+        <div class="visual" aria-hidden="true">
+          <div class="thai-numbers"><span>๑</span><span>๒</span><span>๓</span></div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>สุ่มตัวเลข</h2>
+            <p>เลขไทย ๑–๒๐</p>
           </div>
           <span class="arrow" aria-hidden="true">›</span>
         </div>
