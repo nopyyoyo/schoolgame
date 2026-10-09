@@ -416,7 +416,9 @@
       var currentIndex = 0;
       var isRunning = false;
       var readingSoundOn = true;
-      var currentReadingAudio = null;
+      var readingAudio = new Audio("https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/Thai%20letter%20sound/" + soundFiles[0]);
+      readingAudio.volume = 0.18;
+      readingAudio.preload = "auto";
       var audioContext = null;
       var miniCells = [];
       var classColor = { "กลาง": "var(--middle)", "สูง": "var(--high)", "ต่ำ": "var(--low)" };
@@ -494,14 +496,19 @@
         });
       }
 
+      function unlockReadingAudio() {
+        if (!readingSoundOn) return;
+        var unlockPromise = readingAudio.play();
+        readingAudio.pause();
+        readingAudio.currentTime = 0;
+        if (unlockPromise) unlockPromise.catch(function () {});
+      }
+
       function playReading(index) {
-        if (currentReadingAudio) {
-          currentReadingAudio.pause();
-          currentReadingAudio.currentTime = 0;
-        }
-        currentReadingAudio = new Audio("https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/Thai%20letter%20sound/" + soundFiles[index]);
-        currentReadingAudio.volume = 0.18;
-        currentReadingAudio.play().catch(function () {});
+        readingAudio.pause();
+        readingAudio.currentTime = 0;
+        readingAudio.src = "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/Thai%20letter%20sound/" + soundFiles[index];
+        readingAudio.play().catch(function () {});
       }
 
       function randomDifferent(previous) {
@@ -557,13 +564,16 @@
         readingSoundOn = !readingSoundOn;
         readingToggle.textContent = readingSoundOn ? "✅ เปิดเสียงอ่าน" : "❌ ปิดเสียงอ่าน";
         readingToggle.setAttribute("aria-pressed", readingSoundOn ? "true" : "false");
-        if (!readingSoundOn && currentReadingAudio) {
-          currentReadingAudio.pause();
-          currentReadingAudio.currentTime = 0;
+        if (!readingSoundOn) {
+          readingAudio.pause();
+          readingAudio.currentTime = 0;
         }
       });
 
-      button.addEventListener("click", shuffle);
+      button.addEventListener("click", function () {
+        unlockReadingAudio();
+        shuffle();
+      });
     })();
   </script>
 </body>
