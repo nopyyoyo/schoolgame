@@ -1,0 +1,119 @@
+/* ThaiMon shared library — Supabase client, auth, hashing, session */
+window.ThaiMon = (function () {
+  'use strict';
+
+  var SUPABASE_URL = 'https://pbomxjysvrfycanjfizx.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_NUyKjkiIxycpTFnPXjRrag_aLqpwuvk';
+
+  var sb = null;
+  function client() {
+    if (!sb) {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    return sb;
+  }
+
+  /* ---------- password hashing (SHA-256 + salt, via Web Crypto) ---------- */
+  function makeSalt() {
+    var arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+  async function hashPassword(password, salt) {
+    var data = new TextEncoder().encode(salt + '::' + password);
+    var digest = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(digest)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+
+  /* ---------- session (sessionStorage — safer on shared devices) ---------- */
+  var SESSION_KEY = 'thaimon_player_id';
+  function setSession(playerId) {
+    sessionStorage.setItem(SESSION_KEY, playerId);
+  }
+  function getSession() {
+    return sessionStorage.getItem(SESSION_KEY);
+  }
+  function clearSession() {
+    sessionStorage.removeItem(SESSION_KEY);
+  }
+  function requireSession() {
+    var pid = getSession();
+    if (!pid) {
+      window.location.href = 'index.html';
+      return null;
+    }
+    return pid;
+  }
+
+  /* ---------- player API ---------- */
+  async function getPlayer(playerId) {
+    var res = await client().from('thaimon_players').select('*').eq('id', playerId).single();
+    if (res.error) throw res.error;
+    return res.data;
+  }
+
+  async function signup(username, password, inviteCode) {
+    username = (username || '').trim();
+    inviteCode = (inviteCode || '').trim();
+    if (username.length < 3 || username.length > 20) throw new Error('ชื่อผู้ใช้ต้องมี 3–20 ตัวอักษร');
+    if (password.length < 4) throw new Error('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร');
+
+    // username taken?
+    var existing = await client().from('thaimon_players').select('id').eq('username', username).maybeSingle();
+    if (existing.error) throw existing.error;
+    if (existing.data) throw new Error('ชื่อผู้ใช้นี้มีคนใช้แล้ว');
+
+    // invite code valid & unused?
+    var code = await client().from('thaimon_invite_codes').select('code, used_by').eq('code', inviteCode).maybeSingle();
+    if (code.error) throw code.error;
+    if (!code.data) throw new Error('รหัสเชิญไม่ถูกต้อง');
+    if (code.data.used_by) throw new Error('รหัสเชิญนี้ถูกใช้ไปแล้ว');
+
+    // create player
+    var salt = makeSalt();
+    var hash = await hashPassword(password, salt);
+    var ins = await client().from('thaimon_players').insert({
+      username: username,
+      password_hash: hash,
+      password_salt: salt,
+      display_name: username,
+      pokeballs: 0,
+      gachapons: 0
+    }).select('id').single();
+    if (ins.error) throw ins.error;
+
+    // mark invite code used
+    var upd = await client().from('thaimon_invite_codes').update({
+      used_by: ins.data.id,
+      used_at: new Date().toISOString()
+    }).eq('code', inviteCode);
+    if (upd.error) throw upd.error;
+
+    setSession(ins.data.id);
+    return ins.data.id;
+  }
+
+  async function signin(username, password) {
+    username = (username || '').trim();
+    var res = await client().from('thaimon_players').select('id, password_hash, password_salt').eq('username', username).maybeSingle();
+    if (res.error) throw res.error;
+    if (!res.data) throw new Error('ไม่พบชื่อผู้ใช้นี้');
+    var hash = await hashPassword(password, res.data.password_salt);
+    if (hash !== res.data.password_hash) throw new Error('รหัสผ่านไม่ถูกต้อง');
+    setSession(res.data.id);
+    return res.data.id;
+  }
+
+  return {
+    client: client,
+    hashPassword: hashPassword,
+    makeSalt: makeSalt,
+    setSession: setSession,
+    getSession: getSession,
+    clearSession: clearSession,
+    requireSession: requireSession,
+    getPlayer: getPlayer,
+    signup: signup,
+    signin: signin
+  };
+})();

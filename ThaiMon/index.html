@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="data:,">
+  <title>ไทยมอน — เข้าสู่ระบบ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="thaimon.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: linear-gradient(160deg, #e8f7e9, #cdeeda 60%, #b8e2c8);
+      color: #1c3a24;
+      font-family: Tahoma, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card {
+      width: min(100%, 400px);
+      background: #fffdf7;
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 14px 40px rgba(30, 80, 40, 0.18);
+      border: 3px solid #7bc96f;
+    }
+    .logo {
+      text-align: center;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #2e7d32;
+      margin: 0 0 4px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #5a7a60;
+      margin: 0 0 20px;
+      font-size: 0.95rem;
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      min-height: 48px;
+      border: 2px solid #a5d6a7;
+      border-radius: 14px;
+      background: #f1f8e9;
+      color: #2e7d32;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] {
+      background: #2e7d32;
+      border-color: #2e7d32;
+      color: #fff;
+    }
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 12px 0 6px;
+      font-size: 0.95rem;
+    }
+    input {
+      width: 100%;
+      min-height: 52px;
+      padding: 10px 14px;
+      border: 2px solid #a5d6a7;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1.1rem;
+      background: #fff;
+      color: #1c3a24;
+    }
+    input:focus {
+      outline: 3px solid #7bc96f;
+      outline-offset: 1px;
+      border-color: #2e7d32;
+    }
+    .submit {
+      width: 100%;
+      min-height: 56px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 14px;
+      background: #e45826;
+      color: #fff;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #b23e14;
+    }
+    .submit:active { transform: translateY(3px); box-shadow: 0 2px 0 #b23e14; }
+    .submit:disabled { opacity: 0.6; cursor: wait; transform: none; }
+    .msg {
+      min-height: 1.5em;
+      margin: 12px 0 0;
+      text-align: center;
+      font-weight: 700;
+    }
+    .msg.error { color: #c62828; }
+    .msg.ok { color: #2e7d32; }
+    .teacher-link {
+      display: block;
+      text-align: center;
+      margin-top: 18px;
+      color: #7a8a7d;
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1 class="logo">🐾 ไทยมอน</h1>
+    <p class="subtitle">สะสมมอนสเตอร์ของเธอ!</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tabSignin" role="tab" aria-selected="true" type="button">เข้าสู่ระบบ</button>
+      <button class="tab" id="tabSignup" role="tab" aria-selected="false" type="button">สมัครสมาชิก</button>
+    </div>
+
+    <form id="formSignin" autocomplete="on">
+      <label for="inUser">ชื่อผู้ใช้</label>
+      <input id="inUser" type="text" autocomplete="username" maxlength="20" required>
+      <label for="inPass">รหัสผ่าน</label>
+      <input id="inPass" type="password" autocomplete="current-password" required>
+      <button class="submit" type="submit" id="btnSignin">เข้าสู่ระบบ</button>
+    </form>
+
+    <form id="formSignup" hidden autocomplete="on">
+      <label for="upUser">ชื่อผู้ใช้ (3–20 ตัวอักษร)</label>
+      <input id="upUser" type="text" autocomplete="username" maxlength="20" required>
+      <label for="upPass">รหัสผ่าน (อย่างน้อย 4 ตัวอักษร)</label>
+      <input id="upPass" type="password" autocomplete="new-password" required>
+      <label for="upPass2">ยืนยันรหัสผ่าน</label>
+      <input id="upPass2" type="password" autocomplete="new-password" required>
+      <label for="upCode">รหัสเชิญ (ครูให้มา)</label>
+      <input id="upCode" type="text" autocomplete="off" required>
+      <button class="submit" type="submit" id="btnSignup">สมัครสมาชิก</button>
+    </form>
+
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <a class="teacher-link" href="admin.html">สำหรับครู</a>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+      var tabSignin = document.getElementById('tabSignin');
+      var tabSignup = document.getElementById('tabSignup');
+      var formSignin = document.getElementById('formSignin');
+      var formSignup = document.getElementById('formSignup');
+      var msg = document.getElementById('msg');
+
+      // already logged in? go to user page
+      if (window.ThaiMon.getSession()) {
+        window.location.href = 'user.html';
+        return;
+      }
+
+      function showTab(which) {
+        var isSignin = which === 'signin';
+        tabSignin.setAttribute('aria-selected', isSignin ? 'true' : 'false');
+        tabSignup.setAttribute('aria-selected', isSignin ? 'false' : 'true');
+        formSignin.hidden = !isSignin;
+        formSignup.hidden = isSignin;
+        msg.textContent = '';
+        msg.className = 'msg';
+      }
+      tabSignin.addEventListener('click', function () { showTab('signin'); });
+      tabSignup.addEventListener('click', function () { showTab('signup'); });
+
+      function say(text, isError) {
+        msg.textContent = text;
+        msg.className = 'msg ' + (isError ? 'error' : 'ok');
+      }
+
+      formSignin.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var btn = document.getElementById('btnSignin');
+        btn.disabled = true;
+        say('กำลังเข้าสู่ระบบ…', false);
+        try {
+          await window.ThaiMon.signin(
+            document.getElementById('inUser').value,
+            document.getElementById('inPass').value
+          );
+          window.location.href = 'user.html';
+        } catch (err) {
+          say(err.message || 'เกิดข้อผิดพลาด', true);
+          btn.disabled = false;
+        }
+      });
+
+      formSignup.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var p1 = document.getElementById('upPass').value;
+        var p2 = document.getElementById('upPass2').value;
+        if (p1 !== p2) { say('รหัสผ่านไม่ตรงกัน', true); return; }
+        var btn = document.getElementById('btnSignup');
+        btn.disabled = true;
+        say('กำลังสมัครสมาชิก…', false);
+        try {
+          await window.ThaiMon.signup(
+            document.getElementById('upUser').value,
+            p1,
+            document.getElementById('upCode').value
+          );
+          window.location.href = 'user.html';
+        } catch (err) {
+          say(err.message || 'เกิดข้อผิดพลาด', true);
+          btn.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
