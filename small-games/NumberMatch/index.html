@@ -114,6 +114,25 @@
       box-shadow: var(--shadow-small);
       margin-bottom: 14px;
     }
+    .voice-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .voice-toggle {
+      min-height: 44px;
+      padding: 8px 20px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: var(--shadow-small);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .voice-toggle:active { transform: translateY(2px); }
     .mode-switch {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -339,6 +358,10 @@
       <div class="pair-chip">10 คู่ · 20 ใบ</div>
     </header>
 
+    <div class="voice-row">
+      <button id="voiceToggle" type="button" class="voice-toggle" aria-pressed="true">✅ เปิดเสียงอ่าน</button>
+    </div>
+
     <section class="control-panel" aria-label="เลือกโหมดและดูคะแนน">
       <div class="mode-switch" role="group" aria-label="เลือกจำนวนผู้เล่น">
         <button class="mode-btn" id="onePlayerBtn" type="button" aria-pressed="true">👤 1 คน</button>
@@ -392,6 +415,56 @@
       var scores = [0, 0];
       var audioContext = null;
       var flipTimer = null;
+      /* ---------- built-in Thai voice (speechSynthesis) ---------- */
+      var voiceOn = true;
+      var hasTTS = ('speechSynthesis' in window);
+      var ttsUnlocked = false;
+      var voiceToggle = document.getElementById('voiceToggle');
+      if (!hasTTS) {
+        voiceToggle.style.display = 'none';
+      } else {
+        voiceToggle.addEventListener('click', function () {
+          voiceOn = !voiceOn;
+          voiceToggle.textContent = voiceOn ? '✅ เปิดเสียงอ่าน' : '❌ ปิดเสียงอ่าน';
+          voiceToggle.setAttribute('aria-pressed', voiceOn ? 'true' : 'false');
+          if (!voiceOn) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+        });
+        try {
+          window.speechSynthesis.getVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = function () { window.speechSynthesis.getVoices(); };
+          }
+        } catch (e) {}
+      }
+      function unlockTTS() {
+        if (!hasTTS || ttsUnlocked) return;
+        ttsUnlocked = true;
+        try {
+          var u = new SpeechSynthesisUtterance(' ');
+          u.volume = 0;
+          u.lang = 'th-TH';
+          window.speechSynthesis.speak(u);
+        } catch (e) {}
+      }
+      function speak(text) {
+        if (!voiceOn || !hasTTS) return;
+        try {
+          window.speechSynthesis.cancel();
+          var u = new SpeechSynthesisUtterance(text);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          u.pitch = 1.05;
+          u.volume = 1;
+          var voices = window.speechSynthesis.getVoices();
+          for (var i = 0; i < voices.length; i++) {
+            if (voices[i].lang && voices[i].lang.toLowerCase().indexOf('th') === 0) {
+              u.voice = voices[i];
+              break;
+            }
+          }
+          window.speechSynthesis.speak(u);
+        } catch (e) {}
+      }
 
       function shuffle(items) {
         for (var i = items.length - 1; i > 0; i--) {
@@ -515,6 +588,7 @@
 
       function handleCard(card, value) {
         unlockAudio();
+        unlockTTS();
         if (locked || card.classList.contains('is-flipped') || card.classList.contains('is-matched')) return;
 
         card.classList.add('is-flipped');
@@ -540,6 +614,9 @@
           matchedPairs += 1;
           if (mode === 2) scores[currentPlayer - 1] += 1;
           playMatch();
+          var pairId = Number(firstCard.dataset.pairId);
+          var matchWord = pairs[pairId - 1].word;
+          setTimeout(function () { speak(matchWord); }, 350);
           finishTurn(true);
         } else {
           flipTimer = setTimeout(function () {
