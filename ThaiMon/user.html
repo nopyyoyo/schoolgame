@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="data:,">
+  <title>ไทยมอน — หน้าของฉัน</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="thaimon.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+      background: linear-gradient(160deg, #e8f7e9, #cdeeda 60%, #b8e2c8);
+      color: #1c3a24;
+      font-family: Tahoma, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap { width: min(100%, 480px); margin: 0 auto; position: relative; z-index: 1; }
+    .profile {
+      background: rgba(255, 253, 247, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 3px solid rgba(123, 201, 111, 0.8);
+      border-radius: 24px;
+      padding: 22px 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(30, 80, 40, 0.15);
+    }
+    .avatar {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      border: 4px solid #2e7d32;
+      background: #e8f5e9;
+      display: grid;
+      place-items: center;
+      font-size: 3rem;
+      overflow: hidden;
+      background-size: 400% 100%;
+      background-position: 0 0;
+      background-repeat: no-repeat;
+    }
+    .dname-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .dname {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #1c3a24;
+      margin: 0;
+    }
+    .dname-input {
+      font-family: inherit;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-align: center;
+      border: 2px solid #2e7d32;
+      border-radius: 10px;
+      padding: 4px 10px;
+      width: 200px;
+      color: #1c3a24;
+    }
+    .edit-btn {
+      border: 0;
+      background: #e8f5e9;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .uname {
+      color: #6a8a6e;
+      font-size: 0.9rem;
+      margin: 6px 0 0;
+    }
+    .stats {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+    .stat {
+      background: #fff;
+      border: 2px solid #a5d6a7;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+    .menu { margin-top: 16px; display: grid; gap: 12px; }
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      min-height: 76px;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 18px;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      color: #fff;
+      box-shadow: 0 5px 0 rgba(0,0,0,.18);
+    }
+    .menu-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+    .menu-btn .ico { font-size: 2.4rem; flex: 0 0 auto; }
+    .menu-btn .txt b { display: block; font-size: 1.25rem; }
+    .menu-btn .txt span { font-size: 0.88rem; opacity: 0.92; }
+    .btn-collect { background: linear-gradient(135deg, #e63e30, #c62828); }
+    .btn-gacha { background: linear-gradient(135deg, #8e4bb7, #6a2d91); }
+    .btn-collection { background: linear-gradient(135deg, #1976b8, #0d4f7c); }
+    .logout {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      min-height: 48px;
+      border: 2px solid #a5d6a7;
+      border-radius: 12px;
+      background: rgba(255,255,255,.6);
+      color: #5a7a60;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .msg { text-align: center; min-height: 1.4em; font-weight: 700; margin: 8px 0 0; }
+    .msg.error { color: #c62828; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="profile">
+      <div class="avatar" id="avatar">🐾</div>
+      <div class="dname-row">
+        <h1 class="dname" id="dname">…</h1>
+        <input class="dname-input" id="dnameInput" hidden maxlength="20">
+        <button class="edit-btn" id="editBtn" type="button" aria-label="เปลี่ยนชื่อ">✏️</button>
+      </div>
+      <p class="uname" id="uname"></p>
+      <div class="stats">
+        <div class="stat" id="statBall">🔴 × 0</div>
+        <div class="stat" id="statGacha">🎰 × 0</div>
+      </div>
+      <p class="msg" id="msg"></p>
+    </section>
+
+    <nav class="menu">
+      <button class="menu-btn btn-collect" type="button" onclick="location.href='collect.html'">
+        <span class="ico">🔴</span>
+        <span class="txt"><b>จับมอนสเตอร์</b><span>ออกไปจับมอนสเตอร์ในทุ่ง!</span></span>
+      </button>
+      <button class="menu-btn btn-gacha" type="button" onclick="location.href='gacha.html'">
+        <span class="ico">🎰</span>
+        <span class="txt"><b>สุ่มกาชาปอง</b><span>ลุ้นมอนสเตอร์หายาก!</span></span>
+      </button>
+      <button class="menu-btn btn-collection" type="button" onclick="location.href='collection.html'">
+        <span class="ico">📖</span>
+        <span class="txt"><b>คอลเลกชัน</b><span>ดูและวิวัฒนาการมอนสเตอร์</span></span>
+      </button>
+    </nav>
+
+    <button class="logout" id="logoutBtn" type="button">ออกจากระบบ</button>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+      var pid = window.ThaiMon.requireSession();
+      if (!pid) return;
+
+      var avatarEl = document.getElementById('avatar');
+      var dnameEl = document.getElementById('dname');
+      var dnameInput = document.getElementById('dnameInput');
+      var editBtn = document.getElementById('editBtn');
+      var unameEl = document.getElementById('uname');
+      var statBall = document.getElementById('statBall');
+      var statGacha = document.getElementById('statGacha');
+      var msg = document.getElementById('msg');
+      var editing = false;
+
+      async function load() {
+        try {
+          var p = await window.ThaiMon.getPlayer(pid);
+          dnameEl.textContent = p.display_name;
+          unameEl.textContent = 'ชื่อผู้ใช้: ' + p.username;
+          statBall.textContent = '🔴 × ' + p.pokeballs;
+          statGacha.textContent = '🎰 × ' + p.gachapons;
+          if (p.avatar_monster_id) {
+            var m = await window.ThaiMon.client()
+              .from('thaimon_monsters').select('sprite_url').eq('id', p.avatar_monster_id).single();
+            if (m.data) {
+              avatarEl.textContent = '';
+              avatarEl.style.backgroundImage = 'url("' + m.data.sprite_url + '")';
+            }
+          }
+        } catch (e) {
+          msg.textContent = 'โหลดข้อมูลไม่ได้';
+          msg.className = 'msg error';
+        }
+      }
+
+      editBtn.addEventListener('click', async function () {
+        if (!editing) {
+          editing = true;
+          dnameInput.value = dnameEl.textContent;
+          dnameEl.hidden = true;
+          dnameInput.hidden = false;
+          dnameInput.focus();
+          editBtn.textContent = '💾';
+        } else {
+          var v = dnameInput.value.trim();
+          if (!v) { msg.textContent = 'ชื่อต้องไม่ว่าง'; msg.className = 'msg error'; return; }
+          try {
+            var r = await window.ThaiMon.client()
+              .from('thaimon_players').update({ display_name: v }).eq('id', pid);
+            if (r.error) throw r.error;
+            dnameEl.textContent = v;
+            msg.textContent = '';
+          } catch (e) {
+            msg.textContent = 'บันทึกไม่ได้';
+            msg.className = 'msg error';
+          }
+          editing = false;
+          dnameEl.hidden = false;
+          dnameInput.hidden = true;
+          editBtn.textContent = '✏️';
+        }
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', function () {
+        window.ThaiMon.clearSession();
+        window.location.href = 'index.html';
+      });
+
+      load();
+    })();
+  </script>
+</body>
+</html>
