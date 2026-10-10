@@ -44,6 +44,19 @@
       background-size: 400% 100%;
       background-position: 0 0;
       background-repeat: no-repeat;
+      cursor: pointer;
+      position: relative;
+    }
+    .avatar::after {
+      content: '📷';
+      position: absolute;
+      bottom: 2px; right: 2px;
+      font-size: 1.3rem;
+      background: rgba(255,255,255,.9);
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: grid;
+      place-items: center;
     }
     .dname-row {
       display: flex;
@@ -135,6 +148,66 @@
     }
     .msg { text-align: center; min-height: 1.4em; font-weight: 700; margin: 8px 0 0; }
     .msg.error { color: #c62828; }
+    /* ---------- avatar picker ---------- */
+    .picker-layer {
+      position: fixed; inset: 0; z-index: 20;
+      background: rgba(20, 45, 25, 0.6);
+      display: grid; place-items: center;
+      padding: 20px;
+    }
+    .picker-box {
+      width: min(100%, 380px);
+      max-height: 80svh;
+      overflow-y: auto;
+      background: #fffdf7;
+      border-radius: 20px;
+      border: 3px solid #2e7d32;
+      padding: 18px;
+    }
+    .picker-box h2 { margin: 0 0 4px; font-size: 1.3rem; text-align: center; }
+    .picker-box p { margin: 0 0 12px; text-align: center; color: #6a8a6e; font-size: 0.9rem; }
+    .picker-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .picker-item {
+      border: 3px solid #a5d6a7;
+      border-radius: 14px;
+      background: #f1f8e9;
+      padding: 8px 4px;
+      cursor: pointer;
+      text-align: center;
+      font-family: inherit;
+    }
+    .picker-item.current { border-color: #e45826; background: #fff0e8; }
+    .picker-item .thumb {
+      width: 64px; height: 64px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background-size: 400% 100%;
+      background-position: 0 0;
+      background-repeat: no-repeat;
+      background-color: #e8f5e9;
+      display: grid;
+      place-items: center;
+      font-size: 2rem;
+    }
+    .picker-item .nm { font-size: 0.8rem; margin-top: 4px; font-weight: 700; }
+    .picker-close {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      min-height: 48px;
+      border: 0;
+      border-radius: 12px;
+      background: #9e9e9e;
+      color: #fff;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -173,6 +246,15 @@
     <button class="logout" id="logoutBtn" type="button">ออกจากระบบ</button>
   </main>
 
+  <div class="picker-layer" id="pickerLayer" hidden>
+    <div class="picker-box">
+      <h2>เลือกรูปประจำตัว</h2>
+      <p>แตะมอนสเตอร์ที่เธอมี</p>
+      <div class="picker-grid" id="pickerGrid"></div>
+      <button class="picker-close" id="pickerClose" type="button">ปิด</button>
+    </div>
+  </div>
+
   <script>
     (function () {
       'use strict';
@@ -187,7 +269,19 @@
       var statBall = document.getElementById('statBall');
       var statGacha = document.getElementById('statGacha');
       var msg = document.getElementById('msg');
+      var pickerLayer = document.getElementById('pickerLayer');
+      var pickerGrid = document.getElementById('pickerGrid');
       var editing = false;
+
+      function setAvatarDisplay(monsterId, spriteUrl) {
+        if (monsterId && spriteUrl) {
+          avatarEl.textContent = '';
+          avatarEl.style.backgroundImage = 'url("' + spriteUrl + '")';
+        } else {
+          avatarEl.textContent = '🐾';
+          avatarEl.style.backgroundImage = '';
+        }
+      }
 
       async function load() {
         try {
@@ -199,16 +293,70 @@
           if (p.avatar_monster_id) {
             var m = await window.ThaiMon.client()
               .from('thaimon_monsters').select('sprite_url').eq('id', p.avatar_monster_id).single();
-            if (m.data) {
-              avatarEl.textContent = '';
-              avatarEl.style.backgroundImage = 'url("' + m.data.sprite_url + '")';
-            }
+            if (m.data) setAvatarDisplay(p.avatar_monster_id, m.data.sprite_url);
           }
         } catch (e) {
           msg.textContent = 'โหลดข้อมูลไม่ได้';
           msg.className = 'msg error';
         }
       }
+
+      async function openPicker() {
+        pickerGrid.innerHTML = '';
+        // default paw option
+        var def = document.createElement('button');
+        def.type = 'button';
+        def.className = 'picker-item';
+        def.innerHTML = '<div class="thumb">🐾</div><div class="nm">ค่าเริ่มต้น</div>';
+        def.addEventListener('click', function () { pickAvatar(null); });
+        pickerGrid.appendChild(def);
+        try {
+          var inv = await window.ThaiMon.client()
+            .from('thaimon_inventory')
+            .select('monster_id, thaimon_monsters(id, name_th, sprite_url)')
+            .eq('player_id', pid)
+            .gt('quantity', 0);
+          if (inv.error) throw inv.error;
+          (inv.data || []).forEach(function (row) {
+            var mon = row.thaimon_monsters;
+            if (!mon) return;
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'picker-item';
+            b.innerHTML = '<div class="thumb" style="background-image:url(\'' + mon.sprite_url + '\')"></div><div class="nm">' + mon.name_th + '</div>';
+            b.addEventListener('click', function () { pickAvatar(mon.id, mon.sprite_url); });
+            pickerGrid.appendChild(b);
+          });
+          if (!inv.data || !inv.data.length) {
+            var note = document.createElement('p');
+            note.style.gridColumn = '1 / -1';
+            note.textContent = 'ยังไม่มีมอนสเตอร์ — ไปจับมาก่อน!';
+            pickerGrid.appendChild(note);
+          }
+        } catch (e) {
+          msg.textContent = 'โหลดมอนสเตอร์ไม่ได้';
+          msg.className = 'msg error';
+        }
+        pickerLayer.hidden = false;
+      }
+
+      async function pickAvatar(monsterId, spriteUrl) {
+        try {
+          var r = await window.ThaiMon.client()
+            .from('thaimon_players').update({ avatar_monster_id: monsterId }).eq('id', pid);
+          if (r.error) throw r.error;
+          setAvatarDisplay(monsterId, spriteUrl);
+          pickerLayer.hidden = true;
+        } catch (e) {
+          msg.textContent = 'เปลี่ยนรูปไม่ได้';
+          msg.className = 'msg error';
+        }
+      }
+
+      avatarEl.addEventListener('click', openPicker);
+      document.getElementById('pickerClose').addEventListener('click', function () {
+        pickerLayer.hidden = true;
+      });
 
       editBtn.addEventListener('click', async function () {
         if (!editing) {
