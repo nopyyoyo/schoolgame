@@ -120,21 +120,37 @@
     background: #fff; border: 6px solid #2f7d32;
     box-shadow: 0 12px 24px rgba(0,0,0,.3), inset 0 0 0 4px #dff1ff;
     overflow: hidden;
-    animation: bob 3.2s ease-in-out infinite;
+    position: relative;
   }
   #spot .ring img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  #spot.pop .ring { animation: pop .55s ease, bob 3.2s ease-in-out .55s infinite; }
+  #sprite {
+    position: absolute; inset: 0;
+    background-size: 400% 100%;
+    background-repeat: no-repeat;
+    background-position-x: 0%;
+    animation: hop 2.4s steps(1) infinite;
+  }
+  @keyframes hop {
+    0%   { background-position-x: 0%; }
+    15%  { background-position-x: 0%; }
+    22%  { background-position-x: 33.3333%; }
+    29%  { background-position-x: 66.6667%; }
+    36%  { background-position-x: 100%; }
+    92%  { background-position-x: 100%; }
+    100% { background-position-x: 0%; }
+  }
+  #spot.pop .ring { animation: pop .55s ease; }
   @keyframes pop { 0% { transform: scale(0); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
-  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
   #spot .shadow {
     position: absolute; top: calc(100% + 10px); left: 50%;
     width: 72%; height: 20px; transform: translateX(-50%);
     background: radial-gradient(ellipse, rgba(0,0,0,.35), transparent 70%);
-    animation: shadowBob 3.2s ease-in-out infinite;
+    animation: shadowHop 2.4s ease-in-out infinite;
   }
-  @keyframes shadowBob {
-    0%,100% { transform: translateX(-50%) scale(1); opacity: .8; }
-    50%     { transform: translateX(-50%) scale(.84); opacity: .5; }
+  @keyframes shadowHop {
+    0%, 12%  { transform: translateX(-50%) scale(1); opacity: .8; }
+    24%      { transform: translateX(-50%) scale(.68); opacity: .45; }
+    38%, 100% { transform: translateX(-50%) scale(1); opacity: .8; }
   }
   #namepill {
     position: absolute; top: calc(100% + 38px); left: 50%;
@@ -169,7 +185,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #spot .ring, #spot .shadow, .tree-side svg { animation: none; }
+    #sprite, #spot .shadow, .tree-side svg { animation: none; }
   }
 </style>
 </head>
@@ -190,7 +206,7 @@
     <div id="banner"></div>
 
     <div id="spot">
-      <div class="ring"><img id="animalimg" alt="สัตว์ป่า" /></div>
+      <div class="ring"><img id="animalimg" alt="สัตว์ป่า" /><div id="sprite"></div></div>
       <div class="shadow"></div>
       <div id="namepill">…</div>
     </div>
@@ -225,6 +241,9 @@
   ];
   var IMG = function (id) {
     return "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/animal%20photo/" + id + ".jpg";
+  };
+  var SPRITE_IMG = function (id) {
+    return "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/animal%20photo/" + id + "_sprite.png";
   };
 
   /* ---------- scenery ---------- */
@@ -283,6 +302,7 @@
 
   /* ---------- encounters ---------- */
   var img = document.getElementById("animalimg");
+  var sprite = document.getElementById("sprite");
   var spot = document.getElementById("spot");
   var banner = document.getElementById("banner");
   var namepill = document.getElementById("namepill");
@@ -297,8 +317,18 @@
     do { i = Math.floor(Math.random() * ANIMALS.length); } while (i === current);
     current = i;
     var a = ANIMALS[i];
+    var spriteURL = SPRITE_IMG(a.id);
+    // Static photo shows instantly; animated sprite swaps in once loaded.
     img.alt = a.th;
+    img.style.display = "block";
     img.src = IMG(a.id);
+    sprite.style.backgroundImage = 'url("' + spriteURL + '")';
+    sprite.style.animation = "none";
+    void sprite.offsetWidth;
+    sprite.style.animation = "";
+    var probe = new Image();
+    probe.onload = function () { img.style.display = "none"; };
+    probe.src = spriteURL;
     namepill.textContent = a.th;
     banner.textContent = "พบ" + a.th + "!";
     banner.classList.remove("show");
