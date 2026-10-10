@@ -598,9 +598,15 @@
     var target = animal.th;
     if (!t) return false;
     if (t === target) return true;
-    if (t.indexOf(target) !== -1) return true;
-    if (target.length >= 4 && t.length >= 3 && target.slice(-t.length) === t) return true;
-    if (levenshtein(t, target) <= 2) return true;
+    // Phrase contains the word (child said a full sentence)
+    if (t.length > target.length && t.indexOf(target) !== -1) return true;
+    // Tolerance scales with word length: short words must be near-exact,
+    // long words allow a tone mark or small slip.
+    var maxDist;
+    if (target.length <= 2) maxDist = 0;
+    else if (target.length <= 4) maxDist = 1;
+    else maxDist = 2;
+    if (levenshtein(t, target) <= maxDist) return true;
     return false;
   }
 
