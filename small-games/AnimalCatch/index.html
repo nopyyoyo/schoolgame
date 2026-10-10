@@ -153,28 +153,43 @@
     box-shadow: 0 4px 10px rgba(0,0,0,.25);
   }
 
-  /* ---------- pokeball ---------- */
+  /* ---------- pokeball (draggable, JS-positioned) ---------- */
   #ballzone {
     position: absolute; left: 0; right: 0; bottom: max(16px, env(safe-area-inset-bottom));
-    text-align: center; z-index: 4;
+    text-align: center; z-index: 4; pointer-events: none;
   }
   #pokeball {
-    width: 78px; height: 78px; border-radius: 50%; margin: 0 auto;
+    width: 78px; height: 78px; border-radius: 50%;
     background: linear-gradient(180deg, #ee3e36 0 46%, #222 46% 54%, #f8f8f8 54% 100%);
     border: 4px solid #222;
-    position: relative; cursor: pointer;
+    position: absolute; left: 0; top: 0; z-index: 4;
+    cursor: grab;
     box-shadow: 0 6px 14px rgba(0,0,0,.35);
-    touch-action: manipulation;
+    touch-action: none;
+    will-change: transform;
   }
   #pokeball::after {
     content: ""; position: absolute; left: 50%; top: 50%;
     width: 22px; height: 22px; transform: translate(-50%,-50%);
     background: #fff; border: 4px solid #222; border-radius: 50%;
   }
-  #pokeball:active { transform: scale(.9); }
+  #pokeball.dragging { cursor: grabbing; }
   #hint {
     margin-top: 8px; color: #fff; font-size: .95rem;
     text-shadow: 0 1px 3px rgba(0,0,0,.55);
+  }
+  .slot.filled {
+    border: 2px solid #e45826; background-size: 400% 100%;
+    background-position: 0% 0%; background-repeat: no-repeat;
+  }
+  .star {
+    position: absolute; z-index: 10; font-size: 26px; pointer-events: none;
+    transform: translate(-50%,-50%);
+    animation: burst .9s ease-out forwards;
+  }
+  @keyframes burst {
+    0% { transform: translate(-50%,-50%) scale(.3); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.3); opacity: 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -204,9 +219,9 @@
       <div id="namepill">…</div>
     </div>
 
+    <div id="pokeball" role="button" tabindex="0" aria-label="ลากเพื่อโยนบอลจับสัตว์"></div>
     <div id="ballzone">
-      <div id="pokeball" role="button" tabindex="0" aria-label="สุ่มสัตว์ตัวใหม่"></div>
-      <div id="hint">แตะบอลเพื่อเจอสัตว์ตัวใหม่</div>
+      <div id="hint">ลากบอลขึ้นเพื่อโยน!</div>
     </div>
   </div>
 </div>
@@ -324,6 +339,45 @@
       this.ensure();
       this.tone(620, 0, 0.07, "sine", 0.14);
       this.tone(930, 0.05, 0.09, "sine", 0.11);
+    },
+    throw_: function () {
+      this.ensure();
+      var t = this.ctx.currentTime;
+      var o = this.ctx.createOscillator();
+      var g = this.ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(280, t);
+      o.frequency.exponentialRampToValueAtTime(950, t + 0.22);
+      g.gain.setValueAtTime(0.14, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+      o.connect(g); g.connect(this.ctx.destination);
+      o.start(t); o.stop(t + 0.32);
+    },
+    hit: function () {
+      this.ensure();
+      this.tone(180, 0, 0.14, "square", 0.2);
+      this.tone(880, 0.08, 0.3, "sine", 0.14);
+    },
+    bounce: function () {
+      this.ensure();
+      this.tone(300, 0, 0.08, "sine", 0.1);
+    },
+    wiggle: function () {
+      this.ensure();
+      this.tone(520, 0, 0.07, "square", 0.1);
+      this.tone(420, 0.07, 0.07, "square", 0.1);
+    },
+    caught: function () {
+      this.ensure();
+      var notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+      for (var i = 0; i < notes.length; i++) {
+        this.tone(notes[i], i * 0.1, 0.32, "triangle", 0.16);
+      }
+    },
+    miss: function () {
+      this.ensure();
+      this.tone(380, 0, 0.25, "sine", 0.11);
+      this.tone(240, 0.18, 0.35, "sine", 0.11);
     }
   };
   document.addEventListener("pointerdown", function () { SFX.ensure(); });
@@ -357,11 +411,282 @@
     SFX.encounter();
   }
 
-  ball.addEventListener("click", function () { SFX.pop(); spawn(); });
+  /* ---------- ball throwing: drag, flick, arc, hit/miss (Step 2) ---------- */
+  var field = document.getElementById("field");
+  var hint = document.getElementById("hint");
+  var progress = document.getElementById("progress");
+  var BALL_R = 39;
+  var GRAVITY = 1400;
+  var HIT_RADIUS = 135;
+  var ballState = "rest"; // rest | dragging | flying | catching | returning
+  var bx = 0, by = 0, bvx = 0, bvy = 0;
+
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function ballRest() {
+    var fr = field.getBoundingClientRect();
+    return { x: fr.width / 2, y: fr.height - 110 };
+  }
+  function placeBall(x, y) {
+    bx = x; by = y;
+    ball.style.transform = "translate3d(" + (x - BALL_R) + "px," + (y - BALL_R) + "px,0)";
+  }
+  function animalCenter() {
+    var fr = field.getBoundingClientRect();
+    var sr = spot.getBoundingClientRect();
+    return { x: sr.left - fr.left + sr.width / 2, y: sr.top - fr.top + sr.height / 2 };
+  }
+  function starBurst(x, y) {
+    for (var i = 0; i < 9; i++) {
+      var s = document.createElement("div");
+      s.className = "star";
+      s.textContent = "⭐";
+      s.style.left = x + "px";
+      s.style.top = y + "px";
+      var ang = (i / 9) * Math.PI * 2 + Math.random() * 0.5;
+      var dist = 70 + Math.random() * 50;
+      s.style.setProperty("--dx", Math.cos(ang) * dist + "px");
+      s.style.setProperty("--dy", Math.sin(ang) * dist + "px");
+      field.appendChild(s);
+      (function (el) { setTimeout(function () { el.remove(); }, 950); })(s);
+    }
+  }
+
+  var caught = 0;
+  function addToTray(animalId) {
+    var slots = tray.querySelectorAll(".slot");
+    if (caught < 10) {
+      slots[caught].classList.add("filled");
+      slots[caught].style.backgroundImage = 'url("' + SPRITE_IMG(animalId) + '")';
+    }
+    caught++;
+    progress.textContent = Math.min(caught, 10) + "/10";
+    if (caught >= 10) {
+      setTimeout(function () {
+        banner.textContent = "ครบ 10 ตัวแล้ว! เก่งมาก! 🎉";
+        banner.classList.remove("show");
+        void banner.offsetWidth;
+        banner.classList.add("show");
+        SFX.caught();
+        setTimeout(function () {
+          for (var i = 0; i < 10; i++) {
+            slots[i].classList.remove("filled");
+            slots[i].style.backgroundImage = "";
+          }
+          caught = 0;
+          progress.textContent = "0/10";
+        }, 2600);
+      }, 1700);
+    }
+  }
+
+  async function wiggleBall() {
+    for (var i = 0; i < 3; i++) {
+      ball.style.transform = "translate3d(" + (bx - BALL_R) + "px," + (by - BALL_R) + "px,0) rotate(-18deg)";
+      await wait(140);
+      ball.style.transform = "translate3d(" + (bx - BALL_R) + "px," + (by - BALL_R) + "px,0) rotate(18deg)";
+      await wait(140);
+    }
+    ball.style.transform = "translate3d(" + (bx - BALL_R) + "px," + (by - BALL_R) + "px,0)";
+  }
+  function dropBallToGround() {
+    return new Promise(function (resolve) {
+      var fr = field.getBoundingClientRect();
+      var groundY = fr.height - 52;
+      var vy = 0, bounces = 0, last = performance.now();
+      function step(t) {
+        var dt = Math.min((t - last) / 1000, 0.033);
+        last = t;
+        vy += 2200 * dt;
+        by += vy * dt;
+        if (by >= groundY) {
+          by = groundY;
+          if (bounces < 2) { vy = -vy * 0.42; bounces++; SFX.bounce(); }
+          else { placeBall(bx, by); resolve(); return; }
+        }
+        placeBall(bx, by);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  async function resetBall() {
+    ballState = "returning";
+    ball.style.transition = "opacity .3s";
+    ball.style.opacity = "0";
+    await wait(350);
+    var rp = ballRest();
+    placeBall(rp.x, rp.y);
+    ball.style.opacity = "1";
+    ball.style.transition = "";
+    await wait(250);
+    ballState = "rest";
+  }
+
+  async function onHit(ac) {
+    ballState = "catching";
+    SFX.hit();
+    placeBall(ac.x, ac.y);
+    sprite.style.animationPlayState = "paused";
+    spot.style.transition = "transform .35s ease-in";
+    spot.style.transform = "translate(-50%,-50%) scale(0)";
+    await wait(400);
+    spot.style.transition = "";
+    spot.style.visibility = "hidden";
+    await dropBallToGround();
+    for (var i = 0; i < 3; i++) { SFX.wiggle(); await wiggleBall(); await wait(180); }
+    SFX.caught();
+    starBurst(bx, by - 50);
+    banner.textContent = "จับ" + ANIMALS[current].th + "ได้!";
+    banner.classList.remove("show");
+    void banner.offsetWidth;
+    banner.classList.add("show");
+    addToTray(ANIMALS[current].id);
+    await wait(1500);
+    spot.style.visibility = "";
+    spot.style.transform = "";
+    sprite.style.animationPlayState = "";
+    await resetBall();
+    spawn();
+  }
+  async function onMiss() {
+    ballState = "returning";
+    SFX.miss();
+    hint.textContent = "โอ๊ะ! ลองอีกครั้งนะ";
+    ball.style.transition = "opacity .4s";
+    ball.style.opacity = "0";
+    await wait(450);
+    var rp = ballRest();
+    placeBall(rp.x, rp.y);
+    ball.style.opacity = "1";
+    ball.style.transition = "";
+    hint.textContent = "ลากบอลขึ้นเพื่อโยน!";
+    ballState = "rest";
+  }
+
+  var lastFlyT = 0;
+  function flyStep(t) {
+    if (ballState !== "flying") return;
+    if (!lastFlyT) lastFlyT = t;
+    var dt = Math.min((t - lastFlyT) / 1000, 0.033);
+    lastFlyT = t;
+    bvy += GRAVITY * dt;
+    bx += bvx * dt;
+    by += bvy * dt;
+    placeBall(bx, by);
+    var ac = animalCenter();
+    var dx = bx - ac.x, dy = by - ac.y;
+    if (dx * dx + dy * dy < HIT_RADIUS * HIT_RADIUS) {
+      lastFlyT = 0;
+      onHit(ac);
+      return;
+    }
+    var fr = field.getBoundingClientRect();
+    var groundY = fr.height - 52;
+    if (by > fr.height + 60 || bx < -60 || bx > fr.width + 60 || (bvy > 0 && by >= groundY && Math.abs(bx - ac.x) > HIT_RADIUS)) {
+      lastFlyT = 0;
+      onMiss();
+      return;
+    }
+    requestAnimationFrame(flyStep);
+  }
+
+  var dragTrail = [], dragStartT = 0, dragMoved = 0;
+  ball.addEventListener("pointerdown", function (e) {
+    if (ballState !== "rest") return;
+    ballState = "dragging";
+    try { ball.setPointerCapture(e.pointerId); } catch (err) {}
+    dragTrail = [{ x: e.clientX, y: e.clientY, t: performance.now() }];
+    dragStartT = performance.now();
+    dragMoved = 0;
+    var fr = field.getBoundingClientRect();
+    placeBall(e.clientX - fr.left, e.clientY - fr.top);
+    ball.classList.add("dragging");
+    e.preventDefault();
+  });
+  ball.addEventListener("pointermove", function (e) {
+    if (ballState !== "dragging") return;
+    var fr = field.getBoundingClientRect();
+    var x = Math.max(BALL_R, Math.min(fr.width - BALL_R, e.clientX - fr.left));
+    var y = Math.max(50, Math.min(fr.height - BALL_R, e.clientY - fr.top));
+    dragMoved = Math.max(dragMoved, Math.abs(x - bx) + Math.abs(y - by));
+    placeBall(x, y);
+    dragTrail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    if (dragTrail.length > 8) dragTrail.shift();
+  });
+  function endDrag(e) {
+    if (ballState !== "dragging") return;
+    ball.classList.remove("dragging");
+    var quickTap = (performance.now() - dragStartT < 350) && dragMoved < 14;
+    if (quickTap) {
+      ballState = "rest";
+      var rp = ballRest();
+      placeBall(rp.x, rp.y);
+      SFX.pop();
+      spawn();
+      return;
+    }
+    var n = dragTrail.length;
+    bvx = 0; bvy = 0;
+    if (n >= 2) {
+      var a = dragTrail[0], b = dragTrail[n - 1];
+      var dt = (b.t - a.t) / 1000;
+      if (dt > 0.02) {
+        bvx = ((b.x - a.x) / dt) * 1.25;
+        bvy = ((b.y - a.y) / dt) * 1.25;
+      }
+    }
+    if (bvy < -350) {
+      ballState = "flying";
+      lastFlyT = 0;
+      SFX.throw_();
+      requestAnimationFrame(flyStep);
+    } else {
+      (async function () {
+        ballState = "returning";
+        var rp = ballRest();
+        var sx = bx, sy = by, t0 = performance.now();
+        await new Promise(function (res) {
+          function s(t) {
+            var k = Math.min((t - t0) / 250, 1);
+            placeBall(sx + (rp.x - sx) * k, sy + (rp.y - sy) * k);
+            if (k < 1) requestAnimationFrame(s); else res();
+          }
+          requestAnimationFrame(s);
+        });
+        ballState = "rest";
+      })();
+    }
+  }
+  ball.addEventListener("pointerup", endDrag);
+  ball.addEventListener("pointercancel", function () {
+    if (ballState === "dragging") {
+      ball.classList.remove("dragging");
+      var rp = ballRest();
+      placeBall(rp.x, rp.y);
+      ballState = "rest";
+    }
+  });
   ball.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); spawn(); }
+    if ((e.key === "Enter" || e.key === " ") && ballState === "rest") {
+      e.preventDefault();
+      var ac = animalCenter();
+      var rp = ballRest();
+      placeBall(rp.x, rp.y);
+      ballState = "flying";
+      bvx = (ac.x - rp.x) * 2.2;
+      bvy = -950;
+      lastFlyT = 0;
+      SFX.throw_();
+      requestAnimationFrame(flyStep);
+    }
   });
 
+  window.addEventListener("resize", function () {
+    if (ballState === "rest") { var rp = ballRest(); placeBall(rp.x, rp.y); }
+  });
+
+  var rp0 = ballRest();
+  placeBall(rp0.x, rp0.y);
   spawn();
 })();
 </script>
