@@ -109,26 +109,19 @@
     100% { opacity: 0; transform: translateX(-50%) translateY(-34px); }
   }
 
-  /* ---------- animal ---------- */
+  /* ---------- animal (transparent sprite, directly on grass) ---------- */
   #spot {
-    position: absolute; left: 50%; top: 32%; z-index: 3;
-    width: min(56vw, 230px);
+    position: absolute; left: 50%; top: 34%; z-index: 3;
+    width: min(64vw, 280px); aspect-ratio: 1;
     transform: translate(-50%, -50%);
   }
-  #spot .ring {
-    width: 100%; aspect-ratio: 1; border-radius: 50%;
-    background: #fff; border: 6px solid #2f7d32;
-    box-shadow: 0 12px 24px rgba(0,0,0,.3), inset 0 0 0 4px #dff1ff;
-    overflow: hidden;
-    position: relative;
-  }
-  #spot .ring img { width: 100%; height: 100%; object-fit: cover; display: block; }
   #sprite {
-    position: absolute; inset: 0;
+    width: 100%; height: 100%;
     background-size: 400% 100%;
     background-repeat: no-repeat;
     background-position-x: 0%;
     animation: hop 2.4s steps(1) infinite;
+    filter: drop-shadow(0 10px 8px rgba(0,0,0,.25));
   }
   @keyframes hop {
     0%   { background-position-x: 0%; }
@@ -139,21 +132,21 @@
     92%  { background-position-x: 100%; }
     100% { background-position-x: 0%; }
   }
-  #spot.pop .ring { animation: pop .55s ease; }
-  @keyframes pop { 0% { transform: scale(0); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+  #spot.pop { animation: pop .55s ease; }
+  @keyframes pop { 0% { transform: translate(-50%,-50%) scale(0); } 60% { transform: translate(-50%,-50%) scale(1.12); } 100% { transform: translate(-50%,-50%) scale(1); } }
   #spot .shadow {
-    position: absolute; top: calc(100% + 10px); left: 50%;
-    width: 72%; height: 20px; transform: translateX(-50%);
-    background: radial-gradient(ellipse, rgba(0,0,0,.35), transparent 70%);
+    position: absolute; top: calc(100% - 8px); left: 50%;
+    width: 62%; height: 18px; transform: translateX(-50%);
+    background: radial-gradient(ellipse, rgba(0,0,0,.3), transparent 70%);
     animation: shadowHop 2.4s ease-in-out infinite;
   }
   @keyframes shadowHop {
-    0%, 12%  { transform: translateX(-50%) scale(1); opacity: .8; }
-    24%      { transform: translateX(-50%) scale(.68); opacity: .45; }
-    38%, 100% { transform: translateX(-50%) scale(1); opacity: .8; }
+    0%, 12%  { transform: translateX(-50%) scale(1); opacity: .75; }
+    24%      { transform: translateX(-50%) scale(.68); opacity: .4; }
+    38%, 100% { transform: translateX(-50%) scale(1); opacity: .75; }
   }
   #namepill {
-    position: absolute; top: calc(100% + 38px); left: 50%;
+    position: absolute; top: calc(100% + 22px); left: 50%;
     transform: translateX(-50%);
     background: #fffdf4; border: 3px solid #1769aa; border-radius: 999px;
     padding: .3rem 1.3rem; font-size: 1.35rem; font-weight: bold; white-space: nowrap;
@@ -206,7 +199,7 @@
     <div id="banner"></div>
 
     <div id="spot">
-      <div class="ring"><img id="animalimg" alt="สัตว์ป่า" /><div id="sprite"></div></div>
+      <div id="sprite" role="img" aria-label="สัตว์ป่า"></div>
       <div class="shadow"></div>
       <div id="namepill">…</div>
     </div>
@@ -239,9 +232,6 @@
     { id: "duck",      th: "เป็ด" },
     { id: "butterfly", th: "ผีเสื้อ" }
   ];
-  var IMG = function (id) {
-    return "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/animal%20photo/" + id + ".jpg";
-  };
   var SPRITE_IMG = function (id) {
     return "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/animal%20photo/" + id + "_sprite.png";
   };
@@ -300,16 +290,50 @@
     tray.appendChild(slot);
   }
 
+  /* ---------- sounds (Web Audio, no files needed) ---------- */
+  var SFX = {
+    ctx: null,
+    ensure: function () {
+      if (!this.ctx) {
+        try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+      }
+      if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+    },
+    tone: function (freq, delay, dur, type, vol) {
+      if (!this.ctx) return;
+      var t = this.ctx.currentTime + delay;
+      var o = this.ctx.createOscillator();
+      var g = this.ctx.createGain();
+      o.type = type || "sine";
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol || 0.18, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(this.ctx.destination);
+      o.start(t); o.stop(t + dur + 0.05);
+    },
+    encounter: function () {
+      this.ensure();
+      // cheerful "wild animal appeared!" arpeggio
+      var notes = [523.25, 659.25, 783.99, 1046.5];
+      for (var i = 0; i < notes.length; i++) {
+        this.tone(notes[i], i * 0.09, 0.28, "triangle", 0.16);
+      }
+    },
+    pop: function () {
+      this.ensure();
+      this.tone(620, 0, 0.07, "sine", 0.14);
+      this.tone(930, 0.05, 0.09, "sine", 0.11);
+    }
+  };
+  document.addEventListener("pointerdown", function () { SFX.ensure(); });
+
   /* ---------- encounters ---------- */
-  var img = document.getElementById("animalimg");
   var sprite = document.getElementById("sprite");
   var spot = document.getElementById("spot");
   var banner = document.getElementById("banner");
   var namepill = document.getElementById("namepill");
   var ball = document.getElementById("pokeball");
-
-  // Preload all animal photos so encounters appear instantly.
-  ANIMALS.forEach(function (a) { var i = new Image(); i.src = IMG(a.id); });
 
   var current = -1;
   function spawn() {
@@ -317,18 +341,11 @@
     do { i = Math.floor(Math.random() * ANIMALS.length); } while (i === current);
     current = i;
     var a = ANIMALS[i];
-    var spriteURL = SPRITE_IMG(a.id);
-    // Static photo shows instantly; animated sprite swaps in once loaded.
-    img.alt = a.th;
-    img.style.display = "block";
-    img.src = IMG(a.id);
-    sprite.style.backgroundImage = 'url("' + spriteURL + '")';
+    sprite.style.backgroundImage = 'url("' + SPRITE_IMG(a.id) + '")';
     sprite.style.animation = "none";
     void sprite.offsetWidth;
     sprite.style.animation = "";
-    var probe = new Image();
-    probe.onload = function () { img.style.display = "none"; };
-    probe.src = spriteURL;
+    sprite.setAttribute("aria-label", a.th);
     namepill.textContent = a.th;
     banner.textContent = "พบ" + a.th + "!";
     banner.classList.remove("show");
@@ -337,10 +354,10 @@
     spot.classList.remove("pop");
     void spot.offsetWidth;
     spot.classList.add("pop");
+    SFX.encounter();
   }
-  img.onerror = function () { spawn(); }; // skip any missing photo
 
-  ball.addEventListener("click", spawn);
+  ball.addEventListener("click", function () { SFX.pop(); spawn(); });
   ball.addEventListener("keydown", function (e) {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); spawn(); }
   });
