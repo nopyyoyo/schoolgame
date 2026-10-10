@@ -225,6 +225,47 @@
   }
   .escapee.out { transform: translate(-50%,-50%) scale(1); }
 
+  /* ---------- win screen ---------- */
+  #winscreen {
+    position: absolute; inset: 0; z-index: 20;
+    background: rgba(18,45,22,.78);
+    display: none; place-items: center;
+  }
+  #winscreen.show { display: grid; }
+  .win-card {
+    background: #fffdf4; border-radius: 22px;
+    border: 4px solid #e45826;
+    padding: 1.1rem 1rem; width: 88%; max-width: 380px;
+    text-align: center; max-height: 88%; overflow-y: auto;
+    box-shadow: 0 12px 40px rgba(0,0,0,.4);
+  }
+  .win-title { font-size: 1.45rem; font-weight: bold; }
+  .win-sub { color: #52647a; margin: .25rem 0 .8rem; font-size: .95rem; }
+  .win-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+    margin-bottom: .7rem;
+  }
+  .win-cell .thumb {
+    width: 50px; height: 50px; border-radius: 50%; margin: 0 auto;
+    border: 2px solid #2f7d32;
+    background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
+    background-color: #e8f5e9;
+  }
+  .win-cell .thname { font-size: .72rem; margin-top: 2px; }
+  .win-stats { font-size: .88rem; color: #52647a; margin-bottom: .9rem; }
+  #playagain {
+    background: #e45826; color: #fff; border: none; border-radius: 999px;
+    padding: .65rem 2.2rem; font-size: 1.15rem; font-weight: bold; cursor: pointer;
+    font-family: inherit; box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  }
+  #playagain:active { transform: scale(.95); }
+  .confetti {
+    position: absolute; top: -14px; width: 10px; height: 15px; z-index: 21;
+    border-radius: 2px; pointer-events: none;
+    animation: cfall linear forwards;
+  }
+  @keyframes cfall { to { transform: translateY(105vh) rotate(720deg); } }
+
   @media (prefers-reduced-motion: reduce) {
     #sprite, #spot .shadow, .tree-side svg { animation: none; }
   }
@@ -262,6 +303,16 @@
     </div>
     <div id="ballzone">
       <div id="hint">ลากบอลขึ้นเพื่อโยน!</div>
+    </div>
+
+    <div id="winscreen">
+      <div class="win-card">
+        <div class="win-title">🎉 ครบ 10 ตัวแล้ว! 🎉</div>
+        <div class="win-sub">เก่งมาก! จับสัตว์ได้ครบทุกตัว</div>
+        <div class="win-grid" id="wingrid"></div>
+        <div class="win-stats" id="winstats"></div>
+        <button id="playagain">เล่นอีกครั้ง</button>
+      </div>
     </div>
   </div>
 </div>
@@ -424,6 +475,16 @@
       this.tone(520, 0, 0.18, "sine", 0.13);
       this.tone(380, 0.14, 0.22, "sine", 0.11);
       this.tone(240, 0.3, 0.35, "sine", 0.1);
+    },
+    win: function () {
+      this.ensure();
+      var notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5, 1568];
+      for (var i = 0; i < notes.length; i++) {
+        this.tone(notes[i], i * 0.13, 0.42, "triangle", 0.17);
+      }
+      for (var j = 0; j < 6; j++) {
+        this.tone(2093, 1.15 + j * 0.09, 0.22, "sine", 0.07);
+      }
     }
   };
   document.addEventListener("pointerdown", function () { SFX.ensure(); });
@@ -497,33 +558,87 @@
     }
   }
 
-  var caught = 0;
-  function addToTray(animalId) {
+  var caught = 0, throws = 0, escapes = 0;
+  var caughtAnimals = [];
+  function addToTray(animal) {
     var slots = tray.querySelectorAll(".slot");
     if (caught < 10) {
       slots[caught].classList.add("filled");
-      slots[caught].style.backgroundImage = 'url("' + SPRITE_IMG(animalId) + '")';
+      slots[caught].style.backgroundImage = 'url("' + SPRITE_IMG(animal.id) + '")';
+      slots[caught].dataset.th = animal.th;
     }
+    caughtAnimals.push({ id: animal.id, th: animal.th });
     caught++;
     progress.textContent = Math.min(caught, 10) + "/10";
-    if (caught >= 10) {
-      setTimeout(function () {
-        banner.textContent = "ครบ 10 ตัวแล้ว! เก่งมาก! 🎉";
-        banner.classList.remove("show");
-        void banner.offsetWidth;
-        banner.classList.add("show");
-        SFX.caught();
-        setTimeout(function () {
-          for (var i = 0; i < 10; i++) {
-            slots[i].classList.remove("filled");
-            slots[i].style.backgroundImage = "";
-          }
-          caught = 0;
-          progress.textContent = "0/10";
-        }, 2600);
-      }, 1700);
+  }
+
+  function confetti() {
+    var box = document.getElementById("winscreen");
+    var colors = ["#e45826", "#2f7d32", "#1769aa", "#f4d35e", "#ee3e36", "#9b59b6"];
+    for (var i = 0; i < 42; i++) {
+      var c = document.createElement("div");
+      c.className = "confetti";
+      c.style.background = colors[i % colors.length];
+      c.style.left = Math.random() * 100 + "%";
+      c.style.animationDuration = (2 + Math.random() * 2.2) + "s";
+      c.style.animationDelay = (Math.random() * 0.9) + "s";
+      box.appendChild(c);
+      (function (el) { setTimeout(function () { el.remove(); }, 5200); })(c);
     }
   }
+  function showWin() {
+    var grid = document.getElementById("wingrid");
+    grid.innerHTML = "";
+    caughtAnimals.slice(0, 10).forEach(function (a) {
+      var cell = document.createElement("div");
+      cell.className = "win-cell";
+      var thumb = document.createElement("div");
+      thumb.className = "thumb";
+      thumb.style.backgroundImage = 'url("' + SPRITE_IMG(a.id) + '")';
+      var nm = document.createElement("div");
+      nm.className = "thname";
+      nm.textContent = a.th;
+      cell.appendChild(thumb);
+      cell.appendChild(nm);
+      grid.appendChild(cell);
+    });
+    document.getElementById("winstats").textContent =
+      "โยนบอล " + throws + " ครั้ง • หนีไป " + escapes + " ตัว";
+    document.getElementById("winscreen").classList.add("show");
+    SFX.win();
+    confetti();
+  }
+  function resetGame() {
+    document.getElementById("winscreen").classList.remove("show");
+    var slots = tray.querySelectorAll(".slot");
+    for (var i = 0; i < 10; i++) {
+      slots[i].classList.remove("filled");
+      slots[i].style.backgroundImage = "";
+      delete slots[i].dataset.th;
+    }
+    caught = 0; throws = 0; escapes = 0; caughtAnimals = [];
+    progress.textContent = "0/10";
+    ball.style.opacity = "1";
+    ball.style.transition = "";
+    var rp = ballRest();
+    placeBall(rp.x, rp.y);
+    ballState = "rest";
+    hint.textContent = "ลากบอลขึ้นเพื่อโยน!";
+    spawn();
+  }
+  document.getElementById("playagain").addEventListener("click", function () {
+    SFX.pop();
+    resetGame();
+  });
+  tray.addEventListener("click", function (e) {
+    var slot = e.target.classList.contains("slot") ? e.target : e.target.parentElement;
+    if (slot && slot.classList.contains("slot") && slot.classList.contains("filled") && slot.dataset.th) {
+      banner.textContent = slot.dataset.th;
+      banner.classList.remove("show");
+      void banner.offsetWidth;
+      banner.classList.add("show");
+    }
+  });
 
   async function wiggleBall() {
     for (var i = 0; i < 3; i++) {
@@ -705,6 +820,7 @@
   }
 
   async function doEscape(animalId) {
+    escapes++;
     SFX.escape();
     ball.style.transition = "transform .25s";
     ball.style.transform = "translate3d(" + (bx - BALL_R) + "px," + (by - BALL_R) + "px,0) scale(1.35)";
@@ -766,11 +882,15 @@
     banner.classList.remove("show");
     void banner.offsetWidth;
     banner.classList.add("show");
-    addToTray(ANIMALS[current].id);
+    addToTray(ANIMALS[current]);
     await wait(1500);
     spot.style.visibility = "";
     spot.style.transform = "";
     sprite.style.animationPlayState = "";
+    if (caught >= 10) {
+      showWin();
+      return;
+    }
     await resetBall();
     spawn();
   }
@@ -863,6 +983,7 @@
     }
     if (bvy < -350) {
       ballState = "flying";
+      throws++;
       lastFlyT = 0;
       SFX.throw_();
       requestAnimationFrame(flyStep);
@@ -899,6 +1020,7 @@
       var rp = ballRest();
       placeBall(rp.x, rp.y);
       ballState = "flying";
+      throws++;
       bvx = (ac.x - rp.x) * 2.2;
       bvy = -950;
       lastFlyT = 0;
