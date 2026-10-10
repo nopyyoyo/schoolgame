@@ -75,9 +75,9 @@
     }
     .card {
       width: min(100%, 400px);
-      background: rgba(255, 253, 247, 0.42);
-      backdrop-filter: blur(6px) saturate(1.3);
-      -webkit-backdrop-filter: blur(6px) saturate(1.3);
+      background: rgba(255, 253, 247, 0.28);
+      backdrop-filter: blur(4px) saturate(1.3);
+      -webkit-backdrop-filter: blur(4px) saturate(1.3);
       border-radius: 24px;
       padding: 28px 24px;
       box-shadow: 0 14px 40px rgba(30, 80, 40, 0.18);
@@ -86,11 +86,47 @@
       z-index: 1;
     }
     .logo {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       font-size: 2.6rem;
       font-weight: 800;
       color: #2e7d32;
       margin: 0 0 4px;
+    }
+    .mini-ball {
+      width: 54px;
+      height: 54px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #e63e30 0 44%, #1d1d1f 44% 56%, #f7f7f7 56% 100%);
+      box-shadow: 0 4px 10px rgba(0,0,0,.22), inset -3px -4px 0 rgba(0,0,0,.12);
+      position: relative;
+      animation: spin-ball 6s linear infinite;
+    }
+    .mini-ball::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 30%; height: 30%;
+      transform: translate(-50%, -50%);
+      background: #1d1d1f;
+      border-radius: 50%;
+    }
+    .mini-ball::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 15%; height: 15%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 2px #d5d5d5;
+    }
+    @keyframes spin-ball {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
     .subtitle {
       text-align: center;
@@ -189,7 +225,7 @@
     <div class="mon" style="width:100px;height:100px;bottom:3%;right:22%;animation-delay:4.4s;background-image:url('https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/animal%20photo/rabbit_sprite.png');"></div>
   </div>
   <main class="card">
-    <h1 class="logo">🐾 ไทยมอน</h1>
+    <h1 class="logo"><span class="mini-ball" aria-hidden="true"></span>ไทยมอน</h1>
     <p class="subtitle">สะสมมอนสเตอร์ของเธอ!</p>
 
     <div class="tabs" role="tablist">
