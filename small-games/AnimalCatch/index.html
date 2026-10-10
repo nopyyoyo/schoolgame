@@ -192,6 +192,39 @@
     100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.3); opacity: 0; }
   }
 
+  /* ---------- voice catch UI ---------- */
+  #voiceui {
+    position: absolute; left: 50%; bottom: 108px; z-index: 8;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(255,253,244,.97);
+    border: 3px solid #1769aa; border-radius: 18px;
+    padding: .7rem 1.2rem; text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,.3);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s, transform .3s;
+    max-width: 86%;
+  }
+  #voiceui.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #voiceui .mic { font-size: 2.2rem; animation: micpulse 1s ease-in-out infinite; }
+  @keyframes micpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+  #voiceui .voicetext { font-size: 1.25rem; font-weight: bold; margin-top: .2rem; }
+  #voicetarget { color: #e45826; font-size: 1.6rem; }
+  #voiceui .voiceheard { font-size: .95rem; color: #52647a; min-height: 1.4em; margin-top: .15rem; }
+  #voiceui .voicetimer {
+    height: 8px; background: #e8e0cf; border-radius: 99px; margin-top: .4rem; overflow: hidden;
+  }
+  #voicetimerbar { height: 100%; width: 100%; background: #2f7d32; border-radius: 99px; transition: width 1s linear; }
+  #voiceui .voiceprivacy { font-size: .68rem; color: #8a99ad; margin-top: .35rem; }
+  #voiceui.success .mic { animation: none; }
+  .escapee {
+    position: absolute; z-index: 8; width: 130px; height: 130px;
+    transform: translate(-50%,-50%) scale(0);
+    background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
+    pointer-events: none;
+    transition: transform .28s ease-out;
+  }
+  .escapee.out { transform: translate(-50%,-50%) scale(1); }
+
   @media (prefers-reduced-motion: reduce) {
     #sprite, #spot .shadow, .tree-side svg { animation: none; }
   }
@@ -220,6 +253,13 @@
     </div>
 
     <div id="pokeball" role="button" tabindex="0" aria-label="ลากเพื่อโยนบอลจับสัตว์"></div>
+    <div id="voiceui" aria-live="polite">
+      <div class="mic">🎤</div>
+      <div class="voicetext">พูดว่า <span id="voicetarget">…</span></div>
+      <div class="voiceheard" id="voiceheard"></div>
+      <div class="voicetimer"><div id="voicetimerbar"></div></div>
+      <div class="voiceprivacy">เสียงจะถูกส่งให้ Google/Apple ช่วยฟังชื่อสัตว์</div>
+    </div>
     <div id="ballzone">
       <div id="hint">ลากบอลขึ้นเพื่อโยน!</div>
     </div>
@@ -378,6 +418,12 @@
       this.ensure();
       this.tone(380, 0, 0.25, "sine", 0.11);
       this.tone(240, 0.18, 0.35, "sine", 0.11);
+    },
+    escape: function () {
+      this.ensure();
+      this.tone(520, 0, 0.18, "sine", 0.13);
+      this.tone(380, 0.14, 0.22, "sine", 0.11);
+      this.tone(240, 0.3, 0.35, "sine", 0.1);
     }
   };
   document.addEventListener("pointerdown", function () { SFX.ensure(); });
@@ -522,6 +568,160 @@
     ballState = "rest";
   }
 
+  /* ---------- Thai voice catch (Step 3) ---------- */
+  var voiceui = document.getElementById("voiceui");
+  var voicetarget = document.getElementById("voicetarget");
+  var voiceheard = document.getElementById("voiceheard");
+  var voicetimerbar = document.getElementById("voicetimerbar");
+  var VOICE_MS = 10000;
+
+  function levenshtein(a, b) {
+    var m = a.length, n = b.length;
+    if (!m) return n;
+    if (!n) return m;
+    var d = [];
+    for (var i = 0; i <= m; i++) d[i] = [i];
+    for (var j = 0; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) {
+      for (j = 1; j <= n; j++) {
+        d[i][j] = Math.min(
+          d[i - 1][j] + 1,
+          d[i][j - 1] + 1,
+          d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+        );
+      }
+    }
+    return d[m][n];
+  }
+  function voiceMatch(transcript, animal) {
+    var t = (transcript || "").replace(/\s+/g, "").trim();
+    var target = animal.th;
+    if (!t) return false;
+    if (t === target) return true;
+    if (t.indexOf(target) !== -1) return true;
+    if (target.length >= 4 && t.length >= 3 && target.slice(-t.length) === t) return true;
+    if (levenshtein(t, target) <= 2) return true;
+    return false;
+  }
+
+  function voiceCatchPhase(animal) {
+    return new Promise(function (resolve) {
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var done = false;
+      function finish(result) {
+        if (done) return;
+        done = true;
+        voiceui.classList.remove("show");
+        resolve(result);
+      }
+      if (!SR) { finish("no-mic"); return; }
+
+      voicetarget.textContent = animal.th;
+      voiceheard.textContent = "";
+      voiceui.classList.remove("success");
+      voiceui.classList.add("show");
+      voicetimerbar.style.transition = "none";
+      voicetimerbar.style.width = "100%";
+      void voicetimerbar.offsetWidth;
+      voicetimerbar.style.transition = "width " + (VOICE_MS / 1000) + "s linear";
+      voicetimerbar.style.width = "0%";
+
+      var rec;
+      try { rec = new SR(); } catch (e) { finish("no-mic"); return; }
+      rec.lang = "th-TH";
+      rec.interimResults = true;
+      rec.maxAlternatives = 3;
+
+      var timer = setTimeout(function () {
+        try { rec.stop(); } catch (e) {}
+        clearInterval(wiggler);
+        finish("escape");
+      }, VOICE_MS);
+
+      var wiggler = setInterval(function () {
+        if (done) return;
+        SFX.wiggle();
+        wiggleBall();
+      }, 1300);
+
+      rec.onresult = function (e) {
+        if (done) return;
+        var txt = "";
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          txt += e.results[i][0].transcript;
+        }
+        txt = txt.trim();
+        if (txt) voiceheard.textContent = "ได้ยิน: " + txt;
+        if (voiceMatch(txt, animal)) {
+          clearTimeout(timer);
+          clearInterval(wiggler);
+          try { rec.stop(); } catch (err) {}
+          voiceui.classList.add("success");
+          voiceheard.textContent = "ถูกต้อง! 🎉";
+          SFX.pop();
+          setTimeout(function () { finish("success"); }, 750);
+        }
+      };
+      rec.onerror = function (e) {
+        if (done) return;
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+          clearTimeout(timer);
+          clearInterval(wiggler);
+          try { rec.stop(); } catch (err) {}
+          finish("no-mic");
+        }
+      };
+      rec.onend = function () {
+        if (!done) {
+          try { rec.start(); } catch (e) {}
+        }
+      };
+      try { rec.start(); }
+      catch (e) {
+        clearTimeout(timer);
+        clearInterval(wiggler);
+        finish("no-mic");
+      }
+    });
+  }
+
+  async function doEscape(animalId) {
+    SFX.escape();
+    ball.style.transition = "transform .25s";
+    ball.style.transform = "translate3d(" + (bx - BALL_R) + "px," + (by - BALL_R) + "px,0) scale(1.35)";
+    await wait(280);
+    ball.style.transition = "";
+    ball.style.opacity = "0";
+    var esc = document.createElement("div");
+    esc.className = "escapee";
+    esc.style.backgroundImage = 'url("' + SPRITE_IMG(animalId) + '")';
+    esc.style.left = bx + "px";
+    esc.style.top = (by - 20) + "px";
+    field.appendChild(esc);
+    await wait(60);
+    esc.classList.add("out");
+    SFX.pop();
+    await wait(500);
+    var dir = Math.random() < 0.5 ? -1 : 1;
+    esc.style.transition = "transform .55s ease-in, opacity .55s";
+    esc.style.transform = "translate(calc(-50% + " + (dir * 220) + "px), calc(-50% - 90px)) scale(.5)";
+    esc.style.opacity = "0";
+    await wait(600);
+    esc.remove();
+    banner.textContent = "โอ๊ะ! หนีไปแล้ว!";
+    banner.classList.remove("show");
+    void banner.offsetWidth;
+    banner.classList.add("show");
+    hint.textContent = "ลองจับตัวใหม่นะ!";
+    await wait(1100);
+    spot.style.visibility = "";
+    spot.style.transform = "";
+    sprite.style.animationPlayState = "";
+    await resetBall();
+    hint.textContent = "ลากบอลขึ้นเพื่อโยน!";
+    spawn();
+  }
+
   async function onHit(ac) {
     ballState = "catching";
     SFX.hit();
@@ -533,7 +733,14 @@
     spot.style.transition = "";
     spot.style.visibility = "hidden";
     await dropBallToGround();
-    for (var i = 0; i < 3; i++) { SFX.wiggle(); await wiggleBall(); await wait(180); }
+    var result = await voiceCatchPhase(ANIMALS[current]);
+    if (result === "escape") {
+      await doEscape(ANIMALS[current].id);
+      return;
+    }
+    if (result === "no-mic") {
+      for (var i = 0; i < 2; i++) { SFX.wiggle(); await wiggleBall(); await wait(160); }
+    }
     SFX.caught();
     starBurst(bx, by - 50);
     banner.textContent = "จับ" + ANIMALS[current].th + "ได้!";
