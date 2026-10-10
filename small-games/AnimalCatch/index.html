@@ -593,13 +593,23 @@
     }
     return d[m][n];
   }
+  function isLetterName(s) {
+    // Thai alphabet letter name: consonant + "อ" (e.g. กอ, ชอ) — not an animal name
+    if (s.length !== 2 || s.charAt(1) !== "อ") return false;
+    return "กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ".indexOf(s.charAt(0)) !== -1;
+  }
   function voiceMatch(transcript, animal) {
     var t = (transcript || "").replace(/\s+/g, "").trim();
     var target = animal.th;
     if (!t) return false;
     if (t === target) return true;
-    // Phrase contains the word (child said a full sentence)
-    if (t.length > target.length && t.indexOf(target) !== -1) return true;
+    // Phrase contains the word — but reject if the extra is just a letter
+    // name (e.g. "ชอช้าง" or "กอไก่" must NOT count, only "ช้าง"/"ไก่").
+    if (t.length > target.length && t.indexOf(target) !== -1) {
+      var leftover = t.split(target).join("");
+      if (isLetterName(leftover)) return false;
+      return true;
+    }
     // Tolerance scales with word length: short words must be near-exact,
     // long words allow a tone mark or small slip.
     var maxDist;
