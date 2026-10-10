@@ -594,9 +594,12 @@
     return d[m][n];
   }
   function isLetterName(s) {
-    // Thai alphabet letter name: consonant + "อ" (e.g. กอ, ชอ) — not an animal name
-    if (s.length !== 2 || s.charAt(1) !== "อ") return false;
-    return "กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ".indexOf(s.charAt(0)) !== -1;
+    // Thai alphabet letter name: consonant + "อ" (e.g. กอ, ชอ, สอ),
+    // or just the bare consonant sound (e.g. ส) — not an animal name.
+    var cons = "กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ";
+    if (s.length === 2 && s.charAt(1) === "อ" && cons.indexOf(s.charAt(0)) !== -1) return true;
+    if (s.length === 1 && cons.indexOf(s.charAt(0)) !== -1) return true;
+    return false;
   }
   function voiceMatch(transcript, animal) {
     var t = (transcript || "").replace(/\s+/g, "").trim();
