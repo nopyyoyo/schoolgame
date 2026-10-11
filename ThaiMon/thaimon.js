@@ -128,6 +128,20 @@ window.ThaiMon = (function () {
      Resolves true if the user wants to retry, false if they give up. */
   function showMicHelp() {
     return new Promise(function (resolve) {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var steps = isIOS
+        ? '<b>วิธีเปิดบน iPhone:</b><br>' +
+          '1. เปิดแอป <b>"การตั้งค่า"</b> ของ iPhone<br>' +
+          '2. เลือก <b>Safari</b> → <b>ไมโครโฟน</b><br>' +
+          '3. เลือก <b>"อนุญาต"</b><br>' +
+          '4. กลับมา Safari กด "🔄 ลองอีกครั้ง" ด้านล่าง'
+        : '<b>วิธีเปิด:</b><br>' +
+          '1. แตะไอคอน 🎚️ <b>ด้านซ้ายของแถบที่อยู่</b><br>' +
+          '&nbsp;&nbsp;&nbsp;&nbsp;(ไอคอนเล็กๆ ข้างหน้าชื่อเว็บด้านบน)<br>' +
+          '2. เลือก "การตั้งค่าไซต์"<br>' +
+          '3. แตะ "ไมโครโฟน" แล้วเลือก "อนุญาต"<br>' +
+          '4. กลับมาที่หน้านี้ กด "🔄 ลองอีกครั้ง" ด้านล่าง';
       var ov = document.createElement('div');
       ov.setAttribute('style',
         'position:fixed;inset:0;z-index:99;background:rgba(30,15,45,.88);' +
@@ -139,13 +153,7 @@ window.ThaiMon = (function () {
         '<div style="font-size:2.6rem">🎤</div>' +
         '<div style="font-size:1.2rem;font-weight:bold;margin:.3rem 0">ไมโครโฟนถูกปิดอยู่</div>' +
         '<div style="font-size:.92rem;color:#52647a;text-align:left;line-height:1.9">' +
-        '<b>วิธีเปิด:</b><br>' +
-        '1. แตะไอคอน 🎚️ <b>ด้านซ้ายของแถบที่อยู่</b><br>' +
-        '&nbsp;&nbsp;&nbsp;&nbsp;(ไอคอนเล็กๆ ข้างหน้าชื่อเว็บด้านบน)<br>' +
-        '2. เลือก "การตั้งค่าไซต์"<br>' +
-        '3. แตะ "ไมโครโฟน" แล้วเลือก "อนุญาต"<br>' +
-        '4. กลับมาที่หน้านี้ กด "🔄 ลองอีกครั้ง"<br>' +
-        '<span style="font-size:.8rem">บน iPhone Safari: แตะ aA → การตั้งค่าเว็บไซต์ → ไมโครโฟน → อนุญาต</span>' +
+        steps +
         '</div>' +
         '<div style="display:flex;gap:10px;justify-content:center;margin-top:14px">' +
         '<button id="micRetryBtn" type="button" style="font-family:inherit;font-weight:bold;font-size:1rem;' +
