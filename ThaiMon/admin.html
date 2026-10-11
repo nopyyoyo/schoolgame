@@ -116,6 +116,26 @@
   .player-row .grant { display: flex; gap: 4px; align-items: center; }
   .player-row .grant input { width: 56px; margin: 0; padding: .3rem .4rem; }
 
+  /* ---------- player collection ---------- */
+  .coll-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .coll-cell {
+    border: 2px solid #c8e6c9; border-radius: 12px; background: #f1f8e9;
+    padding: 6px 2px; text-align: center; position: relative;
+  }
+  .coll-cell.unknown { border-color: #cfd8dc; background: #eceff1; }
+  .coll-cell .spr {
+    width: 56px; height: 56px; margin: 0 auto;
+    background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
+  }
+  .coll-cell.unknown .spr { filter: brightness(0); opacity: .85; }
+  .coll-cell .nm { font-weight: bold; font-size: .72rem; margin-top: 2px; }
+  .coll-cell.unknown .nm { color: #78909c; }
+  .coll-cell .qty {
+    position: absolute; top: 2px; right: 4px;
+    background: #e45826; color: #fff; font-weight: bold; font-size: .7rem;
+    border-radius: 999px; padding: .05rem .45rem;
+  }
+
   /* ---------- invite codes ---------- */
   .code-row {
     display: flex; align-items: center; gap: 8px;
@@ -150,6 +170,7 @@
       <button data-pane="pMon" class="active" type="button">มอนสเตอร์</button>
       <button data-pane="pRecipe" type="button">สูตร</button>
       <button data-pane="pPlayer" type="button">ผู้เล่น</button>
+      <button data-pane="pColl" type="button">คอลเลกชัน</button>
       <button data-pane="pCode" type="button">รหัสเชิญ</button>
     </div>
     <div id="msg"></div>
@@ -176,6 +197,16 @@
     </div>
 
     <div class="pane" id="pPlayer"><div class="card"><h2>ผู้เล่น</h2><div id="playerList"></div></div></div>
+
+    <div class="pane" id="pColl">
+      <div class="card">
+        <h2>คอลเลกชันผู้เล่น</h2>
+        <label style="font-size:.85rem;color:#546e7a">เลือกผู้เล่น:</label>
+        <select id="collPlayer"></select>
+        <div id="collSummary" style="margin:8px 0;font-weight:bold"></div>
+        <div id="collGrid" class="coll-grid"></div>
+      </div>
+    </div>
 
     <div class="pane" id="pCode">
       <div class="card">
@@ -310,6 +341,56 @@
     await loadRecipes();
     await loadPlayers();
     await loadCodes();
+    await loadCollPlayers();
+  }
+
+  /* ---------- player collection viewer ---------- */
+  async function loadCollPlayers() {
+    var r = await client().from("thaimon_players")
+      .select("id, username, display_name").order("username");
+    var sel = document.getElementById("collPlayer");
+    sel.innerHTML = "";
+    if (r.error || !(r.data || []).length) {
+      sel.innerHTML = '<option value="">— ยังไม่มีผู้เล่น —</option>';
+      return;
+    }
+    r.data.forEach(function (p) {
+      var o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.display_name + " (" + p.username + ")";
+      sel.appendChild(o);
+    });
+    sel.onchange = loadCollection;
+    loadCollection();
+  }
+
+  async function loadCollection() {
+    var pid = document.getElementById("collPlayer").value;
+    var grid = document.getElementById("collGrid");
+    var sum = document.getElementById("collSummary");
+    grid.innerHTML = "";
+    sum.textContent = "";
+    if (!pid) return;
+    var r = await client().from("thaimon_inventory")
+      .select("monster_id, quantity").eq("player_id", pid);
+    if (r.error) { say("โหลดคอลเลกชันไม่ได้"); return; }
+    var owned = {};
+    (r.data || []).forEach(function (it) { owned[it.monster_id] = it.quantity; });
+    var have = 0;
+    MONSTERS.slice().sort(function (a, b) {
+      return (owned[b.id] || 0) - (owned[a.id] || 0) || (a.name_th < b.name_th ? -1 : 1);
+    }).forEach(function (m) {
+      var q = owned[m.id] || 0;
+      if (q > 0) have++;
+      var cell = document.createElement("div");
+      cell.className = "coll-cell" + (q > 0 ? "" : " unknown");
+      cell.innerHTML =
+        '<div class="spr" style="background-image:url(\'' + m.sprite_url + '\')"></div>' +
+        '<div class="nm">' + (q > 0 ? m.name_th : "???") + "</div>" +
+        (q > 0 ? '<span class="qty">×' + q + "</span>" : "");
+      grid.appendChild(cell);
+    });
+    sum.textContent = "มี " + have + " / " + MONSTERS.length + " ตัว";
   }
 
   /* ----- monsters: collectable toggle + gacha weight ----- */
