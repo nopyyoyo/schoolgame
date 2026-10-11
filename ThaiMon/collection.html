@@ -743,7 +743,10 @@
         if (e.error === "not-allowed" || e.error === "service-not-allowed") {
           clearTimeout(timer);
           try { rec.stop(); } catch (err) {}
-          finish("no-mic");
+          window.ThaiMon.showMicHelp().then(function (retry) {
+            if (retry && !done) resolve(voiceChallenge(mon));
+            else finish("no-mic");
+          });
         }
       };
       rec.onend = function () {
@@ -754,7 +757,10 @@
       try { rec.start(); }
       catch (e) {
         clearTimeout(timer);
-        finish("no-mic");
+        window.ThaiMon.showMicHelp().then(function (retry) {
+          if (retry && !done) resolve(voiceChallenge(mon));
+          else finish("no-mic");
+        });
       }
     });
   }

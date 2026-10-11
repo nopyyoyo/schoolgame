@@ -447,11 +447,21 @@
           rec.onerror = function (e) {
             if (done) return;
             if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-              clearTimeout(timer); stopRec(); finish('no-mic');
+              clearTimeout(timer); stopRec();
+              window.ThaiMon.showMicHelp().then(function (retry) {
+                if (retry && !done) resolve(voiceChallenge());
+                else finish('no-mic');
+              });
             }
           };
           rec.onend = function () { if (!done) { try { rec.start(); } catch (e) {} } };
-          try { rec.start(); } catch (e) { clearTimeout(timer); finish('no-mic'); }
+          try { rec.start(); } catch (e) {
+            clearTimeout(timer);
+            window.ThaiMon.showMicHelp().then(function (retry) {
+              if (retry && !done) resolve(voiceChallenge());
+              else finish('no-mic');
+            });
+          }
         });
       }
 

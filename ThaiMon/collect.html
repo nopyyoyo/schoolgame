@@ -718,7 +718,11 @@
           clearTimeout(timer);
           clearInterval(wiggler);
           try { rec.stop(); } catch (err) {}
-          finish("no-mic");
+          // Mic blocked: show on-screen recovery help instead of silently failing
+          window.ThaiMon.showMicHelp().then(function (retry) {
+            if (retry && !done) resolve(voiceCatchPhase(monster));
+            else finish("no-mic");
+          });
         }
       };
       rec.onend = function () {
@@ -730,7 +734,10 @@
       catch (e) {
         clearTimeout(timer);
         clearInterval(wiggler);
-        finish("no-mic");
+        window.ThaiMon.showMicHelp().then(function (retry) {
+          if (retry && !done) resolve(voiceCatchPhase(monster));
+          else finish("no-mic");
+        });
       }
     });
   }

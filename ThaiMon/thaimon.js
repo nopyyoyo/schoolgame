@@ -124,6 +124,44 @@ window.ThaiMon = (function () {
     return res.data.id;
   }
 
+  /* Show on-screen help to re-enable a blocked microphone.
+     Resolves true if the user wants to retry, false if they give up. */
+  function showMicHelp() {
+    return new Promise(function (resolve) {
+      var ov = document.createElement('div');
+      ov.setAttribute('style',
+        'position:fixed;inset:0;z-index:99;background:rgba(30,15,45,.88);' +
+        'display:grid;place-items:center;padding:20px;');
+      ov.innerHTML =
+        '<div style="background:#fffdf4;border-radius:20px;border:4px solid #e45826;' +
+        'padding:20px 18px;max-width:340px;width:100%;text-align:center;' +
+        'font-family:Tahoma,sans-serif;color:#14213d">' +
+        '<div style="font-size:2.6rem">🎤</div>' +
+        '<div style="font-size:1.2rem;font-weight:bold;margin:.3rem 0">ไมโครโฟนถูกปิดอยู่</div>' +
+        '<div style="font-size:.92rem;color:#52647a;text-align:left;line-height:1.9">' +
+        '1. แตะไอคอน 🔒 ที่แถบที่อยู่ด้านบน<br>' +
+        '2. เลือก "การตั้งค่าไซต์"<br>' +
+        '3. เปิด "ไมโครโฟน" เป็น "อนุญาต"<br>' +
+        '4. กลับมากด "ลองอีกครั้ง" ด้านล่าง' +
+        '</div>' +
+        '<div style="display:flex;gap:10px;justify-content:center;margin-top:14px">' +
+        '<button id="micRetryBtn" type="button" style="font-family:inherit;font-weight:bold;font-size:1rem;' +
+        'background:#2e7d32;color:#fff;border:none;border-radius:999px;padding:.6rem 1.4rem;cursor:pointer">🔄 ลองอีกครั้ง</button>' +
+        '<button id="micCloseBtn" type="button" style="font-family:inherit;font-weight:bold;font-size:1rem;' +
+        'background:#9e9e9e;color:#fff;border:none;border-radius:999px;padding:.6rem 1.4rem;cursor:pointer">ปิด</button>' +
+        '</div></div>';
+      document.body.appendChild(ov);
+      ov.querySelector('#micRetryBtn').addEventListener('click', function () {
+        ov.remove();
+        resolve(true);
+      });
+      ov.querySelector('#micCloseBtn').addEventListener('click', function () {
+        ov.remove();
+        resolve(false);
+      });
+    });
+  }
+
   return {
     client: client,
     hashPassword: hashPassword,
@@ -134,6 +172,7 @@ window.ThaiMon = (function () {
     requireSession: requireSession,
     getPlayer: getPlayer,
     signup: signup,
-    signin: signin
+    signin: signin,
+    showMicHelp: showMicHelp
   };
 })();
