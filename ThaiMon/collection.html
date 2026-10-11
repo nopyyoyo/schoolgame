@@ -153,7 +153,8 @@
     border-color: #e45826; background: #fff3e0;
     box-shadow: 0 0 0 2px #e45826;
   }
-  #evoDetail { margin-top: 14px; }
+  #evoDetail { margin-bottom: 14px; }
+  #evoDetail[hidden] { display: none; }
   .evo-target { text-align: center; }
   .evo-target .bigspr {
     width: 130px; height: 130px; margin: 0 auto;
@@ -290,7 +291,6 @@
   </div>
 
   <div id="evoPane">
-    <div id="evoGrid"></div>
     <div id="evoDetail" hidden>
       <div class="evo-target" id="evoTargetBox">
         <div class="bigspr" id="evoTargetSpr"></div>
@@ -303,6 +303,7 @@
       <button id="evoBtn" type="button">✨ วิวัฒนาการ!</button>
       <p class="evo-note">สำเร็จ = วัตถุดิบหายไปตามจำนวน<br>ไม่สำเร็จ = ไม่เสียอะไรเลย</p>
     </div>
+    <div id="evoGrid"></div>
   </div>
 </div>
 
@@ -536,6 +537,7 @@
     renderEvoDetail();
     var m = MONBYID[id];
     if (m && (OWNED[id] || 0) > 0) speakName(m.th);
+    try { document.getElementById("evoPane").scrollIntoView(); } catch (e) {}
   }
 
   function renderEvoDetail() {
