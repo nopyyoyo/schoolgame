@@ -148,6 +148,28 @@
     }
     .msg { text-align: center; min-height: 1.4em; font-weight: 700; margin: 8px 0 0; }
     .msg.error { color: #c62828; }
+    /* ---------- daily claim ---------- */
+    .daily { margin-top: 12px; }
+    .daily-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: .7rem 1.8rem;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.05rem;
+      background: linear-gradient(135deg, #ffb300, #ff8f00);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 0 rgba(0,0,0,.15);
+    }
+    .daily-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+    .daily-btn:disabled { background: #bdbdbd; cursor: default; box-shadow: none; }
+    .daily-timer {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #6a8a6e;
+    }
+    .daily-timer .cd { font-variant-numeric: tabular-nums; }
     /* ---------- avatar picker ---------- */
     .picker-layer {
       position: fixed; inset: 0; z-index: 20;
@@ -225,6 +247,10 @@
         <div class="stat" id="statBall">🔴 × 0</div>
         <div class="stat" id="statGacha">🎰 × 0</div>
       </div>
+      <div class="daily" id="dailyBox">
+        <button class="daily-btn" id="dailyBtn" type="button" hidden>🎁 รับโปเกบอลรายวัน ×2</button>
+        <div class="daily-timer" id="dailyTimer" hidden>⏳ รับอีกครั้งใน <span class="cd" id="dailyCount"></span></div>
+      </div>
       <p class="msg" id="msg"></p>
     </section>
 
@@ -270,7 +296,74 @@
       var msg = document.getElementById('msg');
       var pickerLayer = document.getElementById('pickerLayer');
       var pickerGrid = document.getElementById('pickerGrid');
+      var dailyBtn = document.getElementById('dailyBtn');
+      var dailyTimer = document.getElementById('dailyTimer');
+      var dailyCount = document.getElementById('dailyCount');
       var editing = false;
+      var lastClaimAt = null;
+      var cdInterval = null;
+      var DAY_MS = 24 * 60 * 60 * 1000;
+
+      function fmtCountdown(ms) {
+        if (ms < 0) ms = 0;
+        var s = Math.floor(ms / 1000);
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        function p(n) { return (n < 10 ? '0' : '') + n; }
+        return p(h) + ':' + p(m) + ':' + p(sec);
+      }
+
+      function updateDailyUI() {
+        if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
+        var canClaim = !lastClaimAt || (Date.now() - new Date(lastClaimAt).getTime() >= DAY_MS);
+        if (canClaim) {
+          dailyBtn.hidden = false;
+          dailyBtn.disabled = false;
+          dailyTimer.hidden = true;
+        } else {
+          dailyBtn.hidden = true;
+          dailyTimer.hidden = false;
+          var tick = function () {
+            var remain = new Date(lastClaimAt).getTime() + DAY_MS - Date.now();
+            if (remain <= 0) {
+              updateDailyUI();
+              return;
+            }
+            dailyCount.textContent = fmtCountdown(remain);
+          };
+          tick();
+          cdInterval = setInterval(tick, 1000);
+        }
+      }
+
+      dailyBtn.addEventListener('click', async function () {
+        dailyBtn.disabled = true;
+        try {
+          var p = await window.ThaiMon.getPlayer(pid);
+          var last = p.last_daily_claim_at ? new Date(p.last_daily_claim_at).getTime() : 0;
+          if (Date.now() - last < DAY_MS) {
+            lastClaimAt = p.last_daily_claim_at;
+            updateDailyUI();
+            return;
+          }
+          var nowIso = new Date().toISOString();
+          var r = await window.ThaiMon.client()
+            .from('thaimon_players')
+            .update({ pokeballs: (p.pokeballs || 0) + 2, last_daily_claim_at: nowIso })
+            .eq('id', pid);
+          if (r.error) throw r.error;
+          lastClaimAt = nowIso;
+          statBall.textContent = '🔴 × ' + ((p.pokeballs || 0) + 2);
+          msg.textContent = 'ได้รับโปเกบอล +2! 🎉';
+          msg.className = 'msg';
+          updateDailyUI();
+        } catch (e) {
+          msg.textContent = 'รับไม่ได้ ลองอีกครั้งนะ';
+          msg.className = 'msg error';
+          dailyBtn.disabled = false;
+        }
+      });
 
       function setAvatarDisplay(avatarId, imageUrl) {
         if (avatarId && imageUrl) {
@@ -289,6 +382,8 @@
           unameEl.textContent = 'ชื่อผู้ใช้: ' + p.username;
           statBall.textContent = '🔴 × ' + p.pokeballs;
           statGacha.textContent = '🎰 × ' + p.gachapons;
+          lastClaimAt = p.last_daily_claim_at || null;
+          updateDailyUI();
           if (p.avatar_id) {
             var a = await window.ThaiMon.client()
               .from('thaimon_avatars').select('image_url').eq('id', p.avatar_id).single();
