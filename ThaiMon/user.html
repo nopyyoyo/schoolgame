@@ -149,7 +149,8 @@
     .msg { text-align: center; min-height: 1.4em; font-weight: 700; margin: 8px 0 0; }
     .msg.error { color: #c62828; }
     /* ---------- daily claim ---------- */
-    .daily { margin-top: 12px; }
+    .daily { margin-top: 12px; display: grid; gap: 8px; }
+    .daily-row { min-height: 48px; display: grid; place-items: center; }
     .daily-btn {
       border: 0;
       border-radius: 999px;
@@ -162,14 +163,37 @@
       cursor: pointer;
       box-shadow: 0 4px 0 rgba(0,0,0,.15);
     }
+    .daily-btn.gacha { background: linear-gradient(135deg, #ab47bc, #7b1fa2); }
     .daily-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.15); }
     .daily-btn:disabled { background: #bdbdbd; cursor: default; box-shadow: none; }
     .daily-timer {
       font-weight: 800;
-      font-size: 1.05rem;
+      font-size: .95rem;
       color: #6a8a6e;
     }
     .daily-timer .cd { font-variant-numeric: tabular-nums; }
+    /* ---------- voice challenge ---------- */
+    .voice-layer {
+      position: fixed; inset: 0; z-index: 30;
+      background: rgba(30,15,45,.82);
+      display: none; place-items: center; padding: 20px;
+    }
+    .voice-layer.show { display: grid; }
+    .voice-box {
+      background: #fffdf4; border-radius: 22px; border: 4px solid #ff8f00;
+      padding: 1.4rem 1.2rem; width: 92%; max-width: 340px; text-align: center;
+    }
+    .voice-box .mic { font-size: 2.6rem; animation: micpulse 1s ease-in-out infinite; }
+    @keyframes micpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+    .voice-box .vtext { font-size: 1.15rem; font-weight: bold; margin: .4rem 0; }
+    .voice-box .vtext .vp { color: #e45826; font-size: 1.4rem; }
+    .voice-box .vheard { font-size: .95rem; color: #52647a; min-height: 1.4em; margin-top: .2rem; }
+    .voice-box .vprivacy { font-size: .68rem; color: #8a99ad; margin-top: .4rem; }
+    .voice-cancel {
+      margin-top: 10px; background: #9e9e9e; color: #fff; border: none;
+      border-radius: 999px; padding: .5rem 1.8rem; font-size: .95rem; font-weight: bold;
+      cursor: pointer; font-family: inherit;
+    }
     /* ---------- avatar picker ---------- */
     .picker-layer {
       position: fixed; inset: 0; z-index: 20;
@@ -248,8 +272,14 @@
         <div class="stat" id="statGacha">🎰 × 0</div>
       </div>
       <div class="daily" id="dailyBox">
-        <button class="daily-btn" id="dailyBtn" type="button" hidden>🎁 รับโปเกบอลรายวัน ×2</button>
-        <div class="daily-timer" id="dailyTimer" hidden>⏳ รับอีกครั้งใน <span class="cd" id="dailyCount"></span></div>
+        <div class="daily-row">
+          <button class="daily-btn" id="dailyBallBtn" type="button" hidden>🎁 รับโปเกบอล ×2</button>
+          <div class="daily-timer" id="dailyBallTimer" hidden>⏳ โปเกบอลรับอีกครั้งใน <span class="cd" id="dailyBallCount"></span></div>
+        </div>
+        <div class="daily-row">
+          <button class="daily-btn gacha" id="dailyGachaBtn" type="button" hidden>🎰 รับกาชาปอง ×1</button>
+          <div class="daily-timer" id="dailyGachaTimer" hidden>⏳ กาชาปองรับอีกครั้งใน <span class="cd" id="dailyGachaCount"></span></div>
+        </div>
       </div>
       <p class="msg" id="msg"></p>
     </section>
@@ -280,6 +310,16 @@
     </div>
   </div>
 
+  <div class="voice-layer" id="voiceLayer">
+    <div class="voice-box">
+      <div class="mic">🎤</div>
+      <div class="vtext">พูดว่า <span class="vp">“ขอบคุณครับ”</span> หรือ <span class="vp">“ขอบคุณค่ะ”</span><br>เพื่อรับของรางวัล 🎁</div>
+      <div class="vheard" id="voiceHeard"></div>
+      <div class="vprivacy">เสียงจะถูกส่งให้ Google/Apple ช่วยฟัง</div>
+      <button class="voice-cancel" id="voiceCancel" type="button">ยกเลิก</button>
+    </div>
+  </div>
+
   <script>
     (function () {
       'use strict';
@@ -296,13 +336,13 @@
       var msg = document.getElementById('msg');
       var pickerLayer = document.getElementById('pickerLayer');
       var pickerGrid = document.getElementById('pickerGrid');
-      var dailyBtn = document.getElementById('dailyBtn');
-      var dailyTimer = document.getElementById('dailyTimer');
-      var dailyCount = document.getElementById('dailyCount');
-      var editing = false;
-      var lastClaimAt = null;
-      var cdInterval = null;
+      /* ---------- daily claim (voice-gated) ---------- */
       var DAY_MS = 24 * 60 * 60 * 1000;
+      var VOICE_MS = 10000;
+      var daily = {
+        ball: { btn: document.getElementById('dailyBallBtn'), timer: document.getElementById('dailyBallTimer'), count: document.getElementById('dailyBallCount'), last: null, iv: null, col: 'last_daily_claim_at', reward: { pokeballs: 2 }, label: 'โปเกบอล +2' },
+        gacha: { btn: document.getElementById('dailyGachaBtn'), timer: document.getElementById('dailyGachaTimer'), count: document.getElementById('dailyGachaCount'), last: null, iv: null, col: 'last_daily_gacha_claim_at', reward: { gachapons: 1 }, label: 'กาชาปอง +1' }
+      };
 
       function fmtCountdown(ms) {
         if (ms < 0) ms = 0;
@@ -314,56 +354,150 @@
         return p(h) + ':' + p(m) + ':' + p(sec);
       }
 
-      function updateDailyUI() {
-        if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
-        var canClaim = !lastClaimAt || (Date.now() - new Date(lastClaimAt).getTime() >= DAY_MS);
+      function updateDaily(kind) {
+        var d = daily[kind];
+        if (d.iv) { clearInterval(d.iv); d.iv = null; }
+        var canClaim = !d.last || (Date.now() - new Date(d.last).getTime() >= DAY_MS);
         if (canClaim) {
-          dailyBtn.hidden = false;
-          dailyBtn.disabled = false;
-          dailyTimer.hidden = true;
+          d.btn.hidden = false;
+          d.btn.disabled = false;
+          d.timer.hidden = true;
         } else {
-          dailyBtn.hidden = true;
-          dailyTimer.hidden = false;
+          d.btn.hidden = true;
+          d.timer.hidden = false;
           var tick = function () {
-            var remain = new Date(lastClaimAt).getTime() + DAY_MS - Date.now();
-            if (remain <= 0) {
-              updateDailyUI();
-              return;
-            }
-            dailyCount.textContent = fmtCountdown(remain);
+            var remain = new Date(d.last).getTime() + DAY_MS - Date.now();
+            if (remain <= 0) { updateDaily(kind); return; }
+            d.count.textContent = fmtCountdown(remain);
           };
           tick();
-          cdInterval = setInterval(tick, 1000);
+          d.iv = setInterval(tick, 1000);
         }
       }
 
-      dailyBtn.addEventListener('click', async function () {
-        dailyBtn.disabled = true;
+      /* ----- Thai voice matching (same strict rules as catching) ----- */
+      function levenshtein(a, b) {
+        var m = a.length, n = b.length;
+        if (!m) return n;
+        if (!n) return m;
+        var d = [];
+        for (var i = 0; i <= m; i++) d[i] = [i];
+        for (var j = 0; j <= n; j++) d[0][j] = j;
+        for (i = 1; i <= m; i++) {
+          for (j = 1; j <= n; j++) {
+            d[i][j] = Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1] + (a[i-1]===b[j-1] ? 0 : 1));
+          }
+        }
+        return d[m][n];
+      }
+      function voiceMatch(t, target) {
+        t = (t || '').replace(/\s+/g, '').trim();
+        if (!t) return false;
+        if (t === target) return true;
+        if (t.length > target.length && t.indexOf(target) !== -1) return true;
+        var maxDist = target.length <= 2 ? 0 : (target.length <= 4 ? 1 : 2);
+        return levenshtein(t, target) <= maxDist;
+      }
+      function saidThanks(txt) {
+        return voiceMatch(txt, 'ขอบคุณครับ') || voiceMatch(txt, 'ขอบคุณค่ะ');
+      }
+
+      var voiceLayer = document.getElementById('voiceLayer');
+      var voiceHeard = document.getElementById('voiceHeard');
+      function voiceChallenge() {
+        return new Promise(function (resolve) {
+          var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          var done = false;
+          function finish(result) {
+            if (done) return;
+            done = true;
+            voiceLayer.classList.remove('show');
+            resolve(result);
+          }
+          document.getElementById('voiceCancel').onclick = function () { finish('cancel'); };
+          voiceHeard.textContent = '';
+          voiceLayer.classList.add('show');
+          if (!SR) { finish('no-mic'); return; }
+          var rec;
+          try { rec = new SR(); } catch (e) { finish('no-mic'); return; }
+          rec.lang = 'th-TH';
+          rec.interimResults = true;
+          rec.maxAlternatives = 3;
+          var timer = setTimeout(function () {
+            try { rec.stop(); } catch (e) {}
+            finish('fail');
+          }, VOICE_MS);
+          function stopRec() { try { rec.stop(); } catch (e) {} }
+          document.getElementById('voiceCancel').onclick = function () {
+            clearTimeout(timer); stopRec(); finish('cancel');
+          };
+          rec.onresult = function (e) {
+            if (done) return;
+            var txt = '';
+            for (var i = e.resultIndex; i < e.results.length; i++) txt += e.results[i][0].transcript;
+            txt = txt.trim();
+            if (txt) voiceHeard.textContent = 'ได้ยิน: ' + txt;
+            if (saidThanks(txt)) {
+              clearTimeout(timer); stopRec();
+              voiceHeard.textContent = 'ถูกต้อง! 🎉';
+              setTimeout(function () { finish('success'); }, 700);
+            }
+          };
+          rec.onerror = function (e) {
+            if (done) return;
+            if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+              clearTimeout(timer); stopRec(); finish('no-mic');
+            }
+          };
+          rec.onend = function () { if (!done) { try { rec.start(); } catch (e) {} } };
+          try { rec.start(); } catch (e) { clearTimeout(timer); finish('no-mic'); }
+        });
+      }
+
+      async function claimDaily(kind) {
+        var d = daily[kind];
+        d.btn.disabled = true;
+        var said = await voiceChallenge();
+        if (said === 'fail' || said === 'cancel') {
+          if (said === 'fail') {
+            msg.textContent = 'พูดไม่ถูกนะ ลองกดรับอีกครั้ง';
+            msg.className = 'msg error';
+          }
+          d.btn.disabled = false;
+          return;
+        }
+        // 'no-mic' auto-passes (same as catching); 'success' passes
         try {
           var p = await window.ThaiMon.getPlayer(pid);
-          var last = p.last_daily_claim_at ? new Date(p.last_daily_claim_at).getTime() : 0;
+          var last = p[d.col] ? new Date(p[d.col]).getTime() : 0;
           if (Date.now() - last < DAY_MS) {
-            lastClaimAt = p.last_daily_claim_at;
-            updateDailyUI();
+            d.last = p[d.col];
+            updateDaily(kind);
             return;
           }
           var nowIso = new Date().toISOString();
+          var upd = {};
+          upd[d.col] = nowIso;
+          if (d.reward.pokeballs) upd.pokeballs = (p.pokeballs || 0) + d.reward.pokeballs;
+          if (d.reward.gachapons) upd.gachapons = (p.gachapons || 0) + d.reward.gachapons;
           var r = await window.ThaiMon.client()
-            .from('thaimon_players')
-            .update({ pokeballs: (p.pokeballs || 0) + 2, last_daily_claim_at: nowIso })
-            .eq('id', pid);
+            .from('thaimon_players').update(upd).eq('id', pid);
           if (r.error) throw r.error;
-          lastClaimAt = nowIso;
-          statBall.textContent = '🔴 × ' + ((p.pokeballs || 0) + 2);
-          msg.textContent = 'ได้รับโปเกบอล +2! 🎉';
+          d.last = nowIso;
+          if (d.reward.pokeballs) statBall.textContent = '🔴 × ' + upd.pokeballs;
+          if (d.reward.gachapons) statGacha.textContent = '🎰 × ' + upd.gachapons;
+          msg.textContent = 'ได้รับ' + d.label + '! 🎉';
           msg.className = 'msg';
-          updateDailyUI();
+          updateDaily(kind);
         } catch (e) {
           msg.textContent = 'รับไม่ได้ ลองอีกครั้งนะ';
           msg.className = 'msg error';
-          dailyBtn.disabled = false;
+          d.btn.disabled = false;
         }
-      });
+      }
+
+      daily.ball.btn.addEventListener('click', function () { claimDaily('ball'); });
+      daily.gacha.btn.addEventListener('click', function () { claimDaily('gacha'); });
 
       function setAvatarDisplay(avatarId, imageUrl) {
         if (avatarId && imageUrl) {
@@ -382,8 +516,10 @@
           unameEl.textContent = 'ชื่อผู้ใช้: ' + p.username;
           statBall.textContent = '🔴 × ' + p.pokeballs;
           statGacha.textContent = '🎰 × ' + p.gachapons;
-          lastClaimAt = p.last_daily_claim_at || null;
-          updateDailyUI();
+          daily.ball.last = p.last_daily_claim_at || null;
+          daily.gacha.last = p.last_daily_gacha_claim_at || null;
+          updateDaily('ball');
+          updateDaily('gacha');
           if (p.avatar_id) {
             var a = await window.ThaiMon.client()
               .from('thaimon_avatars').select('image_url').eq('id', p.avatar_id).single();
