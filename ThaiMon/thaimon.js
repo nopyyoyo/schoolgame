@@ -135,7 +135,7 @@ window.ThaiMon = (function () {
           '1. เปิดแอป <b>"การตั้งค่า"</b> ของ iPhone<br>' +
           '2. เลือก <b>Safari</b> → <b>ไมโครโฟน</b><br>' +
           '3. เลือก <b>"อนุญาต"</b><br>' +
-          '4. กลับมา Safari กด "🔄 ลองอีกครั้ง" ด้านล่าง'
+          '4. กลับมา Safari กด "🔄 โหลดใหม่ & ลองอีกครั้ง" ด้านล่าง'
         : '<b>วิธีเปิด:</b><br>' +
           '1. แตะไอคอน 🎚️ <b>ด้านซ้ายของแถบที่อยู่</b><br>' +
           '&nbsp;&nbsp;&nbsp;&nbsp;(ไอคอนเล็กๆ ข้างหน้าชื่อเว็บด้านบน)<br>' +
@@ -146,6 +146,8 @@ window.ThaiMon = (function () {
       ov.setAttribute('style',
         'position:fixed;inset:0;z-index:99;background:rgba(30,15,45,.88);' +
         'display:grid;place-items:center;padding:20px;');
+      // On iOS the denied state is cached: only a page reload picks up the new permission.
+      var retryLabel = isIOS ? '🔄 โหลดใหม่ & ลองอีกครั้ง' : '🔄 ลองอีกครั้ง';
       ov.innerHTML =
         '<div style="background:#fffdf4;border-radius:20px;border:4px solid #e45826;' +
         'padding:20px 18px;max-width:340px;width:100%;text-align:center;' +
@@ -157,12 +159,17 @@ window.ThaiMon = (function () {
         '</div>' +
         '<div style="display:flex;gap:10px;justify-content:center;margin-top:14px">' +
         '<button id="micRetryBtn" type="button" style="font-family:inherit;font-weight:bold;font-size:1rem;' +
-        'background:#2e7d32;color:#fff;border:none;border-radius:999px;padding:.6rem 1.4rem;cursor:pointer">🔄 ลองอีกครั้ง</button>' +
+        'background:#2e7d32;color:#fff;border:none;border-radius:999px;padding:.6rem 1.4rem;cursor:pointer">' + retryLabel + '</button>' +
         '<button id="micCloseBtn" type="button" style="font-family:inherit;font-weight:bold;font-size:1rem;' +
         'background:#9e9e9e;color:#fff;border:none;border-radius:999px;padding:.6rem 1.4rem;cursor:pointer">ปิด</button>' +
         '</div></div>';
       document.body.appendChild(ov);
       ov.querySelector('#micRetryBtn').addEventListener('click', function () {
+        if (isIOS) {
+          // iOS caches the denial: reload so the new permission takes effect
+          location.reload();
+          return;
+        }
         ov.remove();
         resolve(true);
       });
