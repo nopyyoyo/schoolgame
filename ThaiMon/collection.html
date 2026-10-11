@@ -394,6 +394,21 @@
   /* ---------- detail modal ---------- */
   var detailLayer = document.getElementById("detailLayer");
   var detailBox = document.getElementById("detailBox");
+  function speakName(text) {
+    try {
+      if (!("speechSynthesis" in window)) return;
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = "th-TH";
+      var vs = speechSynthesis.getVoices();
+      var th = vs.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf("th") === 0; });
+      if (th.length) u.voice = th[0];
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function stopSpeak() {
+    try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch (e) {}
+  }
   function openDetail(m, known) {
     var dSpr = document.getElementById("dSpr");
     var dName = document.getElementById("dName");
@@ -438,12 +453,14 @@
       }
     }
     detailLayer.hidden = false;
+    if (known) speakName(m.th);
   }
   document.getElementById("detailClose").addEventListener("click", function () {
+    stopSpeak();
     detailLayer.hidden = true;
   });
   detailLayer.addEventListener("click", function (e) {
-    if (e.target === detailLayer) detailLayer.hidden = true;
+    if (e.target === detailLayer) { stopSpeak(); detailLayer.hidden = true; }
   });
 
   /* ---------- evolution ---------- */
