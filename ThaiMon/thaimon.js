@@ -64,10 +64,15 @@ window.ThaiMon = (function () {
     if (existing.data) throw new Error('ชื่อผู้ใช้นี้มีคนใช้แล้ว');
 
     // invite code valid & unused?
-    var code = await client().from('thaimon_invite_codes').select('code, used_by').eq('code', inviteCode).maybeSingle();
+    var code = await client().from('thaimon_invite_codes').select('code, used_by, reusable, active').eq('code', inviteCode).maybeSingle();
     if (code.error) throw code.error;
     if (!code.data) throw new Error('รหัสเชิญไม่ถูกต้อง');
-    if (code.data.used_by) throw new Error('รหัสเชิญนี้ถูกใช้ไปแล้ว');
+    if (code.data.reusable) {
+      if (!code.data.active) throw new Error('รหัสเชิญนี้ถูกปิดใช้งาน');
+      // reusable: stays valid for the next player
+    } else {
+      if (code.data.used_by) throw new Error('รหัสเชิญนี้ถูกใช้ไปแล้ว');
+    }
 
     // create player
     var salt = makeSalt();
@@ -82,12 +87,14 @@ window.ThaiMon = (function () {
     }).select('id').single();
     if (ins.error) throw ins.error;
 
-    // mark invite code used
-    var upd = await client().from('thaimon_invite_codes').update({
-      used_by: ins.data.id,
-      used_at: new Date().toISOString()
-    }).eq('code', inviteCode);
-    if (upd.error) throw upd.error;
+    // mark invite code used (one-time codes only)
+    if (!code.data.reusable) {
+      var upd = await client().from('thaimon_invite_codes').update({
+        used_by: ins.data.id,
+        used_at: new Date().toISOString()
+      }).eq('code', inviteCode);
+      if (upd.error) throw upd.error;
+    }
 
     // grant default avatars (boy/girl) and set boy as the starting avatar
     var avs = await client().from('thaimon_avatars').select('id').eq('is_default', true);

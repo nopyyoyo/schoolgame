@@ -182,6 +182,9 @@
         <h2>รหัสเชิญ</h2>
         <div class="newcode">
           <input type="text" id="newCode" placeholder="รหัสใหม่ (เช่น CLASS-001)" />
+          <label style="font-size:.85rem;display:flex;align-items:center;gap:4px;white-space:nowrap">
+            <input type="checkbox" id="newCodeReusable" style="width:auto;margin:0" /> ใช้ซ้ำได้
+          </label>
           <button class="btn primary small" id="addCodeBtn" type="button">สร้าง</button>
         </div>
         <div id="codeList"></div>
@@ -516,20 +519,40 @@
   /* ----- invite codes ----- */
   async function loadCodes() {
     var r = await client().from("thaimon_invite_codes")
-      .select("code, used_by, created_at").order("created_at", { ascending: false });
+      .select("code, used_by, reusable, active, created_at").order("created_at", { ascending: false });
     if (r.error) { say("โหลดรหัสไม่ได้"); return; }
     var list = document.getElementById("codeList");
     list.innerHTML = "";
     (r.data || []).forEach(function (c) {
       var row = document.createElement("div");
       row.className = "code-row";
-      row.innerHTML = '<span class="cd">' + c.code + "</span>" +
-        (c.used_by ? '<span class="used">ใช้แล้ว</span>' : '<span class="fresh">ว่าง</span>');
+      var status;
+      if (c.reusable) {
+        status = c.active
+          ? '<span class="fresh">ใช้ซ้ำได้ • เปิด</span>'
+          : '<span class="used">ใช้ซ้ำได้ • ปิด</span>';
+      } else {
+        status = c.used_by ? '<span class="used">ใช้แล้ว</span>' : '<span class="fresh">ว่าง</span>';
+      }
+      row.innerHTML = '<span class="cd">' + c.code + "</span>" + status;
+      if (c.reusable) {
+        var tg = document.createElement("button");
+        tg.className = "btn small";
+        tg.textContent = c.active ? "ปิดใช้" : "เปิดใช้";
+        tg.addEventListener("click", async function () {
+          var u = await client().from("thaimon_invite_codes")
+            .update({ active: !c.active }).eq("code", c.code);
+          if (u.error) say("บันทึกไม่ได้");
+          else { sayOk(c.active ? "ปิดรหัสแล้ว" : "เปิดรหัสแล้ว"); loadCodes(); }
+        });
+        row.appendChild(tg);
+      }
       if (!c.used_by) {
         var del = document.createElement("button");
         del.className = "btn danger small";
         del.textContent = "ลบ";
         del.addEventListener("click", async function () {
+          if (!confirm("ลบ " + c.code + " ?")) return;
           var d = await client().from("thaimon_invite_codes").delete().eq("code", c.code);
           if (d.error) say("ลบไม่ได้");
           else { sayOk("ลบแล้ว"); loadCodes(); }
@@ -542,9 +565,15 @@
   document.getElementById("addCodeBtn").addEventListener("click", async function () {
     var code = document.getElementById("newCode").value.trim().toUpperCase();
     if (!code) { say("ใส่รหัสก่อน"); return; }
-    var r = await client().from("thaimon_invite_codes").insert({ code: code });
+    var reusable = document.getElementById("newCodeReusable").checked;
+    var r = await client().from("thaimon_invite_codes").insert({ code: code, reusable: reusable, active: true });
     if (r.error) say("สร้างไม่ได้ (อาจซ้ำ)");
-    else { sayOk("สร้างรหัสแล้ว"); document.getElementById("newCode").value = ""; loadCodes(); }
+    else {
+      sayOk("สร้างรหัสแล้ว" + (reusable ? " (ใช้ซ้ำได้)" : ""));
+      document.getElementById("newCode").value = "";
+      document.getElementById("newCodeReusable").checked = false;
+      loadCodes();
+    }
   });
 
   /* ---------- boot ---------- */
