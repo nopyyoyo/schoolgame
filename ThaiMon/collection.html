@@ -146,29 +146,59 @@
   #evoPane { display: none; padding: 14px; }
   #evoPane.show { display: block; }
   #gridWrap.hide { display: none; }
-  .slot-row {
-    display: flex; align-items: center; gap: 8px;
+  #evoGrid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  #evoGrid .cell.sel {
+    border-color: #e45826; background: #fff3e0;
+    box-shadow: 0 0 0 2px #e45826;
+  }
+  #evoDetail { margin-top: 14px; }
+  .evo-target { text-align: center; }
+  .evo-target .bigspr {
+    width: 130px; height: 130px; margin: 0 auto;
+    background-size: 400% 100%; background-repeat: no-repeat; background-position-x: 0%;
+    animation: hop 2.4s steps(1) infinite;
+  }
+  .evo-target.unknown .bigspr { filter: brightness(0); animation: none; }
+  .evo-target-name { font-size: 1.3rem; font-weight: bold; margin: .3rem 0 .1rem; }
+  .evo-target.unknown .evo-target-name { color: #78909c; letter-spacing: .1em; }
+  .evo-target .d-rank {
+    display: inline-block; font-weight: bold; color: #fff;
+    padding: .2rem 1rem; border-radius: 999px; margin: .2rem 0;
+  }
+  .evo-recipe-btns {
+    display: flex; gap: 8px; justify-content: center;
+    margin: 10px 0 2px; flex-wrap: wrap;
+  }
+  .evo-recipe-btns button {
+    font-family: inherit; font-weight: bold; font-size: .95rem;
+    border: 2px solid #ab47bc; background: #fff; color: #7b1fa2;
+    border-radius: 999px; padding: .35rem 1.1rem; cursor: pointer;
+  }
+  .evo-recipe-btns button.active { background: #ab47bc; color: #fff; }
+  .evo-ings { margin: 10px 0; }
+  .ing-row {
+    display: flex; align-items: center; gap: 10px;
     background: #f1f8e9; border: 3px solid #a5d6a7; border-radius: 14px;
-    padding: 8px; margin-bottom: 10px;
+    padding: 8px 10px; margin-bottom: 8px;
   }
-  .slot-row .thumb {
-    width: 56px; height: 56px; border-radius: 50%; flex: 0 0 auto;
-    background-color: #e8f5e9; border: 2px solid #c8e6c9;
+  .ing-row.lack { border-color: #ef9a9a; background: #ffebee; }
+  .ing-spr {
+    width: 52px; height: 52px; flex: 0 0 auto; border-radius: 12px;
     background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
-    display: grid; place-items: center; font-size: 1.6rem; color: #a5d6a7;
+    background-color: #fff; border: 2px solid #e8e0cf;
   }
-  .slot-row select {
-    flex: 1; font-family: inherit; font-size: 1rem; padding: .5rem;
-    border-radius: 10px; border: 2px solid #c8e6c9; background: #fff;
+  .ing-info { flex: 1; }
+  .ing-name { font-weight: bold; }
+  .ing-qty { font-size: .85rem; color: #52647a; }
+  .ing-qty b.ok { color: #2e7d32; }
+  .ing-qty b.no { color: #c62828; }
+  .ing-mark { font-size: 1.5rem; }
+  #evoMsg {
+    text-align: center; font-weight: bold; color: #c62828;
+    margin: 8px 0; min-height: 1.4em;
   }
-  .qty-ctl { display: flex; align-items: center; gap: 6px; }
-  .qty-ctl button {
-    width: 34px; height: 34px; border-radius: 50%; border: 2px solid #2e7d32;
-    background: #fff; color: #2e7d32; font-size: 1.2rem; font-weight: bold;
-    cursor: pointer; font-family: inherit; line-height: 1;
-  }
-  .qty-ctl button:active { transform: scale(.92); }
-  .qty-ctl .qv { font-weight: bold; min-width: 2ch; text-align: center; font-size: 1.1rem; }
   #evoBtn {
     display: block; width: 100%; margin: 6px 0 4px;
     background: linear-gradient(180deg, #ab47bc, #7b1fa2); color: #fff;
@@ -260,35 +290,19 @@
   </div>
 
   <div id="evoPane">
-    <div class="slot-row" data-slot="0">
-      <div class="thumb" id="thumb0">?</div>
-      <select id="sel0"><option value="">— เลือกมอนสเตอร์ —</option></select>
-      <div class="qty-ctl">
-        <button type="button" data-dec="0">−</button>
-        <span class="qv" id="qv0">1</span>
-        <button type="button" data-inc="0">+</button>
+    <div id="evoGrid"></div>
+    <div id="evoDetail" hidden>
+      <div class="evo-target" id="evoTargetBox">
+        <div class="bigspr" id="evoTargetSpr"></div>
+        <div class="evo-target-name" id="evoTargetName"></div>
+        <div><span class="d-rank" id="evoTargetRank"></span></div>
       </div>
+      <div class="evo-recipe-btns" id="evoRecipeBtns" hidden></div>
+      <div class="evo-ings" id="evoIngs"></div>
+      <div id="evoMsg"></div>
+      <button id="evoBtn" type="button">✨ วิวัฒนาการ!</button>
+      <p class="evo-note">สำเร็จ = วัตถุดิบหายไปตามจำนวน<br>ไม่สำเร็จ = ไม่เสียอะไรเลย</p>
     </div>
-    <div class="slot-row" data-slot="1">
-      <div class="thumb" id="thumb1">?</div>
-      <select id="sel1"><option value="">— เลือกมอนสเตอร์ —</option></select>
-      <div class="qty-ctl">
-        <button type="button" data-dec="1">−</button>
-        <span class="qv" id="qv1">1</span>
-        <button type="button" data-inc="1">+</button>
-      </div>
-    </div>
-    <div class="slot-row" data-slot="2">
-      <div class="thumb" id="thumb2">?</div>
-      <select id="sel2"><option value="">— เลือกมอนสเตอร์ —</option></select>
-      <div class="qty-ctl">
-        <button type="button" data-dec="2">−</button>
-        <span class="qv" id="qv2">1</span>
-        <button type="button" data-inc="2">+</button>
-      </div>
-    </div>
-    <button id="evoBtn" type="button">✨ วิวัฒนาการ!</button>
-    <p class="evo-note">สำเร็จ = วัตถุดิบหายไปตามจำนวน<br>ไม่สำเร็จ = ไม่เสียอะไรเลย</p>
   </div>
 </div>
 
@@ -463,85 +477,146 @@
     if (e.target === detailLayer) { stopSpeak(); detailLayer.hidden = true; }
   });
 
-  /* ---------- evolution ---------- */
-  var slotQty = [1, 1, 1];
-  function ownedList() {
-    return ALL.filter(function (m) { return (OWNED[m.id] || 0) > 0; });
-  }
-  function buildSelectors() {
-    var list = ownedList();
-    for (var s = 0; s < 3; s++) {
-      (function (idx) {
-        var sel = document.getElementById("sel" + idx);
-        var cur = sel.value;
-        sel.innerHTML = '<option value="">— เลือกมอนสเตอร์ —</option>';
-        list.forEach(function (m) {
-          var o = document.createElement("option");
-          o.value = m.id;
-          o.textContent = m.th + " (มี ×" + OWNED[m.id] + ")";
-          sel.appendChild(o);
-        });
-        if (cur && OWNED[cur]) sel.value = cur;
-        updateThumb(idx);
-      })(s);
-    }
-  }
-  function updateThumb(idx) {
-    var sel = document.getElementById("sel" + idx);
-    var thumb = document.getElementById("thumb" + idx);
-    var m = MONBYID[sel.value];
-    if (m) {
-      thumb.textContent = "";
-      thumb.style.backgroundImage = 'url("' + m.sprite_url + '")';
-    } else {
-      thumb.textContent = "?";
-      thumb.style.backgroundImage = "";
-    }
-  }
-  for (var s = 0; s < 3; s++) {
-    (function (idx) {
-      document.getElementById("sel" + idx).addEventListener("change", function () { updateThumb(idx); });
-    })(s);
-  }
-  document.querySelectorAll("[data-inc]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var i = +btn.getAttribute("data-inc");
-      var sel = document.getElementById("sel" + i);
-      var max = OWNED[sel.value] || 99;
-      if (slotQty[i] < max) { slotQty[i]++; document.getElementById("qv" + i).textContent = slotQty[i]; }
-    });
-  });
-  document.querySelectorAll("[data-dec]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var i = +btn.getAttribute("data-dec");
-      if (slotQty[i] > 1) { slotQty[i]--; document.getElementById("qv" + i).textContent = slotQty[i]; }
-    });
-  });
+  /* ---------- evolution (target-based) ---------- */
+  var evoTargetId = null;
+  var evoRecipeIdx = 0;
 
-  function readSlots() {
-    // combine quantities per monster
-    var map = {};
-    for (var i = 0; i < 3; i++) {
-      var id = document.getElementById("sel" + i).value;
-      if (!id) continue;
-      map[id] = (map[id] || 0) + slotQty[i];
-    }
-    return map;
+  function evoTargets() {
+    var seen = {}, ids = [];
+    RECIPES.forEach(function (r) {
+      if (!seen[r.result_id]) { seen[r.result_id] = true; ids.push(r.result_id); }
+    });
+    return ids.map(function (id) { return MONBYID[id]; }).filter(Boolean)
+      .sort(function (a, b) {
+        return rankVal(a.rank) - rankVal(b.rank) || (a.th < b.th ? -1 : 1);
+      });
   }
-  function findRecipe(map) {
-    var keys = Object.keys(map);
-    if (!keys.length) return null;
-    for (var r = 0; r < RECIPES.length; r++) {
-      var rec = RECIPES[r];
-      if (rec.ingredients.length !== keys.length) continue;
-      var ok = true;
-      for (var k = 0; k < rec.ingredients.length; k++) {
-        var ing = rec.ingredients[k];
-        if (map[ing.monster_id] !== ing.qty) { ok = false; break; }
-      }
-      if (ok) return rec;
+  function recipesFor(resultId) {
+    return RECIPES.filter(function (r) { return r.result_id === resultId; });
+  }
+  function currentRecipe() {
+    var recs = recipesFor(evoTargetId);
+    if (!recs.length) return null;
+    return recs[Math.min(evoRecipeIdx, recs.length - 1)];
+  }
+
+  function renderEvoTargets() {
+    var g = document.getElementById("evoGrid");
+    g.innerHTML = "";
+    evoTargets().forEach(function (m) {
+      var qty = OWNED[m.id] || 0;
+      var known = qty > 0;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cell" + (known ? "" : " unknown") + (m.id === evoTargetId ? " sel" : "");
+      var spr = document.createElement("div");
+      spr.className = "spr";
+      spr.style.backgroundImage = 'url("' + m.sprite_url + '")';
+      var nm = document.createElement("div");
+      nm.className = "nm";
+      nm.textContent = known ? m.th : "???";
+      var rk = document.createElement("span");
+      rk.className = "rank rank-" + m.rank;
+      rk.textContent = known ? m.rank : "?";
+      b.appendChild(spr);
+      b.appendChild(nm);
+      b.appendChild(document.createElement("br"));
+      b.appendChild(rk);
+      (function (id) {
+        b.addEventListener("click", function () { selectEvoTarget(id); });
+      })(m.id);
+      g.appendChild(b);
+    });
+  }
+
+  function selectEvoTarget(id) {
+    evoTargetId = id;
+    evoRecipeIdx = 0;
+    renderEvoTargets();
+    renderEvoDetail();
+    var m = MONBYID[id];
+    if (m && (OWNED[id] || 0) > 0) speakName(m.th);
+  }
+
+  function renderEvoDetail() {
+    var detail = document.getElementById("evoDetail");
+    var m = MONBYID[evoTargetId];
+    if (!m) { detail.hidden = true; return; }
+    detail.hidden = false;
+    var known = (OWNED[m.id] || 0) > 0;
+    var box = document.getElementById("evoTargetBox");
+    box.classList.toggle("unknown", !known);
+    document.getElementById("evoTargetSpr").style.backgroundImage = 'url("' + m.sprite_url + '")';
+    document.getElementById("evoTargetName").textContent = known ? m.th : "???";
+    var rk = document.getElementById("evoTargetRank");
+    rk.textContent = known ? "แรงค์ " + m.rank : "?";
+    rk.className = "d-rank rank-" + m.rank;
+    rk.style.background = known ? "" : "#90a4ae";
+
+    var recs = recipesFor(m.id);
+    var btns = document.getElementById("evoRecipeBtns");
+    btns.innerHTML = "";
+    if (recs.length > 1) {
+      btns.hidden = false;
+      recs.forEach(function (r, i) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = "สูตร " + (i + 1);
+        if (i === evoRecipeIdx) b.className = "active";
+        (function (idx) {
+          b.addEventListener("click", function () { evoRecipeIdx = idx; renderEvoDetail(); });
+        })(i);
+        btns.appendChild(b);
+      });
+    } else {
+      btns.hidden = true;
     }
-    return null;
+
+    var rec = currentRecipe();
+    var wrap = document.getElementById("evoIngs");
+    wrap.innerHTML = "";
+    var allOk = !!rec;
+    if (rec) {
+      rec.ingredients.forEach(function (ing) {
+        var im = MONBYID[ing.monster_id];
+        var have = OWNED[ing.monster_id] || 0;
+        var ok = have >= ing.qty;
+        if (!ok) allOk = false;
+        var row = document.createElement("div");
+        row.className = "ing-row" + (ok ? "" : " lack");
+        var spr = document.createElement("div");
+        spr.className = "ing-spr";
+        if (im) spr.style.backgroundImage = 'url("' + im.sprite_url + '")';
+        var info = document.createElement("div");
+        info.className = "ing-info";
+        var nm = document.createElement("div");
+        nm.className = "ing-name";
+        nm.textContent = im ? im.th : ing.monster_id;
+        var q = document.createElement("div");
+        q.className = "ing-qty";
+        q.innerHTML = 'มี <b class="' + (ok ? "ok" : "no") + '">' + have + "</b> / ต้องการ " + ing.qty;
+        info.appendChild(nm);
+        info.appendChild(q);
+        var mark = document.createElement("div");
+        mark.className = "ing-mark";
+        mark.textContent = ok ? "✅" : "❌";
+        row.appendChild(spr);
+        row.appendChild(info);
+        row.appendChild(mark);
+        wrap.appendChild(row);
+      });
+    }
+
+    var evoMsg = document.getElementById("evoMsg");
+    var evoBtn = document.getElementById("evoBtn");
+    if (allOk) {
+      evoMsg.textContent = "";
+      evoBtn.style.display = "";
+      evoBtn.disabled = false;
+    } else {
+      evoMsg.textContent = "วัตถุดิบไม่พอ 😢 ไปจับมอนสเตอร์มาเพิ่มก่อนนะ";
+      evoBtn.style.display = "none";
+    }
   }
 
   function starBurst(x, y) {
@@ -681,27 +756,22 @@
     });
   }
 
-  async function evolve() {
-    var map = readSlots();
-    var keys = Object.keys(map);
-    if (!keys.length) {
-      msg.textContent = "เลือกมอนสเตอร์ก่อนนะ";
-      return;
-    }
-    msg.textContent = "";
+  async function evolveRecipe(rec) {
     var btn = document.getElementById("evoBtn");
+    var evoMsg = document.getElementById("evoMsg");
     btn.disabled = true;
 
-    // verify player still owns enough
+    // verify player still owns enough (fresh from DB)
+    var have = {};
     try {
       var inv = await window.ThaiMon.client()
         .from("thaimon_inventory").select("monster_id, quantity").eq("player_id", pid);
       if (inv.error) throw inv.error;
-      var have = {};
       (inv.data || []).forEach(function (row) { have[row.monster_id] = row.quantity; });
-      for (var k = 0; k < keys.length; k++) {
-        if ((have[keys[k]] || 0) < map[keys[k]]) {
-          msg.textContent = "วัตถุดิบไม่พอ";
+      for (var k = 0; k < rec.ingredients.length; k++) {
+        var need = rec.ingredients[k];
+        if ((have[need.monster_id] || 0) < need.qty) {
+          evoMsg.textContent = "วัตถุดิบไม่พอ 😢";
           btn.disabled = false;
           return;
         }
@@ -712,21 +782,7 @@
       return;
     }
 
-    var rec = findRecipe(map);
-    if (!rec) {
-      // FAIL: consume nothing
-      evoCard.innerHTML = '<div class="fail-emoji">💥</div><h2>ไม่มีสูตรนี้!</h2>' +
-        '<p style="color:#52647a">ลองผสมแบบอื่นดูนะ<br>วัตถุดิบไม่หายไปไหน</p>' +
-        '<button class="evo-close" id="evoCloseBtn" type="button">ตกลง</button>';
-      evoResult.classList.add("show");
-      document.getElementById("evoCloseBtn").addEventListener("click", function () {
-        evoResult.classList.remove("show");
-      });
-      btn.disabled = false;
-      return;
-    }
-
-    // RECIPE MATCHED: voice challenge before consuming anything
+    // RECIPE KNOWN: voice challenge before consuming anything
     var resMon = MONBYID[rec.result_id];
     if (!resMon) {
       msg.textContent = "ไม่พบมอนสเตอร์ผลลัพธ์";
@@ -807,10 +863,14 @@
 
     // refresh UI
     renderGrid();
-    buildSelectors();
+    renderEvoTargets();
+    renderEvoDetail();
     btn.disabled = false;
   }
-  document.getElementById("evoBtn").addEventListener("click", evolve);
+  document.getElementById("evoBtn").addEventListener("click", function () {
+    var rec = currentRecipe();
+    if (rec) evolveRecipe(rec);
+  });
 
   /* ---------- init ---------- */
   async function init() {
@@ -852,7 +912,7 @@
       return;
     }
     renderGrid();
-    buildSelectors();
+    renderEvoTargets();
   }
   init();
 })();
