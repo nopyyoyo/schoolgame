@@ -336,6 +336,7 @@
       var msg = document.getElementById('msg');
       var pickerLayer = document.getElementById('pickerLayer');
       var pickerGrid = document.getElementById('pickerGrid');
+      var micExempt = false;   // admin can exempt a player from the mic requirement
       /* ---------- daily claim (voice-gated) ---------- */
       var DAY_MS = 24 * 60 * 60 * 1000;
       var VOICE_MS = 10000;
@@ -610,7 +611,6 @@
             msg.className = 'msg error';
           }
           editing = false;
-          var micExempt = false;   // admin can exempt a player from the mic requirement
           dnameEl.hidden = false;
           dnameInput.hidden = true;
           editBtn.textContent = '✏️';
