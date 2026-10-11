@@ -307,6 +307,7 @@
 
   var MONSTERS = [];   // { id, th, sprite_url } — collectable only
   var balls = 0;
+  var micExempt = false;   // admin can exempt a player from the mic requirement
 
   /* ---------- scenery ---------- */
   function treeSVG(c1, c2) {
@@ -786,7 +787,14 @@
       return;
     }
     if (result === "no-mic") {
-      for (var i = 0; i < 2; i++) { SFX.wiggle(); await wiggleBall(); await wait(160); }
+      if (micExempt) {
+        for (var i = 0; i < 2; i++) { SFX.wiggle(); await wiggleBall(); await wait(160); }
+      } else {
+        // Mic is required: monster escapes, no catch
+        await doEscape(mon);
+        hint.textContent = "ต้องเปิดไมโครโฟนเพื่อจับมอนสเตอร์ 🎤";
+        return;
+      }
     }
     // SUCCESS: consume 1 pokeball, add to inventory
     var left;
@@ -961,6 +969,7 @@
     try {
       var p = await window.ThaiMon.getPlayer(pid);
       balls = p.pokeballs || 0;
+      micExempt = !!p.mic_exempt;
       updateBalls();
       var m = await window.ThaiMon.client()
         .from("thaimon_monsters")

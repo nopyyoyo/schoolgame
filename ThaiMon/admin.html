@@ -435,7 +435,7 @@
   /* ----- players: grant balls/gacha, reset password ----- */
   async function loadPlayers() {
     var r = await client().from("thaimon_players")
-      .select("id, username, display_name, pokeballs, gachapons")
+      .select("id, username, display_name, pokeballs, gachapons, mic_exempt")
       .order("username");
     if (r.error) { say("โหลดผู้เล่นไม่ได้"); return; }
     var list = document.getElementById("playerList");
@@ -449,11 +449,12 @@
       row.className = "player-row";
       row.innerHTML =
         '<div class="pinfo"><div class="un">' + p.display_name + ' <span style="color:#90a4ae;font-weight:normal">(' + p.username + ")</span></div>" +
-        '<div class="st">🔴 ' + p.pokeballs + " • 🎰 " + p.gachapons + "</div></div>" +
+        '<div class="st">🔴 ' + p.pokeballs + " • 🎰 " + p.gachapons + (p.mic_exempt ? ' • 🎤ยกเว้น' : "") + "</div></div>" +
         '<div class="grant"><span style="font-size:.85rem">🔴</span><input type="number" value="0" data-gb="' + p.id + '">' +
         '<button class="btn small" data-gbb="' + p.id + '">ให้บอล</button></div>' +
         '<div class="grant"><span style="font-size:.85rem">🎰</span><input type="number" value="0" data-gg="' + p.id + '">' +
         '<button class="btn small" data-ggb="' + p.id + '">ให้กาชา</button></div>' +
+        '<button class="btn small" data-mic="' + p.id + '">' + (p.mic_exempt ? "บังคับไมค์" : "ยกเว้นไมค์") + "</button>" +
         '<button class="btn small danger" data-rp="' + p.id + '">รีเซ็ตรหัส</button>';
       list.appendChild(row);
     });
@@ -462,6 +463,20 @@
     });
     list.querySelectorAll("[data-ggb]").forEach(function (b) {
       b.addEventListener("click", function () { grant(b.getAttribute("data-ggb"), "gachapons", "gg"); });
+    });
+    list.querySelectorAll("[data-mic]").forEach(function (b) {
+      b.addEventListener("click", async function () {
+        var pid = b.getAttribute("data-mic");
+        try {
+          var cur = await client().from("thaimon_players").select("mic_exempt").eq("id", pid).single();
+          if (cur.error) throw cur.error;
+          var nv = !cur.data.mic_exempt;
+          var u = await client().from("thaimon_players").update({ mic_exempt: nv }).eq("id", pid);
+          if (u.error) throw u.error;
+          sayOk(nv ? "ยกเว้นไมค์ให้ผู้เล่นนี้แล้ว" : "ผู้เล่นนี้ต้องใช้ไมค์แล้ว");
+          loadPlayers();
+        } catch (e) { say("บันทึกไม่ได้"); }
+      });
     });
     list.querySelectorAll("[data-rp]").forEach(function (b) {
       b.addEventListener("click", async function () {

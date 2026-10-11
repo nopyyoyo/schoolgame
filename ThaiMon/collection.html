@@ -345,6 +345,7 @@
   var OWNED = {};      // id -> quantity
   var RECIPES = [];    // { id, result_id, ingredients: [{monster_id, qty}] }
   var MONBYID = {};
+  var micExempt = false;   // admin can exempt a player from the mic requirement
 
   var grid = document.getElementById("grid");
   var msg = document.getElementById("msg");
@@ -804,7 +805,19 @@
       btn.disabled = false;
       return;
     }
-    // "no-mic" falls through as auto-pass (same as catching)
+    if (said === "no-mic" && !micExempt) {
+      // mic is required: no evolution without speaking
+      evoCard.innerHTML = '<div class="fail-emoji">🎤</div><h2>ต้องเปิดไมโครโฟน!</h2>' +
+        '<p style="color:#52647a">การวิวัฒนาการต้องพูดชื่อมอนสเตอร์<br>ให้คุณครูช่วยเปิดไมโครโฟนนะ<br>วัตถุดิบยังอยู่ครบ</p>' +
+        '<button class="evo-close" id="evoCloseBtn" type="button">ตกลง</button>';
+      evoResult.classList.add("show");
+      document.getElementById("evoCloseBtn").addEventListener("click", function () {
+        evoResult.classList.remove("show");
+      });
+      btn.disabled = false;
+      return;
+    }
+    // "no-mic" + micExempt falls through as auto-pass
 
     // SUCCESS: consume ingredients, add result
     try {
@@ -878,6 +891,8 @@
   async function init() {
     try {
       var c = window.ThaiMon.client();
+      var pl = await window.ThaiMon.getPlayer(pid);
+      micExempt = !!pl.mic_exempt;
       var m = await c.from("thaimon_monsters")
         .select("id, name_th, rank, sprite_url");
       if (m.error) throw m.error;

@@ -466,7 +466,14 @@
           d.btn.disabled = false;
           return;
         }
-        // 'no-mic' auto-passes (same as catching); 'success' passes
+        if (said === 'no-mic' && !micExempt) {
+          // mic is required: no reward without speaking
+          msg.textContent = 'ต้องเปิดไมโครโฟนเพื่อรับรางวัล 🎤';
+          msg.className = 'msg error';
+          d.btn.disabled = false;
+          return;
+        }
+        // 'no-mic' + micExempt auto-passes; 'success' passes
         try {
           var p = await window.ThaiMon.getPlayer(pid);
           var last = p[d.col] ? new Date(p[d.col]).getTime() : 0;
@@ -516,6 +523,7 @@
           unameEl.textContent = 'ชื่อผู้ใช้: ' + p.username;
           statBall.textContent = '🔴 × ' + p.pokeballs;
           statGacha.textContent = '🎰 × ' + p.gachapons;
+          micExempt = !!p.mic_exempt;
           daily.ball.last = p.last_daily_claim_at || null;
           daily.gacha.last = p.last_daily_gacha_claim_at || null;
           updateDaily('ball');
@@ -602,6 +610,7 @@
             msg.className = 'msg error';
           }
           editing = false;
+          var micExempt = false;   // admin can exempt a player from the mic requirement
           dnameEl.hidden = false;
           dnameInput.hidden = true;
           editBtn.textContent = '✏️';
