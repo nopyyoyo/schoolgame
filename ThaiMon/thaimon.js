@@ -89,6 +89,19 @@ window.ThaiMon = (function () {
     }).eq('code', inviteCode);
     if (upd.error) throw upd.error;
 
+    // grant default avatars (boy/girl) and set boy as the starting avatar
+    var avs = await client().from('thaimon_avatars').select('id').eq('is_default', true);
+    if (avs.error) throw avs.error;
+    var rows = (avs.data || []).map(function (a) {
+      return { player_id: ins.data.id, avatar_id: a.id };
+    });
+    if (rows.length) {
+      var g = await client().from('thaimon_player_avatars').insert(rows);
+      if (g.error) throw g.error;
+      var d = await client().from('thaimon_players').update({ avatar_id: 'boy' }).eq('id', ins.data.id);
+      if (d.error) throw d.error;
+    }
+
     setSession(ins.data.id);
     return ins.data.id;
   }

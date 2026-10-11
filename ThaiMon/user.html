@@ -273,10 +273,10 @@
       var pickerGrid = document.getElementById('pickerGrid');
       var editing = false;
 
-      function setAvatarDisplay(monsterId, spriteUrl) {
-        if (monsterId && spriteUrl) {
+      function setAvatarDisplay(avatarId, imageUrl) {
+        if (avatarId && imageUrl) {
           avatarEl.textContent = '';
-          avatarEl.style.backgroundImage = 'url("' + spriteUrl + '")';
+          avatarEl.style.backgroundImage = 'url("' + imageUrl + '")';
         } else {
           avatarEl.textContent = '🐾';
           avatarEl.style.backgroundImage = '';
@@ -290,10 +290,10 @@
           unameEl.textContent = 'ชื่อผู้ใช้: ' + p.username;
           statBall.textContent = '🔴 × ' + p.pokeballs;
           statGacha.textContent = '🎰 × ' + p.gachapons;
-          if (p.avatar_monster_id) {
-            var m = await window.ThaiMon.client()
-              .from('thaimon_monsters').select('sprite_url').eq('id', p.avatar_monster_id).single();
-            if (m.data) setAvatarDisplay(p.avatar_monster_id, m.data.sprite_url);
+          if (p.avatar_id) {
+            var a = await window.ThaiMon.client()
+              .from('thaimon_avatars').select('image_url').eq('id', p.avatar_id).single();
+            if (a.data) setAvatarDisplay(p.avatar_id, a.data.image_url);
           }
         } catch (e) {
           msg.textContent = 'โหลดข้อมูลไม่ได้';
@@ -303,49 +303,41 @@
 
       async function openPicker() {
         pickerGrid.innerHTML = '';
-        // default paw option
-        var def = document.createElement('button');
-        def.type = 'button';
-        def.className = 'picker-item';
-        def.innerHTML = '<div class="thumb">🐾</div><div class="nm">ค่าเริ่มต้น</div>';
-        def.addEventListener('click', function () { pickAvatar(null); });
-        pickerGrid.appendChild(def);
         try {
           var inv = await window.ThaiMon.client()
-            .from('thaimon_inventory')
-            .select('monster_id, thaimon_monsters(id, name_th, sprite_url)')
-            .eq('player_id', pid)
-            .gt('quantity', 0);
+            .from('thaimon_player_avatars')
+            .select('avatar_id, thaimon_avatars(id, name_th, image_url)')
+            .eq('player_id', pid);
           if (inv.error) throw inv.error;
           (inv.data || []).forEach(function (row) {
-            var mon = row.thaimon_monsters;
-            if (!mon) return;
+            var av = row.thaimon_avatars;
+            if (!av) return;
             var b = document.createElement('button');
             b.type = 'button';
             b.className = 'picker-item';
-            b.innerHTML = '<div class="thumb" style="background-image:url(\'' + mon.sprite_url + '\')"></div><div class="nm">' + mon.name_th + '</div>';
-            b.addEventListener('click', function () { pickAvatar(mon.id, mon.sprite_url); });
+            b.innerHTML = '<div class="thumb" style="background-image:url(\'' + av.image_url + '\')"></div><div class="nm">' + av.name_th + '</div>';
+            b.addEventListener('click', function () { pickAvatar(av.id, av.image_url); });
             pickerGrid.appendChild(b);
           });
           if (!inv.data || !inv.data.length) {
             var note = document.createElement('p');
             note.style.gridColumn = '1 / -1';
-            note.textContent = 'ยังไม่มีมอนสเตอร์ — ไปจับมาก่อน!';
+            note.textContent = 'ยังไม่มีอวาตาร์';
             pickerGrid.appendChild(note);
           }
         } catch (e) {
-          msg.textContent = 'โหลดมอนสเตอร์ไม่ได้';
+          msg.textContent = 'โหลดอวาตาร์ไม่ได้';
           msg.className = 'msg error';
         }
         pickerLayer.hidden = false;
       }
 
-      async function pickAvatar(monsterId, spriteUrl) {
+      async function pickAvatar(avatarId, imageUrl) {
         try {
           var r = await window.ThaiMon.client()
-            .from('thaimon_players').update({ avatar_monster_id: monsterId }).eq('id', pid);
+            .from('thaimon_players').update({ avatar_id: avatarId }).eq('id', pid);
           if (r.error) throw r.error;
-          setAvatarDisplay(monsterId, spriteUrl);
+          setAvatarDisplay(avatarId, imageUrl);
           pickerLayer.hidden = true;
         } catch (e) {
           msg.textContent = 'เปลี่ยนรูปไม่ได้';
