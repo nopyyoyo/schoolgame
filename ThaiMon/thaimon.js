@@ -139,10 +139,13 @@ window.ThaiMon = (function () {
         '<div style="font-size:2.6rem">🎤</div>' +
         '<div style="font-size:1.2rem;font-weight:bold;margin:.3rem 0">ไมโครโฟนถูกปิดอยู่</div>' +
         '<div style="font-size:.92rem;color:#52647a;text-align:left;line-height:1.9">' +
-        '1. แตะไอคอน 🔒 ที่แถบที่อยู่ด้านบน<br>' +
+        '<b>วิธีเปิด:</b><br>' +
+        '1. แตะไอคอน 🎚️ <b>ด้านซ้ายของแถบที่อยู่</b><br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;(ไอคอนเล็กๆ ข้างหน้าชื่อเว็บด้านบน)<br>' +
         '2. เลือก "การตั้งค่าไซต์"<br>' +
-        '3. เปิด "ไมโครโฟน" เป็น "อนุญาต"<br>' +
-        '4. กลับมากด "ลองอีกครั้ง" ด้านล่าง' +
+        '3. แตะ "ไมโครโฟน" แล้วเลือก "อนุญาต"<br>' +
+        '4. กลับมาที่หน้านี้ กด "🔄 ลองอีกครั้ง"<br>' +
+        '<span style="font-size:.8rem">บน iPhone Safari: แตะ aA → การตั้งค่าเว็บไซต์ → ไมโครโฟน → อนุญาต</span>' +
         '</div>' +
         '<div style="display:flex;gap:10px;justify-content:center;margin-top:14px">' +
         '<button id="micRetryBtn" type="button" style="font-family:inherit;font-weight:bold;font-size:1rem;' +
