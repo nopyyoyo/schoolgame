@@ -82,8 +82,8 @@ window.ThaiMon = (function () {
       password_hash: hash,
       password_salt: salt,
       display_name: username,
-      pokeballs: 0,
-      gachapons: 0
+      pokeballs: 10,
+      gachapons: 10
     }).select('id').single();
     if (ins.error) throw ins.error;
 
