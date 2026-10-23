@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<link rel="icon" href="data:," />
+<title>คอลเลกชัน</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: Tahoma, "Noto Sans Thai", sans-serif;
+    background: #f5f0e6;
+    color: #14213d;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #game {
+    position: relative;
+    width: min(100%, 480px);
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    background: #fffdf4;
+    box-shadow: 0 0 40px rgba(0,0,0,.2);
+  }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .55rem .8rem;
+    background: #fffdf4;
+    border-bottom: 3px solid #e45826;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .back { text-decoration: none; font-size: 1.7rem; line-height: 1; color: #1769aa; font-weight: bold; padding: 0 .2rem; }
+  h1 { margin: 0; font-size: 1.25rem; flex: 1; }
+  .count { font-size: .9rem; color: #52647a; font-weight: bold; }
+
+  /* ---------- tabs ---------- */
+  #tabs {
+    display: flex; background: #fffdf4; border-bottom: 2px solid #e8e0cf;
+    position: sticky; top: 57px; z-index: 9;
+  }
+  #tabs button {
+    flex: 1; border: none; background: none; font-family: inherit;
+    font-size: 1.05rem; font-weight: bold; padding: .7rem;
+    color: #8a99ad; cursor: pointer;
+    border-bottom: 4px solid transparent;
+  }
+  #tabs button.active { color: #e45826; border-bottom-color: #e45826; }
+
+  #msg {
+    text-align: center; color: #b71c1c; font-size: .95rem; min-height: 1.4em;
+    padding: .3rem 1rem 0;
+  }
+
+  /* ---------- collection grid ---------- */
+  #grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    padding: 12px 14px 20px;
+  }
+  .cell {
+    border: 3px solid #c8e6c9; border-radius: 14px; background: #f1f8e9;
+    padding: 8px 4px; text-align: center; cursor: pointer; font-family: inherit;
+    position: relative;
+  }
+  .cell:active { transform: scale(.96); }
+  .cell.unknown { border-color: #cfd8dc; background: #eceff1; }
+  .cell .spr {
+    width: 72px; height: 72px; margin: 0 auto;
+    background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
+  }
+  .cell.unknown .spr { filter: brightness(0); opacity: .85; }
+  .cell .nm { font-weight: bold; font-size: .85rem; margin-top: 2px; }
+  .cell.unknown .nm { color: #78909c; letter-spacing: .1em; }
+  .cell .rank {
+    display: inline-block; font-size: .72rem; font-weight: bold; color: #fff;
+    padding: .1rem .55rem; border-radius: 999px; margin-top: 3px;
+  }
+  .cell.unknown .rank { background: #90a4ae !important; }
+  .rank-S { background: linear-gradient(180deg, #ffd700, #ff8f00); }
+  .rank-A { background: linear-gradient(180deg, #b388ff, #7c4dff); }
+  .rank-B { background: linear-gradient(180deg, #64b5f6, #1976d2); }
+  .rank-C { background: linear-gradient(180deg, #81c784, #388e3c); }
+  .rank-D { background: linear-gradient(180deg, #b0bec5, #607d8b); }
+  .rank-E, .rank-F, .rank-G, .rank-H { background: linear-gradient(180deg, #b0bec5, #607d8b); }
+  .cell .qty {
+    position: absolute; top: 4px; right: 6px;
+    background: #e45826; color: #fff; font-weight: bold; font-size: .75rem;
+    border-radius: 999px; padding: .1rem .5rem;
+  }
+  .cell .evo-badge {
+    position: absolute; top: 4px; left: 6px; z-index: 2;
+    background: #ff5722; color: #fff; font-weight: bold; font-size: 1rem;
+    border-radius: 999px; padding: .05rem .45rem; line-height: 1.4;
+    box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0,0,0,.3);
+    animation: badgePulse 1.2s ease-in-out infinite;
+  }
+  @keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+  }
+
+  /* ---------- detail modal ---------- */
+  #detailLayer {
+    position: fixed; inset: 0; z-index: 30;
+    background: rgba(20,30,20,.6);
+    display: grid; place-items: center; padding: 16px;
+  }
+  #detailLayer[hidden] { display: none; }
+  .detail-box {
+    background: #fffdf4; border-radius: 20px; border: 4px solid #2e7d32;
+    width: 100%; max-width: 360px; max-height: 86vh; overflow-y: auto;
+    padding: 18px 16px; text-align: center;
+  }
+  .detail-box .bigspr {
+    width: 150px; height: 150px; margin: 0 auto;
+    background-size: 400% 100%; background-repeat: no-repeat; background-position-x: 0%;
+    animation: hop 2.4s steps(1) infinite;
+  }
+  @keyframes hop {
+    0%   { background-position-x: 0%; }
+    15%  { background-position-x: 0%; }
+    22%  { background-position-x: 33.3333%; }
+    29%  { background-position-x: 66.6667%; }
+    36%  { background-position-x: 100%; }
+    92%  { background-position-x: 100%; }
+    100% { background-position-x: 0%; }
+  }
+  .detail-box.unknown .bigspr { filter: brightness(0); animation: none; }
+  .detail-box h2 { margin: .4rem 0 .1rem; font-size: 1.4rem; }
+  .detail-box .d-rank {
+    display: inline-block; font-weight: bold; color: #fff;
+    padding: .2rem 1rem; border-radius: 999px; margin: .2rem 0;
+  }
+  .detail-box .d-qty { color: #52647a; margin-bottom: .6rem; }
+  .detail-box .recipes { text-align: left; margin-top: .6rem; }
+  .detail-box .recipes h3 { font-size: .95rem; margin: .4rem 0; color: #2e7d32; }
+  .recipe-line {
+    background: #f1f8e9; border-radius: 10px; padding: .45rem .6rem;
+    font-size: .85rem; margin-bottom: 6px;
+  }
+  .recipe-line .arrow { color: #e45826; font-weight: bold; }
+  .detail-close {
+    margin-top: 12px; background: #78909c; color: #fff; border: none;
+    border-radius: 999px; padding: .55rem 2rem; font-size: 1rem; font-weight: bold;
+    cursor: pointer; font-family: inherit;
+  }
+
+  /* ---------- evolution ---------- */
+  #evoPane { display: none; padding: 14px; }
+  #evoPane.show { display: block; }
+  #gridWrap.hide { display: none; }
+  #evoGrid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  #evoGrid .cell.sel {
+    border-color: #e45826; background: #fff3e0;
+    box-shadow: 0 0 0 2px #e45826;
+  }
+  #evoDetail { margin-bottom: 14px; }
+  #evoDetail[hidden] { display: none; }
+  .evo-target { text-align: center; }
+  .evo-target .bigspr {
+    width: 130px; height: 130px; margin: 0 auto;
+    background-size: 400% 100%; background-repeat: no-repeat; background-position-x: 0%;
+    animation: hop 2.4s steps(1) infinite;
+  }
+  .evo-target.unknown .bigspr { filter: brightness(0); animation: none; }
+  .evo-target-name { font-size: 1.3rem; font-weight: bold; margin: .3rem 0 .1rem; }
+  .evo-target.unknown .evo-target-name { color: #78909c; letter-spacing: .1em; }
+  .evo-target .d-rank {
+    display: inline-block; font-weight: bold; color: #fff;
+    padding: .2rem 1rem; border-radius: 999px; margin: .2rem 0;
+  }
+  .evo-recipe-btns {
+    display: flex; gap: 8px; justify-content: center;
+    margin: 10px 0 2px; flex-wrap: wrap;
+  }
+  .evo-recipe-btns button {
+    font-family: inherit; font-weight: bold; font-size: .95rem;
+    border: 2px solid #ab47bc; background: #fff; color: #7b1fa2;
+    border-radius: 999px; padding: .35rem 1.1rem; cursor: pointer;
+  }
+  .evo-recipe-btns button.active { background: #ab47bc; color: #fff; }
+  .evo-ings { margin: 10px 0; }
+  .ing-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #f1f8e9; border: 3px solid #a5d6a7; border-radius: 14px;
+    padding: 8px 10px; margin-bottom: 8px;
+  }
+  .ing-row.lack { border-color: #ef9a9a; background: #ffebee; }
+  .ing-spr {
+    width: 52px; height: 52px; flex: 0 0 auto; border-radius: 12px;
+    background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
+    background-color: #fff; border: 2px solid #e8e0cf;
+  }
+  .ing-info { flex: 1; }
+  .ing-name { font-weight: bold; }
+  .ing-qty { font-size: .85rem; color: #52647a; }
+  .ing-qty b.ok { color: #2e7d32; }
+  .ing-qty b.no { color: #c62828; }
+  .ing-mark { font-size: 1.5rem; }
+  #evoMsg {
+    text-align: center; font-weight: bold; color: #c62828;
+    margin: 8px 0; min-height: 1.4em;
+  }
+  #evoBtn {
+    display: block; width: 100%; margin: 6px 0 4px;
+    background: linear-gradient(180deg, #ab47bc, #7b1fa2); color: #fff;
+    border: none; border-radius: 999px; padding: .8rem;
+    font-size: 1.25rem; font-weight: bold; cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  }
+  #evoBtn:active { transform: scale(.97); }
+  #evoBtn:disabled { background: #bdbdbd; cursor: default; }
+  .evo-note { text-align: center; color: #8a99ad; font-size: .85rem; }
+
+  /* ---------- evolution result ---------- */
+  #evoResult {
+    position: fixed; inset: 0; z-index: 30;
+    background: rgba(30,15,45,.78);
+    display: none; place-items: center; padding: 16px;
+  }
+  #evoResult.show { display: grid; }
+  .evo-card {
+    background: #fffdf4; border-radius: 22px; border: 4px solid #ab47bc;
+    padding: 1.4rem 1.2rem; width: 92%; max-width: 360px; text-align: center;
+  }
+  .evo-card .bigspr {
+    width: 170px; height: 170px; margin: 0 auto;
+    background-size: 400% 100%; background-repeat: no-repeat; background-position-x: 0%;
+    animation: hop 2.4s steps(1) infinite, evoPop .6s cubic-bezier(.2,1.6,.4,1);
+  }
+  @keyframes evoPop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+  .evo-card h2 { margin: .5rem 0 .2rem; }
+  .evo-card .fail-emoji { font-size: 3.5rem; }
+  .evo-close {
+    margin-top: 12px; background: #7b1fa2; color: #fff; border: none;
+    border-radius: 999px; padding: .6rem 2.2rem; font-size: 1.05rem; font-weight: bold;
+    cursor: pointer; font-family: inherit;
+  }
+  .star {
+    position: fixed; z-index: 31; font-size: 26px; pointer-events: none;
+    transform: translate(-50%,-50%);
+    animation: burst .9s ease-out forwards;
+  }
+  @keyframes burst {
+    0% { transform: translate(-50%,-50%) scale(.3); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.3); opacity: 0; }
+  }
+
+  /* ---------- voice challenge ---------- */
+  #voiceLayer {
+    position: fixed; inset: 0; z-index: 32;
+    background: rgba(30,15,45,.82);
+    display: none; place-items: center; padding: 16px;
+  }
+  #voiceLayer.show { display: grid; }
+  .voice-card {
+    background: #fffdf4; border-radius: 22px; border: 4px solid #1769aa;
+    padding: 1.4rem 1.2rem; width: 92%; max-width: 360px; text-align: center;
+  }
+  .voice-card .mic { font-size: 2.6rem; animation: micpulse 1s ease-in-out infinite; }
+  @keyframes micpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+  .voice-card .vtext { font-size: 1.2rem; font-weight: bold; margin: .4rem 0; }
+  #voiceTarget { color: #e45826; font-size: 1.7rem; }
+  .voice-card .vheard { font-size: .95rem; color: #52647a; min-height: 1.4em; margin-top: .2rem; }
+  .voice-card .vtimer {
+    height: 8px; background: #e8e0cf; border-radius: 99px; margin-top: .5rem; overflow: hidden;
+  }
+  #voiceTimerBar { height: 100%; width: 100%; background: #2f7d32; border-radius: 99px; }
+  .voice-card .vprivacy { font-size: .68rem; color: #8a99ad; margin-top: .4rem; }
+  .voice-card .vsil {
+    width: 110px; height: 110px; margin: 0 auto;
+    background-size: 400% 100%; background-repeat: no-repeat; background-position: 0% 0%;
+    filter: brightness(0);
+  }
+</style>
+</head>
+<body>
+<div id="game">
+  <header>
+    <a class="back" href="user.html" aria-label="กลับ">‹</a>
+    <h1>📚 คอลเลกชัน</h1>
+    <div class="count" id="ownCount"></div>
+  </header>
+  <div id="tabs">
+    <button id="tabGrid" class="active" type="button">มอนสเตอร์</button>
+    <button id="tabEvo" type="button">วิวัฒนาการ</button>
+  </div>
+  <div id="msg"></div>
+
+  <div id="gridWrap">
+    <div id="grid"></div>
+  </div>
+
+  <div id="evoPane">
+    <div id="evoDetail" hidden>
+      <div class="evo-target" id="evoTargetBox">
+        <div class="bigspr" id="evoTargetSpr"></div>
+        <div class="evo-target-name" id="evoTargetName"></div>
+        <div><span class="d-rank" id="evoTargetRank"></span></div>
+      </div>
+      <div class="evo-recipe-btns" id="evoRecipeBtns" hidden></div>
+      <div class="evo-ings" id="evoIngs"></div>
+      <div id="evoMsg"></div>
+      <button id="evoBtn" type="button">✨ วิวัฒนาการ!</button>
+      <p class="evo-note">สำเร็จ = วัตถุดิบหายไปตามจำนวน<br>ไม่สำเร็จ = ไม่เสียอะไรเลย</p>
+    </div>
+    <div id="evoGrid"></div>
+  </div>
+</div>
+
+<div id="detailLayer" hidden>
+  <div class="detail-box" id="detailBox">
+    <div class="bigspr" id="dSpr"></div>
+    <h2 id="dName"></h2>
+    <div><span class="d-rank" id="dRank"></span></div>
+    <div class="d-qty" id="dQty"></div>
+    <div class="recipes" id="dRecipes"></div>
+    <button class="detail-close" id="detailClose" type="button">ปิด</button>
+  </div>
+</div>
+
+<div id="evoResult">
+  <div class="evo-card" id="evoCard"></div>
+</div>
+
+<div id="voiceLayer">
+  <div class="voice-card">
+    <div class="vsil" id="voiceSil"></div>
+    <div class="mic">🎤</div>
+    <div class="vtext">พูดชื่อมอนสเตอร์ที่จะได้<br><span id="voiceTarget">…</span></div>
+    <div class="vheard" id="voiceHeard"></div>
+    <div class="vtimer"><div id="voiceTimerBar"></div></div>
+    <div class="vprivacy">เสียงจะถูกส่งให้ Google/Apple ช่วยฟังชื่อมอนสเตอร์</div>
+  </div>
+</div>
+
+<script src="thaimon.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var pid = window.ThaiMon.requireSession();
+  if (!pid) return;
+
+  var ALL = [];        // all monsters: { id, th, rank, sprite_url }
+  var OWNED = {};      // id -> quantity
+  var RECIPES = [];    // { id, result_id, ingredients: [{monster_id, qty}] }
+  var MONBYID = {};
+  var micExempt = false;   // admin can exempt a player from the mic requirement
+
+  var grid = document.getElementById("grid");
+  var msg = document.getElementById("msg");
+  var ownCount = document.getElementById("ownCount");
+
+  var RANK_ORDER = { S: 0, A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8 };
+
+  function rankVal(r) { return RANK_ORDER[r] !== undefined ? RANK_ORDER[r] : 99; }
+
+  /* ---------- tabs ---------- */
+  var tabGrid = document.getElementById("tabGrid");
+  var tabEvo = document.getElementById("tabEvo");
+  var gridWrap = document.getElementById("gridWrap");
+  var evoPane = document.getElementById("evoPane");
+  tabGrid.addEventListener("click", function () {
+    tabGrid.classList.add("active"); tabEvo.classList.remove("active");
+    gridWrap.classList.remove("hide"); evoPane.classList.remove("show");
+  });
+  tabEvo.addEventListener("click", function () {
+    tabEvo.classList.add("active"); tabGrid.classList.remove("active");
+    gridWrap.classList.add("hide"); evoPane.classList.add("show");
+  });
+
+  /* ---------- collection grid ---------- */
+  function renderGrid() {
+    grid.innerHTML = "";
+    var ownedCount = 0;
+    ALL.forEach(function (m) {
+      var qty = OWNED[m.id] || 0;
+      var known = qty > 0;
+      if (known) ownedCount++;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cell" + (known ? "" : " unknown");
+      var spr = document.createElement("div");
+      spr.className = "spr";
+      spr.style.backgroundImage = 'url("' + m.sprite_url + '")';
+      var nm = document.createElement("div");
+      nm.className = "nm";
+      nm.textContent = known ? m.th : "???";
+      var rk = document.createElement("span");
+      rk.className = "rank rank-" + m.rank;
+      rk.textContent = known ? m.rank : "?";
+      b.appendChild(spr);
+      b.appendChild(nm);
+      b.appendChild(document.createElement("br"));
+      b.appendChild(rk);
+      if (known) {
+        var q = document.createElement("span");
+        q.className = "qty";
+        q.textContent = "×" + qty;
+        b.appendChild(q);
+      }
+      (function (mon, isKnown) {
+        b.addEventListener("click", function () { openDetail(mon, isKnown); });
+      })(m, known);
+      grid.appendChild(b);
+    });
+    ownCount.textContent = ownedCount + "/" + ALL.length;
+  }
+
+  /* ---------- detail modal ---------- */
+  var detailLayer = document.getElementById("detailLayer");
+  var detailBox = document.getElementById("detailBox");
+  function speakName(text) {
+    try {
+      if (!("speechSynthesis" in window)) return;
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = "th-TH";
+      var vs = speechSynthesis.getVoices();
+      var th = vs.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf("th") === 0; });
+      if (th.length) u.voice = th[0];
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function stopSpeak() {
+    try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch (e) {}
+  }
+  function openDetail(m, known) {
+    var dSpr = document.getElementById("dSpr");
+    var dName = document.getElementById("dName");
+    var dRank = document.getElementById("dRank");
+    var dQty = document.getElementById("dQty");
+    var dRecipes = document.getElementById("dRecipes");
+    dSpr.style.backgroundImage = 'url("' + m.sprite_url + '")';
+    detailBox.classList.toggle("unknown", !known);
+    if (known) {
+      dName.textContent = m.th;
+      dRank.textContent = "แรงค์ " + m.rank;
+      dRank.className = "d-rank rank-" + m.rank;
+      dQty.textContent = "มี ×" + OWNED[m.id];
+    } else {
+      dName.textContent = "???";
+      dRank.textContent = "?";
+      dRank.className = "d-rank";
+      dRank.style.background = "#90a4ae";
+      dQty.textContent = "ยังไม่เคยจับได้";
+    }
+    // recipes using this monster as ingredient
+    dRecipes.innerHTML = "";
+    if (known) {
+      var uses = RECIPES.filter(function (r) {
+        return r.ingredients.some(function (ing) { return ing.monster_id === m.id; });
+      });
+      if (uses.length) {
+        var h = document.createElement("h3");
+        h.textContent = "ใช้เป็นวัตถุดิบในสูตร:";
+        dRecipes.appendChild(h);
+        uses.forEach(function (r) {
+          var res = MONBYID[r.result_id];
+          var line = document.createElement("div");
+          line.className = "recipe-line";
+          var parts = r.ingredients.map(function (ing) {
+            var im = MONBYID[ing.monster_id];
+            return ing.qty + "× " + (im ? im.th : ing.monster_id);
+          });
+          line.innerHTML = parts.join(" + ") + ' <span class="arrow">→</span> ' + (res ? res.th : r.result_id);
+          dRecipes.appendChild(line);
+        });
+      }
+    }
+    detailLayer.hidden = false;
+    if (known) speakName(m.th);
+  }
+  document.getElementById("detailClose").addEventListener("click", function () {
+    stopSpeak();
+    detailLayer.hidden = true;
+  });
+  detailLayer.addEventListener("click", function (e) {
+    if (e.target === detailLayer) { stopSpeak(); detailLayer.hidden = true; }
+  });
+
+  /* ---------- evolution (target-based) ---------- */
+  var evoTargetId = null;
+  var evoRecipeIdx = 0;
+
+  function evoTargets() {
+    var seen = {}, ids = [];
+    RECIPES.forEach(function (r) {
+      if (!seen[r.result_id]) { seen[r.result_id] = true; ids.push(r.result_id); }
+    });
+    return ids.map(function (id) { return MONBYID[id]; }).filter(Boolean)
+      .sort(function (a, b) {
+        return rankVal(a.rank) - rankVal(b.rank) || (a.th < b.th ? -1 : 1);
+      });
+  }
+  function recipesFor(resultId) {
+    return RECIPES.filter(function (r) { return r.result_id === resultId; });
+  }
+  function currentRecipe() {
+    var recs = recipesFor(evoTargetId);
+    if (!recs.length) return null;
+    return recs[Math.min(evoRecipeIdx, recs.length - 1)];
+  }
+
+  function renderEvoTargets() {
+    var g = document.getElementById("evoGrid");
+    g.innerHTML = "";
+    evoTargets().forEach(function (m) {
+      var qty = OWNED[m.id] || 0;
+      var known = qty > 0;
+      // notify if unowned but at least one recipe is fully craftable
+      var ready = !known && recipesFor(m.id).some(function (r) {
+        return r.ingredients.every(function (ing) {
+          return (OWNED[ing.monster_id] || 0) >= ing.qty;
+        });
+      });
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cell" + (known ? "" : " unknown") + (m.id === evoTargetId ? " sel" : "");
+      if (ready) {
+        var badge = document.createElement("span");
+        badge.className = "evo-badge";
+        badge.textContent = "❗";
+        b.appendChild(badge);
+      }
+      var spr = document.createElement("div");
+      spr.className = "spr";
+      spr.style.backgroundImage = 'url("' + m.sprite_url + '")';
+      var nm = document.createElement("div");
+      nm.className = "nm";
+      nm.textContent = known ? m.th : "???";
+      var rk = document.createElement("span");
+      rk.className = "rank rank-" + m.rank;
+      rk.textContent = known ? m.rank : "?";
+      b.appendChild(spr);
+      b.appendChild(nm);
+      b.appendChild(document.createElement("br"));
+      b.appendChild(rk);
+      (function (id) {
+        b.addEventListener("click", function () { selectEvoTarget(id); });
+      })(m.id);
+      g.appendChild(b);
+    });
+  }
+
+  function selectEvoTarget(id) {
+    evoTargetId = id;
+    evoRecipeIdx = 0;
+    renderEvoTargets();
+    renderEvoDetail();
+    var m = MONBYID[id];
+    if (m && (OWNED[id] || 0) > 0) speakName(m.th);
+    try { document.getElementById("evoPane").scrollIntoView(); } catch (e) {}
+  }
+
+  function renderEvoDetail() {
+    var detail = document.getElementById("evoDetail");
+    var m = MONBYID[evoTargetId];
+    if (!m) { detail.hidden = true; return; }
+    detail.hidden = false;
+    var known = (OWNED[m.id] || 0) > 0;
+    var box = document.getElementById("evoTargetBox");
+    box.classList.toggle("unknown", !known);
+    document.getElementById("evoTargetSpr").style.backgroundImage = 'url("' + m.sprite_url + '")';
+    document.getElementById("evoTargetName").textContent = known ? m.th : "???";
+    var rk = document.getElementById("evoTargetRank");
+    rk.textContent = known ? "แรงค์ " + m.rank : "?";
+    rk.className = "d-rank rank-" + m.rank;
+    rk.style.background = known ? "" : "#90a4ae";
+
+    var recs = recipesFor(m.id);
+    var btns = document.getElementById("evoRecipeBtns");
+    btns.innerHTML = "";
+    if (recs.length > 1) {
+      btns.hidden = false;
+      recs.forEach(function (r, i) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = "สูตร " + (i + 1);
+        if (i === evoRecipeIdx) b.className = "active";
+        (function (idx) {
+          b.addEventListener("click", function () { evoRecipeIdx = idx; renderEvoDetail(); });
+        })(i);
+        btns.appendChild(b);
+      });
+    } else {
+      btns.hidden = true;
+    }
+
+    var rec = currentRecipe();
+    var wrap = document.getElementById("evoIngs");
+    wrap.innerHTML = "";
+    var allOk = !!rec;
+    if (rec) {
+      rec.ingredients.forEach(function (ing) {
+        var im = MONBYID[ing.monster_id];
+        var have = OWNED[ing.monster_id] || 0;
+        var ok = have >= ing.qty;
+        if (!ok) allOk = false;
+        var row = document.createElement("div");
+        row.className = "ing-row" + (ok ? "" : " lack");
+        var spr = document.createElement("div");
+        spr.className = "ing-spr";
+        if (im) spr.style.backgroundImage = 'url("' + im.sprite_url + '")';
+        var info = document.createElement("div");
+        info.className = "ing-info";
+        var nm = document.createElement("div");
+        nm.className = "ing-name";
+        nm.textContent = im ? im.th : ing.monster_id;
+        var q = document.createElement("div");
+        q.className = "ing-qty";
+        q.innerHTML = 'มี <b class="' + (ok ? "ok" : "no") + '">' + have + "</b> / ต้องการ " + ing.qty;
+        info.appendChild(nm);
+        info.appendChild(q);
+        var mark = document.createElement("div");
+        mark.className = "ing-mark";
+        mark.textContent = ok ? "✅" : "❌";
+        row.appendChild(spr);
+        row.appendChild(info);
+        row.appendChild(mark);
+        wrap.appendChild(row);
+      });
+    }
+
+    var evoMsg = document.getElementById("evoMsg");
+    var evoBtn = document.getElementById("evoBtn");
+    if (allOk) {
+      evoMsg.textContent = "";
+      evoBtn.style.display = "";
+      evoBtn.disabled = false;
+    } else {
+      evoMsg.textContent = "วัตถุดิบไม่พอ 😢 ไปจับมอนสเตอร์มาเพิ่มก่อนนะ";
+      evoBtn.style.display = "none";
+    }
+  }
+
+  function starBurst(x, y) {
+    for (var i = 0; i < 16; i++) {
+      var el = document.createElement("div");
+      el.className = "star";
+      el.textContent = "⭐";
+      el.style.left = x + "px";
+      el.style.top = y + "px";
+      var ang = (i / 16) * Math.PI * 2 + Math.random() * 0.5;
+      var dist = 90 + Math.random() * 80;
+      el.style.setProperty("--dx", Math.cos(ang) * dist + "px");
+      el.style.setProperty("--dy", Math.sin(ang) * dist + "px");
+      document.body.appendChild(el);
+      (function (s) { setTimeout(function () { s.remove(); }, 950); })(el);
+    }
+  }
+
+  var evoResult = document.getElementById("evoResult");
+  var evoCard = document.getElementById("evoCard");
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  /* ---------- Thai voice matching (same strict rules as catching) ---------- */
+  function levenshtein(a, b) {
+    var m = a.length, n = b.length;
+    if (!m) return n;
+    if (!n) return m;
+    var d = [];
+    for (var i = 0; i <= m; i++) d[i] = [i];
+    for (var j = 0; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) {
+      for (j = 1; j <= n; j++) {
+        d[i][j] = Math.min(
+          d[i - 1][j] + 1,
+          d[i][j - 1] + 1,
+          d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+        );
+      }
+    }
+    return d[m][n];
+  }
+  function isLetterName(s) {
+    var cons = "กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ";
+    if (s.length === 2 && s.charAt(1) === "อ" && cons.indexOf(s.charAt(0)) !== -1) return true;
+    if (s.length === 1 && cons.indexOf(s.charAt(0)) !== -1) return true;
+    return false;
+  }
+  function voiceMatch(transcript, target) {
+    var t = (transcript || "").replace(/\s+/g, "").trim();
+    if (!t) return false;
+    if (t === target) return true;
+    if (t.length > target.length && t.indexOf(target) !== -1) {
+      var leftover = t.split(target).join("");
+      if (isLetterName(leftover)) return false;
+      return true;
+    }
+    var maxDist;
+    if (target.length <= 2) maxDist = 0;
+    else if (target.length <= 4) maxDist = 1;
+    else maxDist = 2;
+    if (levenshtein(t, target) <= maxDist) return true;
+    return false;
+  }
+
+  var VOICE_MS = 10000;
+  function voiceChallenge(mon) {
+    return new Promise(function (resolve) {
+      var layer = document.getElementById("voiceLayer");
+      var target = document.getElementById("voiceTarget");
+      var heard = document.getElementById("voiceHeard");
+      var bar = document.getElementById("voiceTimerBar");
+      var sil = document.getElementById("voiceSil");
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var done = false;
+      function finish(result) {
+        if (done) return;
+        done = true;
+        layer.classList.remove("show");
+        resolve(result);
+      }
+      target.textContent = "“" + mon.th + "”";
+      heard.textContent = "";
+      sil.style.backgroundImage = 'url("' + mon.sprite_url + '")';
+      layer.classList.add("show");
+      if (!SR) { finish("no-mic"); return; }
+
+      bar.style.transition = "none";
+      bar.style.width = "100%";
+      void bar.offsetWidth;
+      bar.style.transition = "width " + (VOICE_MS / 1000) + "s linear";
+      bar.style.width = "0%";
+
+      var rec;
+      try { rec = new SR(); } catch (e) { finish("no-mic"); return; }
+      rec.lang = "th-TH";
+      rec.interimResults = true;
+      rec.maxAlternatives = 3;
+
+      var timer = setTimeout(function () {
+        try { rec.stop(); } catch (e) {}
+        finish("fail");
+      }, VOICE_MS);
+
+      rec.onresult = function (e) {
+        if (done) return;
+        var txt = "";
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          txt += e.results[i][0].transcript;
+        }
+        txt = txt.trim();
+        if (txt) heard.textContent = "ได้ยิน: " + txt;
+        if (voiceMatch(txt, mon.th)) {
+          clearTimeout(timer);
+          try { rec.stop(); } catch (err) {}
+          heard.textContent = "ถูกต้อง! 🎉";
+          setTimeout(function () { finish("success"); }, 700);
+        }
+      };
+      rec.onerror = function (e) {
+        if (done) return;
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+          clearTimeout(timer);
+          try { rec.stop(); } catch (err) {}
+          window.ThaiMon.showMicHelp().then(function (retry) {
+            if (retry && !done) resolve(voiceChallenge(mon));
+            else finish("no-mic");
+          });
+        }
+      };
+      rec.onend = function () {
+        if (!done) {
+          try { rec.start(); } catch (e) {}
+        }
+      };
+      try { rec.start(); }
+      catch (e) {
+        clearTimeout(timer);
+        window.ThaiMon.showMicHelp().then(function (retry) {
+          if (retry && !done) resolve(voiceChallenge(mon));
+          else finish("no-mic");
+        });
+      }
+    });
+  }
+
+  async function evolveRecipe(rec) {
+    var btn = document.getElementById("evoBtn");
+    var evoMsg = document.getElementById("evoMsg");
+    btn.disabled = true;
+
+    // verify player still owns enough (fresh from DB)
+    var have = {};
+    try {
+      var inv = await window.ThaiMon.client()
+        .from("thaimon_inventory").select("monster_id, quantity").eq("player_id", pid);
+      if (inv.error) throw inv.error;
+      (inv.data || []).forEach(function (row) { have[row.monster_id] = row.quantity; });
+      for (var k = 0; k < rec.ingredients.length; k++) {
+        var need = rec.ingredients[k];
+        if ((have[need.monster_id] || 0) < need.qty) {
+          evoMsg.textContent = "วัตถุดิบไม่พอ 😢";
+          btn.disabled = false;
+          return;
+        }
+      }
+    } catch (e) {
+      msg.textContent = "โหลดข้อมูลไม่ได้";
+      btn.disabled = false;
+      return;
+    }
+
+    // RECIPE KNOWN: voice challenge before consuming anything
+    var resMon = MONBYID[rec.result_id];
+    if (!resMon) {
+      msg.textContent = "ไม่พบมอนสเตอร์ผลลัพธ์";
+      btn.disabled = false;
+      return;
+    }
+    var said = await voiceChallenge(resMon);
+    if (said === "fail") {
+      // voice failed: keep ingredients, allow retry
+      evoCard.innerHTML = '<div class="fail-emoji">🎤</div><h2>พูดไม่ถูก!</h2>' +
+        '<p style="color:#52647a">ต้องพูดว่า “' + resMon.th + '”<br>วัตถุดิบยังอยู่ครบ ลองอีกครั้งนะ</p>' +
+        '<button class="evo-close" id="evoCloseBtn" type="button">ลองอีกครั้ง</button>';
+      evoResult.classList.add("show");
+      document.getElementById("evoCloseBtn").addEventListener("click", function () {
+        evoResult.classList.remove("show");
+      });
+      btn.disabled = false;
+      return;
+    }
+    if (said === "no-mic" && !micExempt) {
+      // mic is required: no evolution without speaking
+      evoCard.innerHTML = '<div class="fail-emoji">🎤</div><h2>ต้องเปิดไมโครโฟน!</h2>' +
+        '<p style="color:#52647a">การวิวัฒนาการต้องพูดชื่อมอนสเตอร์<br>ให้คุณครูช่วยเปิดไมโครโฟนนะ<br>วัตถุดิบยังอยู่ครบ</p>' +
+        '<button class="evo-close" id="evoCloseBtn" type="button">ตกลง</button>';
+      evoResult.classList.add("show");
+      document.getElementById("evoCloseBtn").addEventListener("click", function () {
+        evoResult.classList.remove("show");
+      });
+      btn.disabled = false;
+      return;
+    }
+    // "no-mic" + micExempt falls through as auto-pass
+
+    // SUCCESS: consume ingredients, add result
+    try {
+      var c = window.ThaiMon.client();
+      for (var j = 0; j < rec.ingredients.length; j++) {
+        var ing = rec.ingredients[j];
+        var left = (have[ing.monster_id] || 0) - ing.qty;
+        if (left <= 0) {
+          var del = await c.from("thaimon_inventory")
+            .delete().eq("player_id", pid).eq("monster_id", ing.monster_id);
+          if (del.error) throw del.error;
+          delete OWNED[ing.monster_id];
+        } else {
+          var uu = await c.from("thaimon_inventory")
+            .update({ quantity: left })
+            .eq("player_id", pid).eq("monster_id", ing.monster_id);
+          if (uu.error) throw uu.error;
+          OWNED[ing.monster_id] = left;
+        }
+      }
+      // add result
+      var ex = await c.from("thaimon_inventory").select("quantity")
+        .eq("player_id", pid).eq("monster_id", rec.result_id).maybeSingle();
+      if (ex.error) throw ex.error;
+      if (ex.data) {
+        var ur = await c.from("thaimon_inventory")
+          .update({ quantity: ex.data.quantity + 1 })
+          .eq("player_id", pid).eq("monster_id", rec.result_id);
+        if (ur.error) throw ur.error;
+        OWNED[rec.result_id] = ex.data.quantity + 1;
+      } else {
+        var ins = await c.from("thaimon_inventory")
+          .insert({ player_id: pid, monster_id: rec.result_id, quantity: 1 });
+        if (ins.error) throw ins.error;
+        OWNED[rec.result_id] = 1;
+      }
+    } catch (e) {
+      msg.textContent = "บันทึกไม่ได้ ลองอีกครั้งนะ";
+      btn.disabled = false;
+      return;
+    }
+
+    var resMon2 = resMon;
+    evoCard.innerHTML = '<div class="bigspr" id="evoSpr"></div>' +
+      '<h2>✨ วิวัฒนาการสำเร็จ!</h2>' +
+      '<div style="font-size:1.4rem;font-weight:bold">' + (resMon2 ? resMon2.th : rec.result_id) + '</div>' +
+      (resMon2 ? '<div><span class="d-rank rank-' + resMon2.rank + '" style="display:inline-block;color:#fff;font-weight:bold;padding:.2rem 1rem;border-radius:999px">แรงค์ ' + resMon2.rank + '</span></div>' : '') +
+      '<button class="evo-close" id="evoCloseBtn" type="button">เยี่ยม!</button>';
+    if (resMon2) {
+      document.getElementById("evoSpr").style.backgroundImage = 'url("' + resMon2.sprite_url + '")';
+    }
+    evoResult.classList.add("show");
+    var cr = evoCard.getBoundingClientRect();
+    starBurst(cr.left + cr.width / 2, cr.top + cr.height / 3);
+    document.getElementById("evoCloseBtn").addEventListener("click", function () {
+      evoResult.classList.remove("show");
+    });
+
+    // refresh UI
+    renderGrid();
+    renderEvoTargets();
+    renderEvoDetail();
+    btn.disabled = false;
+  }
+  document.getElementById("evoBtn").addEventListener("click", function () {
+    var rec = currentRecipe();
+    if (rec) evolveRecipe(rec);
+  });
+
+  /* ---------- init ---------- */
+  async function init() {
+    try {
+      var c = window.ThaiMon.client();
+      var pl = await window.ThaiMon.getPlayer(pid);
+      micExempt = !!pl.mic_exempt;
+      var m = await c.from("thaimon_monsters")
+        .select("id, name_th, rank, sprite_url");
+      if (m.error) throw m.error;
+      ALL = (m.data || []).map(function (r) {
+        return { id: r.id, th: r.name_th, rank: r.rank, sprite_url: r.sprite_url };
+      });
+      ALL.sort(function (a, b) {
+        return rankVal(a.rank) - rankVal(b.rank) || (a.th < b.th ? -1 : 1);
+      });
+      ALL.forEach(function (x) { MONBYID[x.id] = x; });
+
+      var inv = await c.from("thaimon_inventory")
+        .select("monster_id, quantity").eq("player_id", pid);
+      if (inv.error) throw inv.error;
+      (inv.data || []).forEach(function (row) {
+        if (row.quantity > 0) OWNED[row.monster_id] = row.quantity;
+      });
+
+      var r = await c.from("thaimon_recipes").select("id, result_monster_id");
+      if (r.error) throw r.error;
+      var ri = await c.from("thaimon_recipe_ingredients")
+        .select("recipe_id, monster_id, quantity");
+      if (ri.error) throw ri.error;
+      var ingByRecipe = {};
+      (ri.data || []).forEach(function (row) {
+        (ingByRecipe[row.recipe_id] = ingByRecipe[row.recipe_id] || [])
+          .push({ monster_id: row.monster_id, qty: row.quantity });
+      });
+      RECIPES = (r.data || []).map(function (row) {
+        return { id: row.id, result_id: row.result_monster_id, ingredients: ingByRecipe[row.id] || [] };
+      });
+    } catch (e) {
+      msg.textContent = "โหลดข้อมูลไม่ได้";
+      return;
+    }
+    renderGrid();
+    renderEvoTargets();
+  }
+  init();
+})();
+</script>
+</body>
+</html>

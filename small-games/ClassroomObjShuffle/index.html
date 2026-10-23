@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>สุ่มสิ่งของในห้องเรียน</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f8ed;
+      --ink: #17352e;
+      --muted: #52665f;
+      --surface: #ffffff;
+      --line: #d9e1d5;
+      --green: #177456;
+      --green-press: #0e5d43;
+      --yellow: #ffd85a;
+      --shadow: 0 18px 50px rgba(36, 73, 58, .13);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #101a17;
+        --ink: #eef6f1;
+        --muted: #b1c1ba;
+        --surface: #192722;
+        --line: #334740;
+        --green: #58c69a;
+        --green-press: #72d9ae;
+        --yellow: #f2ca4d;
+        --shadow: 0 20px 54px rgba(0, 0, 0, .32);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    html, body, button { font-family: Tahoma, sans-serif; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px),
+        var(--bg);
+      background-size: 28px 28px;
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+    button { font: inherit; }
+    .app {
+      min-height: 100svh;
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 16px;
+    }
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .prompt {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(.92rem, 3.6vw, 1.05rem);
+      font-weight: 700;
+    }
+    .sound-toggle {
+      min-height: 44px;
+      display: inline-grid;
+      place-items: center;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      background: var(--surface);
+      font-size: clamp(.82rem, 3.2vw, .95rem);
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 3px 0 var(--line);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sound-toggle:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+
+    .stage {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+    }
+    .card {
+      width: min(100%, 520px);
+      height: min(64svh, 610px);
+      min-height: 390px;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 30px 30px 18px 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow), 0 8px 0 var(--green);
+      position: relative;
+    }
+    .image-wrap {
+      min-height: 0;
+      padding: clamp(22px, 5vw, 42px);
+      display: grid;
+      place-items: center;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .image-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 2px dashed #dce8df;
+      border-radius: 21px;
+      pointer-events: none;
+    }
+    #objectImage {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-height: 390px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 13px rgba(20, 45, 35, .13));
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .label {
+      min-height: 114px;
+      display: grid;
+      place-items: center;
+      padding: 18px 20px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+    }
+    #objectWord {
+      margin: 0;
+      font-size: clamp(2.6rem, 11vw, 4.8rem);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      font-weight: 800;
+      color: var(--ink);
+      text-align: center;
+    }
+    .card.shuffling #objectImage { filter: saturate(.92); }
+    .card.shuffling #objectWord { color: var(--green); }
+    .card.landed { animation: settle .55s cubic-bezier(.2,.9,.25,1.25); }
+    @keyframes settle {
+      0% { transform: translateY(0) rotate(0); }
+      35% { transform: translateY(-8px) rotate(-.6deg); }
+      68% { transform: translateY(3px) rotate(.3deg); }
+      100% { transform: translateY(0) rotate(0); }
+    }
+
+    .controls {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+    }
+    .shuffle-button {
+      width: min(100%, 520px);
+      min-height: 62px;
+      border: 0;
+      border-radius: 18px;
+      background: var(--green);
+      color: #fff;
+      font-size: clamp(1.12rem, 4.6vw, 1.34rem);
+      font-weight: 800;
+      letter-spacing: .01em;
+      cursor: pointer;
+      box-shadow: 0 6px 0 var(--green-press);
+      transition: transform .12s ease, box-shadow .12s ease, opacity .2s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    @media (prefers-color-scheme: dark) {
+      .shuffle-button { color: #082218; }
+    }
+    .shuffle-button:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 var(--green-press); }
+    .shuffle-button:focus-visible, .sound-toggle:focus-visible {
+      outline: 4px solid var(--yellow);
+      outline-offset: 3px;
+    }
+    .shuffle-button:disabled { cursor: wait; opacity: .82; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    @media (max-height: 650px) {
+      .app { gap: 10px; padding-top: 10px; }
+      .card { min-height: 300px; height: min(60svh, 430px); }
+      .label { min-height: 82px; padding: 10px 16px 12px; }
+      .image-wrap { padding: 18px; }
+      .shuffle-button { min-height: 54px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card.landed { animation: none; }
+      .shuffle-button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topline">
+      <p class="prompt">ดูรูป แล้วอ่านคำให้ดัง!</p>
+      <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">✅ เปิดเสียงอ่าน</button>
+    </div>
+
+    <section class="stage" aria-label="สิ่งของที่สุ่มได้">
+      <div class="card" id="card">
+        <div class="image-wrap">
+          <img id="objectImage" src="https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/backpack.png" alt="กระเป๋านักเรียน" width="800" height="600" />
+        </div>
+        <div class="label"><p id="objectWord">กระเป๋า</p></div>
+      </div>
+      <p class="sr-only" id="resultStatus" aria-live="polite"></p>
+    </section>
+
+    <div class="controls">
+      <button class="shuffle-button" id="shuffleButton" type="button">เริ่มสุ่ม</button>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var objects = [
+        { word: "กระเป๋า", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/backpack.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/backpack.mp3", alt: "กระเป๋านักเรียน" },
+        { word: "ยางลบ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/eraser.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/eraser.mp3", alt: "ยางลบสีชมพู" },
+        { word: "ไม้บรรทัด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/ruler.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/ruler.mp3", alt: "ไม้บรรทัดไม้" },
+        { word: "ปากกา", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pen.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/pen.mp3", alt: "ปากกาลูกลื่นสีน้ำเงิน" },
+        { word: "ดินสอ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/pencil.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/pencil.mp3", alt: "ดินสอสีเหลือง" },
+        { word: "สมุด", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/notebook.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/notebook.mp3", alt: "สมุดเรียน" },
+        { word: "หนังสือ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/book.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/book.mp3", alt: "หนังสือ" },
+        { word: "โต๊ะ", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/table.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/table.mp3", alt: "โต๊ะนักเรียน" },
+        { word: "เก้าอี้", image: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20photo/chair.png", sound: "https://raw.githubusercontent.com/nopyyoyo/schoolgame/main/Small%20games/object%20sound/chair.mp3", alt: "เก้าอี้นักเรียน" }
+      ];
+
+      var image = document.getElementById("objectImage");
+      var word = document.getElementById("objectWord");
+      var card = document.getElementById("card");
+      var button = document.getElementById("shuffleButton");
+      var soundToggle = document.getElementById("soundToggle");
+      var resultStatus = document.getElementById("resultStatus");
+      var currentIndex = 0;
+      var lastFinalIndex = 0;
+      var running = false;
+      var readingOn = true;
+      var audioContext = null;
+      var readingAudio = new Audio();
+      var readingVolume = 0.12;
+      readingAudio.preload = "auto";
+      readingAudio.src = objects[0].sound;
+      readingAudio.volume = readingVolume;
+      readingAudio.load();
+
+      objects.forEach(function (item) {
+        var preload = new Image();
+        preload.src = item.image;
+      });
+
+      function showItem(index) {
+        var item = objects[index];
+        image.src = item.image;
+        image.alt = item.alt;
+        word.textContent = item.word;
+        currentIndex = index;
+      }
+
+      showItem(0);
+
+      function randomDifferent(excluded) {
+        var index;
+        do { index = Math.floor(Math.random() * objects.length); }
+        while (index === excluded);
+        return index;
+      }
+
+      function ensureAudio() {
+        if (!audioContext) {
+          var AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) audioContext = new AudioCtx();
+        }
+        if (audioContext && audioContext.state === "suspended") audioContext.resume();
+      }
+
+      function tone(frequency, duration, volume, type, delay) {
+        if (!audioContext) return;
+        var start = audioContext.currentTime + (delay || 0);
+        var oscillator = audioContext.createOscillator();
+        var gain = audioContext.createGain();
+        oscillator.type = type || "sine";
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(volume, start + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+        oscillator.start(start);
+        oscillator.stop(start + duration + 0.02);
+      }
+
+      function tick(step) {
+        tone(330 + (step % 3) * 55, .045, .055, "square", 0);
+      }
+
+      function finishSound() {
+        tone(523.25, .32, .12, "sine", 0);
+        tone(659.25, .34, .1, "sine", .09);
+        tone(783.99, .42, .09, "sine", .18);
+      }
+
+      function unlockReadingAudio() {
+        if (!readingOn) return;
+        readingAudio.volume = 0;
+        var unlockPromise = readingAudio.play();
+        readingAudio.pause();
+        try { readingAudio.currentTime = 0; } catch (error) {}
+        readingAudio.volume = readingVolume;
+
+        if (unlockPromise && typeof unlockPromise.catch === "function") {
+          unlockPromise.catch(function () {
+            readingAudio.volume = readingVolume;
+          });
+        }
+      }
+
+      function playReading(index) {
+        readingAudio.src = objects[index].sound;
+        readingAudio.currentTime = 0;
+        readingAudio.volume = readingVolume;
+        var playPromise = readingAudio.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(function () {});
+        }
+      }
+
+      function shuffle() {
+        if (running) return;
+        running = true;
+        ensureAudio();
+        var finalIndex = randomDifferent(lastFinalIndex);
+        unlockReadingAudio();
+        button.disabled = true;
+        soundToggle.disabled = true;
+        button.textContent = "กำลังสุ่ม…";
+        resultStatus.textContent = "";
+        card.classList.remove("landed");
+        card.classList.add("shuffling");
+        var totalSteps = 27;
+        var step = 0;
+
+        function advance() {
+          var next = step === totalSteps - 1 ? finalIndex : randomDifferent(currentIndex);
+          showItem(next);
+          tick(step);
+          step += 1;
+
+          if (step < totalSteps) {
+            var progress = step / totalSteps;
+            var delay = 48 + Math.pow(progress, 2.8) * 430;
+            window.setTimeout(advance, delay);
+          } else {
+            lastFinalIndex = currentIndex;
+            running = false;
+            card.classList.remove("shuffling");
+            void card.offsetWidth;
+            card.classList.add("landed");
+            button.disabled = false;
+            soundToggle.disabled = false;
+            button.textContent = "สุ่มอีกครั้ง";
+            if (readingOn) {
+              playReading(currentIndex);
+            } else {
+              finishSound();
+            }
+            resultStatus.textContent = "สุ่มได้ " + objects[currentIndex].word;
+          }
+        }
+        advance();
+      }
+
+      button.addEventListener("click", shuffle);
+      soundToggle.addEventListener("click", function () {
+        readingOn = !readingOn;
+        soundToggle.setAttribute("aria-pressed", readingOn ? "true" : "false");
+        soundToggle.textContent = readingOn ? "✅ เปิดเสียงอ่าน" : "❌ ปิดเสียงอ่าน";
+        if (!readingOn) {
+          readingAudio.pause();
+          readingAudio.currentTime = 0;
+        }
+      });
+    }());
+  </script>
+</body>
+</html>

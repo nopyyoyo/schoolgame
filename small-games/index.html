@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:," />
+  <title>เลือกเกม</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #eef6ff;
+      --paper: #ffffff;
+      --ink: #14213d;
+      --muted: #52647a;
+      --line: #cbd9e7;
+      --blue: #1769aa;
+      --blue-deep: #0e4f84;
+      --blue-soft: #dff1ff;
+      --yellow-soft: #fff5c7;
+      --shadow: 0 10px 26px rgba(22, 74, 116, .12);
+      --focus: #e45826;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #101820;
+        --paper: #182532;
+        --ink: #f4f8fb;
+        --muted: #b8c7d5;
+        --line: #35495b;
+        --blue: #63b7ef;
+        --blue-deep: #a5dcff;
+        --blue-soft: #183b52;
+        --yellow-soft: #443b18;
+        --shadow: 0 12px 28px rgba(0, 0, 0, .3);
+        --focus: #ff956f;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      background:
+        linear-gradient(180deg, var(--blue-soft) 0 13rem, transparent 13rem),
+        var(--page);
+      color: var(--ink);
+      font-family: Tahoma, "Noto Sans Thai", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    main {
+      width: min(100%, 58rem);
+      margin: 0 auto;
+      padding: max(1.4rem, env(safe-area-inset-top)) 1rem max(2.5rem, env(safe-area-inset-bottom));
+    }
+
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 0 0 1.15rem;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.85rem, 7vw, 3.15rem);
+      line-height: 1.1;
+      letter-spacing: -.035em;
+    }
+
+    .intro p {
+      margin: .4rem 0 0;
+      color: var(--muted);
+      font-size: clamp(.9rem, 2.7vw, 1.05rem);
+      line-height: 1.45;
+    }
+
+    .count {
+      flex: 0 0 auto;
+      margin-bottom: .2rem;
+      padding: .45rem .7rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .85rem;
+    }
+
+    .game-card {
+      position: relative;
+      display: grid;
+      grid-template-rows: minmax(7.2rem, 1fr) auto;
+      min-width: 0;
+      min-height: 14rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 1.25rem;
+      background: var(--paper);
+      color: inherit;
+      text-decoration: none;
+      box-shadow: var(--shadow);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .game-card:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 4px;
+    }
+
+    .game-card:active { transform: translateY(2px); }
+
+    .visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 7.2rem;
+      overflow: hidden;
+    }
+
+    .alphabet .visual {
+      background-color: var(--yellow-soft);
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent 0 1.8rem,
+        color-mix(in srgb, var(--blue) 18%, transparent) 1.8rem calc(1.8rem + 1px)
+      );
+    }
+
+    .letters {
+      display: flex;
+      align-items: baseline;
+      gap: .24em;
+      color: var(--blue-deep);
+      font-size: clamp(2.4rem, 12vw, 4.8rem);
+      font-weight: 700;
+      line-height: 1;
+      transform: rotate(-2deg);
+    }
+
+    .letters span:nth-child(2) {
+      color: var(--ink);
+      font-size: .7em;
+      transform: translateY(.15em);
+    }
+
+    .letters span:nth-child(3) { font-size: .54em; opacity: .72; }
+
+    .colors .visual { background: #fafafa; }
+
+    @media (prefers-color-scheme: dark) {
+      .colors .visual { background: #e8edf1; }
+    }
+
+    .numbers .visual {
+      background-color: #ffe9df;
+      background-image:
+        radial-gradient(circle at 18% 28%, rgba(228, 88, 38, .17) 0 .28rem, transparent .3rem),
+        radial-gradient(circle at 82% 72%, rgba(23, 105, 170, .17) 0 .28rem, transparent .3rem);
+      background-size: 2.7rem 2.7rem, 3.1rem 3.1rem;
+    }
+
+    .thai-numbers {
+      display: flex;
+      align-items: baseline;
+      gap: .16em;
+      color: #c94e22;
+      font-size: clamp(2.45rem, 12vw, 4.9rem);
+      font-weight: 700;
+      line-height: 1;
+      transform: rotate(2deg);
+    }
+
+    .thai-numbers span:nth-child(2) {
+      color: var(--blue-deep);
+      font-size: .72em;
+      transform: translateY(.12em);
+    }
+
+    .thai-numbers span:nth-child(3) {
+      color: var(--ink);
+      font-size: .55em;
+      opacity: .7;
+    }
+
+    .memory .visual,
+    .number-match .visual,
+    .color-match .visual {
+      background-color: #e9f1ff;
+      background-image:
+        radial-gradient(circle at 15% 22%, rgba(23, 105, 170, .12) 0 .22rem, transparent .24rem),
+        radial-gradient(circle at 83% 78%, rgba(228, 88, 38, .12) 0 .22rem, transparent .24rem);
+      background-size: 2.5rem 2.5rem, 2.9rem 2.9rem;
+    }
+
+    .number-match .visual { background-color: #fff0e7; }
+    .color-match .visual { background-color: #ecf7ea; }
+
+    .match-pair {
+      position: relative;
+      width: clamp(8.5rem, 34vw, 13rem);
+      height: clamp(5.1rem, 21vw, 7.8rem);
+    }
+
+    .match-card {
+      position: absolute;
+      display: grid;
+      width: 58%;
+      height: 72%;
+      place-items: center;
+      border: 3px solid #173c58;
+      border-radius: .65rem;
+      background: #fff;
+      color: #173c58;
+      box-shadow: 0 5px 0 rgba(23, 60, 88, .16);
+    }
+
+    .match-card:first-child {
+      left: 3%;
+      top: 5%;
+      transform: rotate(-7deg);
+    }
+
+    .match-card:last-child {
+      right: 2%;
+      bottom: 3%;
+      background: #f3c84b;
+      font-size: clamp(1.05rem, 4.8vw, 1.65rem);
+      font-weight: 700;
+      transform: rotate(6deg);
+    }
+
+    .mini-bag {
+      position: relative;
+      width: 48%;
+      height: 58%;
+      border: 2px solid #173c58;
+      border-radius: 38% 38% 22% 22%;
+      background: #ef6d4b;
+    }
+
+    .mini-bag::before {
+      content: "";
+      position: absolute;
+      left: 24%;
+      top: -26%;
+      width: 44%;
+      height: 28%;
+      border: 2px solid #173c58;
+      border-bottom: 0;
+      border-radius: 50% 50% 0 0;
+    }
+
+    .mini-bag::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 12%;
+      height: 23%;
+      border: 2px solid #173c58;
+      border-radius: .25rem;
+      background: #ff9b69;
+    }
+
+    .match-card.match-number {
+      color: #c94e22;
+      font-size: clamp(2.15rem, 8vw, 3.25rem);
+      font-weight: 700;
+    }
+
+    .match-card.match-word {
+      padding: .25rem;
+      font-size: clamp(.9rem, 3.8vw, 1.4rem);
+      text-align: center;
+    }
+
+    .match-swatch {
+      width: 58%;
+      aspect-ratio: 1;
+      border: 3px solid #173c58;
+      border-radius: 50%;
+      background: #e53935;
+      box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .1);
+    }
+
+    .animal-catch .visual { background: linear-gradient(180deg, #a5dd85 0%, #7cc46a 100%); }
+    .catch-visual {
+      width: clamp(4.6rem, 20vw, 6.4rem);
+      aspect-ratio: 1;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,.25));
+    }
+    .mini-ball {
+      display: block;
+      width: 100%; height: 100%; border-radius: 50%;
+      background: linear-gradient(180deg, #ee3e36 0 46%, #222 46% 54%, #f8f8f8 54% 100%);
+      border: 4px solid #222;
+      position: relative;
+    }
+    .mini-ball::after {
+      content: ""; position: absolute; left: 50%; top: 50%;
+      width: 26%; height: 26%; transform: translate(-50%, -50%);
+      background: #fff; border: 4px solid #222; border-radius: 50%;
+    }
+
+    .classroom .visual {
+      background-color: #e8f4e8;
+      background-image: linear-gradient(
+        180deg,
+        transparent 0 74%,
+        color-mix(in srgb, #74a06f 28%, transparent) 74% 75%,
+        transparent 75%
+      );
+    }
+
+    .classroom-items {
+      position: relative;
+      width: clamp(7rem, 31vw, 12rem);
+      height: clamp(5.1rem, 22vw, 8.2rem);
+      transform: rotate(-1deg);
+    }
+
+    .backpack {
+      position: absolute;
+      left: 3%;
+      bottom: 4%;
+      width: 43%;
+      height: 72%;
+      border: 3px solid #173c58;
+      border-radius: 38% 38% 22% 22%;
+      background: #ef6d4b;
+      box-shadow: inset 0 -8px 0 rgba(110, 33, 24, .12);
+    }
+
+    .backpack::before {
+      content: "";
+      position: absolute;
+      left: 24%;
+      top: -23%;
+      width: 44%;
+      height: 27%;
+      border: 3px solid #173c58;
+      border-bottom: 0;
+      border-radius: 50% 50% 0 0;
+    }
+
+    .backpack::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 13%;
+      height: 23%;
+      border: 2px solid #173c58;
+      border-radius: .45rem;
+      background: #ff9b69;
+    }
+
+    .book-stack {
+      position: absolute;
+      right: 1%;
+      bottom: 3%;
+      width: 50%;
+      height: 42%;
+    }
+
+    .book-stack::before,
+    .book-stack::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      width: 100%;
+      height: 38%;
+      border: 3px solid #173c58;
+      border-radius: .35rem .75rem .75rem .35rem;
+    }
+
+    .book-stack::before {
+      top: 4%;
+      background: #f1c843;
+      transform: rotate(4deg);
+    }
+
+    .book-stack::after {
+      bottom: 0;
+      right: 7%;
+      background: #4c9bc8;
+      transform: rotate(-3deg);
+    }
+
+    .pencil {
+      position: absolute;
+      right: 8%;
+      top: 2%;
+      width: 48%;
+      height: 14%;
+      border: 3px solid #173c58;
+      border-radius: 999px 0 0 999px;
+      background: linear-gradient(90deg, #ef7a9d 0 14%, #f3ca47 14% 86%, #e0b78e 86%);
+      transform: rotate(-18deg);
+    }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(3, clamp(2.3rem, 10vw, 4.35rem));
+      gap: clamp(.32rem, 1.6vw, .65rem);
+      transform: rotate(2deg);
+    }
+
+    .swatches span {
+      aspect-ratio: 1;
+      border: 3px solid rgba(20, 33, 61, .82);
+      border-radius: 50%;
+      box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .08);
+    }
+
+    .swatches span:nth-child(1) { background: #e53935; }
+    .swatches span:nth-child(2) { background: #ffd43b; }
+    .swatches span:nth-child(3) { background: #2f80ed; }
+    .swatches span:nth-child(4) { background: #45ad66; }
+    .swatches span:nth-child(5) { background: #ef73b5; }
+    .swatches span:nth-child(6) { background: #8f63c7; }
+
+    .card-copy {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .55rem;
+      min-height: 6rem;
+      padding: .8rem .85rem .9rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .card-copy h2 {
+      margin: 0;
+      font-size: clamp(1rem, 4vw, 1.35rem);
+      line-height: 1.28;
+      letter-spacing: -.015em;
+    }
+
+    .card-copy p {
+      margin: .22rem 0 0;
+      color: var(--muted);
+      font-size: clamp(.72rem, 2.7vw, .9rem);
+      line-height: 1.35;
+    }
+
+    .arrow {
+      display: grid;
+      width: 2.1rem;
+      height: 2.1rem;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: var(--paper);
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .arrow { color: #101820; }
+    }
+
+    @media (hover: hover) {
+      .game-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--blue);
+        box-shadow: 0 15px 30px rgba(22, 74, 116, .18);
+      }
+    }
+
+    @media (min-width: 42rem) {
+      main { width: min(100%, 70rem); padding-inline: 1.5rem; }
+      .game-grid {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1.2rem;
+      }
+      .game-card { grid-column: span 4; min-height: 19rem; }
+      .game-card:nth-child(n + 4) { grid-column: span 3; }
+      .visual { min-height: 12rem; }
+      .card-copy { padding: 1rem 1.15rem 1.1rem; }
+    }
+
+    @media (max-width: 22rem) {
+      main { padding-inline: .7rem; }
+      .game-grid { gap: .6rem; }
+      .game-card { min-height: 12.5rem; border-radius: 1rem; }
+      .visual { min-height: 6.5rem; }
+      .card-copy { min-height: 5.5rem; padding: .72rem; }
+      .arrow { display: none; }
+      .count { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .game-card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <div>
+        <h1>เลือกเกม</h1>
+        <p>แตะเกมที่อยากเล่น แล้วเริ่มสนุกได้เลย</p>
+      </div>
+      <div class="count" aria-label="มีเจ็ดเกม">7 เกม</div>
+    </header>
+
+    <nav class="game-grid" aria-label="เกมทั้งหมด">
+      <a class="game-card alphabet" href="./AlphabetShuffle/" aria-label="เปิดเกมสุ่มพยัญชนะไทย">
+        <div class="visual" aria-hidden="true">
+          <div class="letters"><span>ก</span><span>ข</span><span>ค</span></div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>สุ่มพยัญชนะไทย</h2>
+            <p>พยัญชนะไทย 44 ตัว</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card colors" href="./ColorShuffle/" aria-label="เปิดเกมสุ่มสี">
+        <div class="visual" aria-hidden="true">
+          <div class="swatches">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>สุ่มสี</h2>
+            <p>สีไทย 11 สี</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card classroom" href="./ClassroomObjShuffle/" aria-label="เปิดเกมสุ่มสิ่งของในห้องเรียน">
+        <div class="visual" aria-hidden="true">
+          <div class="classroom-items">
+            <span class="backpack"></span>
+            <span class="book-stack"></span>
+            <span class="pencil"></span>
+          </div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>สุ่มสิ่งของในห้องเรียน</h2>
+            <p>สิ่งของ 9 อย่าง</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card numbers" href="./NumberShuffle/" aria-label="เปิดเกมสุ่มตัวเลข">
+        <div class="visual" aria-hidden="true">
+          <div class="thai-numbers"><span>๑</span><span>๒</span><span>๓</span></div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>สุ่มตัวเลข</h2>
+            <p>เลขไทย ๑–๒๐</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card memory" href="./MemoryMatch/" aria-label="เปิดเกมจับคู่คำศัพท์ไทย">
+        <div class="visual" aria-hidden="true">
+          <div class="match-pair">
+            <span class="match-card"><span class="mini-bag"></span></span>
+            <span class="match-card">กระเป๋า</span>
+          </div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>จับคู่</h2>
+            <p>ภาพกับคำศัพท์ไทย</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card number-match" href="./NumberMatch/" aria-label="เปิดเกมจับคู่ตัวเลขไทย">
+        <div class="visual" aria-hidden="true">
+          <div class="match-pair">
+            <span class="match-card match-number">๗</span>
+            <span class="match-card match-word">เจ็ด</span>
+          </div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>จับคู่ตัวเลข</h2>
+            <p>เลขไทยกับคำอ่าน</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card color-match" href="./ColorMatch/" aria-label="เปิดเกมจับคู่สีไทย">
+        <div class="visual" aria-hidden="true">
+          <div class="match-pair">
+            <span class="match-card"><span class="match-swatch"></span></span>
+            <span class="match-card match-word">สีแดง</span>
+          </div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>จับคู่สี</h2>
+            <p>แถบสีกับคำศัพท์ไทย</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <a class="game-card animal-catch" href="./AnimalCatch/" aria-label="เปิดเกมจับสัตว์">
+        <div class="visual" aria-hidden="true">
+          <div class="catch-visual"><span class="mini-ball"></span></div>
+        </div>
+        <div class="card-copy">
+          <div>
+            <h2>จับสัตว์</h2>
+            <p>โยนบอลจับสัตว์ 10 ตัว</p>
+          </div>
+          <span class="arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+    </nav>
+  </main>
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="data:," />
+<title>ThaiMon Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; font-family: Tahoma, "Noto Sans Thai", sans-serif;
+    background: #263238; color: #14213d;
+  }
+  #app { max-width: 720px; margin: 0 auto; padding: 14px; }
+
+  /* ---------- login ---------- */
+  #loginCard, .card {
+    background: #fffdf4; border-radius: 16px; padding: 20px 16px;
+    margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.25);
+  }
+  #loginCard { margin-top: 40px; text-align: center; }
+  #loginCard h1 { margin: 0 0 12px; }
+  input[type=password], input[type=text], input[type=number], select {
+    font-family: inherit; font-size: 1rem; padding: .55rem .7rem;
+    border: 2px solid #b0bec5; border-radius: 10px; width: 100%;
+    margin-bottom: 10px; background: #fff;
+  }
+  .btn {
+    border: none; border-radius: 999px; padding: .65rem 1.8rem;
+    font-size: 1.05rem; font-weight: bold; cursor: pointer;
+    font-family: inherit; color: #fff; background: #455a64;
+  }
+  .btn:active { transform: scale(.96); }
+  .btn.primary { background: #2e7d32; }
+  .btn.danger { background: #c62828; }
+  .btn.small { padding: .35rem .9rem; font-size: .9rem; }
+  #loginMsg { color: #c62828; min-height: 1.4em; margin-top: 8px; }
+
+  /* ---------- layout ---------- */
+  #adminUI { display: none; }
+  header.top {
+    display: flex; align-items: center; gap: 10px;
+    color: #fff; margin-bottom: 12px;
+  }
+  header.top h1 { margin: 0; font-size: 1.3rem; flex: 1; }
+  #tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  #tabs button {
+    flex: 1; min-width: 100px; border: none; border-radius: 10px;
+    background: #37474f; color: #cfd8dc; font-family: inherit;
+    font-size: .95rem; font-weight: bold; padding: .6rem .4rem; cursor: pointer;
+  }
+  #tabs button.active { background: #ff8f00; color: #fff; }
+  .pane { display: none; }
+  .pane.show { display: block; }
+  .card h2 { margin: 0 0 10px; font-size: 1.15rem; }
+  #msg { color: #c62828; min-height: 1.4em; text-align: center; margin-bottom: 8px; font-weight: bold; }
+  #okmsg { color: #2e7d32; min-height: 1.4em; text-align: center; margin-bottom: 8px; font-weight: bold; }
+
+  /* ---------- monster rows ---------- */
+  .mon-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px; border-bottom: 1px solid #eceff1;
+  }
+  .mon-row .spr {
+    width: 44px; height: 44px; flex: 0 0 auto; border-radius: 50%;
+    background-color: #e8f5e9;
+    background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
+  }
+  .mon-row .info { flex: 1; min-width: 0; }
+  .mon-row .info .nm { font-weight: bold; }
+  .mon-row .info .rk {
+    display: inline-block; font-size: .72rem; font-weight: bold; color: #fff;
+    padding: .05rem .5rem; border-radius: 999px; margin-left: 6px;
+  }
+  .rank-S { background: #ff8f00; } .rank-A { background: #7c4dff; }
+  .rank-B { background: #1976d2; } .rank-C { background: #388e3c; }
+  .rank-D, .rank-E, .rank-F, .rank-G, .rank-H { background: #607d8b; }
+  .mon-row .ctl { display: flex; align-items: center; gap: 8px; }
+  .mon-row .ctl label { font-size: .8rem; color: #546e7a; white-space: nowrap; }
+  .mon-row input[type=number] { width: 64px; margin: 0; padding: .3rem .4rem; }
+  .switch { position: relative; width: 46px; height: 26px; flex: 0 0 auto; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0; cursor: pointer; border-radius: 999px;
+    background: #bdbdbd; transition: .2s;
+  }
+  .slider:before {
+    content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%; transition: .2s;
+  }
+  .switch input:checked + .slider { background: #2e7d32; }
+  .switch input:checked + .slider:before { transform: translateX(20px); }
+
+  /* ---------- recipes ---------- */
+  .recipe-card {
+    border: 2px solid #ce93d8; border-radius: 12px; padding: 10px; margin-bottom: 10px;
+    background: #faf0fc;
+  }
+  .recipe-card .formula { font-weight: bold; margin-bottom: 6px; }
+  .recipe-card .formula .arrow { color: #7b1fa2; }
+  .ing-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .ing-row select { flex: 1; margin: 0; }
+  .ing-row input { width: 60px; margin: 0; }
+
+  /* ---------- players ---------- */
+  .player-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 8px; border-bottom: 1px solid #eceff1;
+  }
+  .player-row .pinfo { flex: 1; min-width: 140px; }
+  .player-row .pinfo .un { font-weight: bold; }
+  .player-row .pinfo .st { font-size: .82rem; color: #546e7a; }
+  .player-row .grant { display: flex; gap: 4px; align-items: center; }
+  .player-row .grant input { width: 56px; margin: 0; padding: .3rem .4rem; }
+
+  /* ---------- player collection ---------- */
+  .coll-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .coll-cell {
+    border: 2px solid #c8e6c9; border-radius: 12px; background: #f1f8e9;
+    padding: 6px 2px; text-align: center; position: relative;
+  }
+  .coll-cell.unknown { border-color: #cfd8dc; background: #eceff1; }
+  .coll-cell .spr {
+    width: 56px; height: 56px; margin: 0 auto;
+    background-size: 400% 100%; background-position: 0% 0%; background-repeat: no-repeat;
+  }
+  .coll-cell.unknown .spr { filter: brightness(0); opacity: .85; }
+  .coll-cell .nm { font-weight: bold; font-size: .72rem; margin-top: 2px; }
+  .coll-cell.unknown .nm { color: #78909c; }
+  .coll-cell .qty {
+    position: absolute; top: 2px; right: 4px;
+    background: #e45826; color: #fff; font-weight: bold; font-size: .7rem;
+    border-radius: 999px; padding: .05rem .45rem;
+  }
+
+  /* ---------- invite codes ---------- */
+  .code-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px; border-bottom: 1px solid #eceff1; font-family: monospace;
+  }
+  .code-row .cd { flex: 1; font-weight: bold; font-size: 1.05rem; }
+  .code-row .used { color: #c62828; font-size: .82rem; }
+  .code-row .fresh { color: #2e7d32; font-size: .82rem; }
+  .newcode { display: flex; gap: 8px; margin-bottom: 12px; }
+  .newcode input { flex: 1; margin: 0; font-family: monospace; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="loginCard">
+    <h1>🔐 ThaiMon Admin</h1>
+    <div id="loginSub">ป้อนรหัสผ่านผู้ดูแล</div>
+    <input type="password" id="adminPass" placeholder="รหัสผ่าน" autocomplete="current-password" />
+    <input type="password" id="adminPass2" placeholder="ยืนยันรหัสผ่าน (ครั้งแรกเท่านั้น)" style="display:none" autocomplete="new-password" />
+    <br>
+    <button class="btn primary" id="loginBtn" type="button">เข้าสู่ระบบ</button>
+    <div id="loginMsg"></div>
+  </div>
+
+  <div id="adminUI">
+    <header class="top">
+      <h1>🔧 ThaiMon Admin</h1>
+      <button class="btn small" id="logoutBtn" type="button">ออก</button>
+    </header>
+    <div id="tabs">
+      <button data-pane="pMon" class="active" type="button">มอนสเตอร์</button>
+      <button data-pane="pRecipe" type="button">สูตร</button>
+      <button data-pane="pPlayer" type="button">ผู้เล่น</button>
+      <button data-pane="pColl" type="button">คอลเลกชัน</button>
+      <button data-pane="pCode" type="button">รหัสเชิญ</button>
+    </div>
+    <div id="msg"></div>
+    <div id="okmsg"></div>
+
+    <div class="pane show" id="pMon"><div class="card"><h2>มอนสเตอร์ (<span id="monCount"></span>)</h2><div id="monList"></div></div></div>
+
+    <div class="pane" id="pRecipe">
+      <div class="card">
+        <h2>สูตรวิวัฒนาการ</h2>
+        <div id="recipeList"></div>
+      </div>
+      <div class="card">
+        <h2>＋ เพิ่มสูตรใหม่</h2>
+        <label style="font-size:.85rem;color:#546e7a">มอนสเตอร์ที่ได้:</label>
+        <select id="newResult"></select>
+        <div id="newIngs">
+          <div class="ing-row"><select class="ni-mon"></select><input class="ni-qty" type="number" min="1" value="1"></div>
+          <div class="ing-row"><select class="ni-mon"></select><input class="ni-qty" type="number" min="1" value="1"></div>
+          <div class="ing-row"><select class="ni-mon"></select><input class="ni-qty" type="number" min="1" value="1"></div>
+        </div>
+        <button class="btn primary" id="addRecipeBtn" type="button">บันทึกสูตร</button>
+      </div>
+    </div>
+
+    <div class="pane" id="pPlayer"><div class="card"><h2>ผู้เล่น</h2><div id="playerList"></div></div></div>
+
+    <div class="pane" id="pColl">
+      <div class="card">
+        <h2>คอลเลกชันผู้เล่น</h2>
+        <label style="font-size:.85rem;color:#546e7a">เลือกผู้เล่น:</label>
+        <select id="collPlayer"></select>
+        <div id="collSummary" style="margin:8px 0;font-weight:bold"></div>
+        <div id="collGrid" class="coll-grid"></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pCode">
+      <div class="card">
+        <h2>รหัสเชิญ</h2>
+        <div class="newcode">
+          <input type="text" id="newCode" placeholder="รหัสใหม่ (เช่น CLASS-001)" />
+          <label style="font-size:.85rem;display:flex;align-items:center;gap:4px;white-space:nowrap">
+            <input type="checkbox" id="newCodeReusable" style="width:auto;margin:0" /> ใช้ซ้ำได้
+          </label>
+          <button class="btn primary small" id="addCodeBtn" type="button">สร้าง</button>
+        </div>
+        <div id="codeList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var SUPABASE_URL = "https://pbomxjysvrfycanjfizx.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_NUyKjkiIxycpTFnPXjRrag_aLqpwuvk";
+  var sb = null;
+  function client() {
+    if (!sb) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return sb;
+  }
+
+  /* ---------- hashing (same scheme as thaimon.js) ---------- */
+  function makeSalt() {
+    var arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+  }
+  async function hashPassword(password, salt) {
+    var data = new TextEncoder().encode(salt + "::" + password);
+    var digest = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(digest)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+  }
+
+  /* ---------- admin session ---------- */
+  var SESS_KEY = "thaimon_admin_ok";
+  var loginCard = document.getElementById("loginCard");
+  var adminUI = document.getElementById("adminUI");
+  var loginMsg = document.getElementById("loginMsg");
+  var msg = document.getElementById("msg");
+  var okmsg = document.getElementById("okmsg");
+  function say(t) { msg.textContent = t; okmsg.textContent = ""; }
+  function sayOk(t) { okmsg.textContent = t; msg.textContent = ""; }
+
+  async function getAdminHash() {
+    var r = await client().from("thaimon_config").select("value").eq("key", "admin_pass").maybeSingle();
+    if (r.error) throw r.error;
+    return r.data ? r.data.value : null; // "salt:hash"
+  }
+
+  async function checkFirstRun() {
+    try {
+      var h = await getAdminHash();
+      if (!h) {
+        document.getElementById("loginSub").textContent = "ตั้งรหัสผ่านผู้ดูแลครั้งแรก";
+        document.getElementById("adminPass2").style.display = "";
+        document.getElementById("loginBtn").textContent = "ตั้งรหัสผ่าน";
+      }
+    } catch (e) {
+      loginMsg.textContent = "เชื่อมต่อไม่ได้";
+    }
+  }
+
+  document.getElementById("loginBtn").addEventListener("click", async function () {
+    loginMsg.textContent = "";
+    var p1 = document.getElementById("adminPass").value;
+    var p2el = document.getElementById("adminPass2");
+    try {
+      var h = await getAdminHash();
+      if (!h) {
+        // first run: set password
+        var p2 = p2el.value;
+        if (p1.length < 4) { loginMsg.textContent = "รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร"; return; }
+        if (p1 !== p2) { loginMsg.textContent = "รหัสผ่านไม่ตรงกัน"; return; }
+        var salt = makeSalt();
+        var hash = await hashPassword(p1, salt);
+        var ins = await client().from("thaimon_config").insert({ key: "admin_pass", value: salt + ":" + hash });
+        if (ins.error) throw ins.error;
+        sessionStorage.setItem(SESS_KEY, "1");
+        enter();
+      } else {
+        var parts = h.split(":");
+        var chk = await hashPassword(p1, parts[0]);
+        if (chk === parts[1]) {
+          sessionStorage.setItem(SESS_KEY, "1");
+          enter();
+        } else {
+          loginMsg.textContent = "รหัสผ่านไม่ถูกต้อง";
+        }
+      }
+    } catch (e) {
+      loginMsg.textContent = "เกิดข้อผิดพลาด";
+    }
+  });
+  document.getElementById("adminPass").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("loginBtn").click();
+  });
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    sessionStorage.removeItem(SESS_KEY);
+    location.reload();
+  });
+
+  function enter() {
+    loginCard.style.display = "none";
+    adminUI.style.display = "block";
+    loadAll();
+  }
+
+  /* ---------- tabs ---------- */
+  document.querySelectorAll("#tabs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#tabs button").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      document.querySelectorAll(".pane").forEach(function (p) { p.classList.remove("show"); });
+      document.getElementById(b.getAttribute("data-pane")).classList.add("show");
+      say(""); 
+    });
+  });
+
+  /* ---------- data ---------- */
+  var MONSTERS = [];
+  var MONBYID = {};
+
+  async function loadAll() {
+    await loadMonsters();
+    await loadRecipes();
+    await loadPlayers();
+    await loadCodes();
+    await loadCollPlayers();
+  }
+
+  /* ---------- player collection viewer ---------- */
+  async function loadCollPlayers() {
+    var r = await client().from("thaimon_players")
+      .select("id, username, display_name").order("username");
+    var sel = document.getElementById("collPlayer");
+    sel.innerHTML = "";
+    if (r.error || !(r.data || []).length) {
+      sel.innerHTML = '<option value="">— ยังไม่มีผู้เล่น —</option>';
+      return;
+    }
+    r.data.forEach(function (p) {
+      var o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.display_name + " (" + p.username + ")";
+      sel.appendChild(o);
+    });
+    sel.onchange = loadCollection;
+    loadCollection();
+  }
+
+  async function loadCollection() {
+    var pid = document.getElementById("collPlayer").value;
+    var grid = document.getElementById("collGrid");
+    var sum = document.getElementById("collSummary");
+    grid.innerHTML = "";
+    sum.textContent = "";
+    if (!pid) return;
+    var r = await client().from("thaimon_inventory")
+      .select("monster_id, quantity").eq("player_id", pid);
+    if (r.error) { say("โหลดคอลเลกชันไม่ได้"); return; }
+    var owned = {};
+    (r.data || []).forEach(function (it) { owned[it.monster_id] = it.quantity; });
+    var have = 0;
+    MONSTERS.slice().sort(function (a, b) {
+      return (owned[b.id] || 0) - (owned[a.id] || 0) || (a.name_th < b.name_th ? -1 : 1);
+    }).forEach(function (m) {
+      var q = owned[m.id] || 0;
+      if (q > 0) have++;
+      var cell = document.createElement("div");
+      cell.className = "coll-cell" + (q > 0 ? "" : " unknown");
+      cell.innerHTML =
+        '<div class="spr" style="background-image:url(\'' + m.sprite_url + '\')"></div>' +
+        '<div class="nm">' + (q > 0 ? m.name_th : "???") + "</div>" +
+        (q > 0 ? '<span class="qty">×' + q + "</span>" : "");
+      grid.appendChild(cell);
+    });
+    sum.textContent = "มี " + have + " / " + MONSTERS.length + " ตัว";
+  }
+
+  /* ----- monsters: collectable toggle + gacha weight ----- */
+  async function loadMonsters() {
+    var r = await client().from("thaimon_monsters")
+      .select("id, name_th, rank, sprite_url, collectable, gacha_weight")
+      .order("rank").order("name_th");
+    if (r.error) { say("โหลดมอนสเตอร์ไม่ได้"); return; }
+    MONSTERS = r.data || [];
+    MONBYID = {};
+    MONSTERS.forEach(function (m) { MONBYID[m.id] = m; });
+    document.getElementById("monCount").textContent = MONSTERS.length;
+    var list = document.getElementById("monList");
+    list.innerHTML = "";
+    MONSTERS.forEach(function (m) {
+      var row = document.createElement("div");
+      row.className = "mon-row";
+      row.innerHTML =
+        '<div class="spr" style="background-image:url(\'' + m.sprite_url + '\')"></div>' +
+        '<div class="info"><span class="nm">' + m.name_th + '</span>' +
+        '<span class="rk rank-' + m.rank + '">' + m.rank + '</span>' +
+        '<div style="font-size:.75rem;color:#90a4ae">' + m.id + '</div></div>' +
+        '<div class="ctl"><label title="ให้จับได้ในป่า">จับได้</label>' +
+        '<span class="switch"><input type="checkbox" data-cb="' + m.id + '"' + (m.collectable ? " checked" : "") + '><span class="slider"></span></span>' +
+        '<label title="น้ำหนักสุ่มกาชา (0 = ไม่อยู่ในกาชา)">กาชา</label>' +
+        '<input type="number" min="0" value="' + m.gacha_weight + '" data-wt="' + m.id + '"></div>';
+      list.appendChild(row);
+    });
+    list.querySelectorAll("[data-cb]").forEach(function (cb) {
+      cb.addEventListener("change", async function () {
+        var id = cb.getAttribute("data-cb");
+        var r2 = await client().from("thaimon_monsters").update({ collectable: cb.checked }).eq("id", id);
+        if (r2.error) { say("บันทึกไม่ได้"); cb.checked = !cb.checked; }
+        else { MONBYID[id].collectable = cb.checked; sayOk("บันทึกแล้ว"); }
+      });
+    });
+    list.querySelectorAll("[data-wt]").forEach(function (inp) {
+      inp.addEventListener("change", async function () {
+        var id = inp.getAttribute("data-wt");
+        var w = Math.max(0, parseInt(inp.value, 10) || 0);
+        inp.value = w;
+        var r2 = await client().from("thaimon_monsters").update({ gacha_weight: w }).eq("id", id);
+        if (r2.error) { say("บันทึกไม่ได้"); }
+        else { MONBYID[id].gacha_weight = w; sayOk("บันทึกแล้ว"); }
+      });
+    });
+    // fill monster selects
+    var opts = '<option value="">— เลือก —</option>' + MONSTERS.map(function (m) {
+      return '<option value="' + m.id + '">' + m.name_th + " (" + m.rank + ")</option>";
+    }).join("");
+    document.getElementById("newResult").innerHTML = opts;
+    document.querySelectorAll(".ni-mon").forEach(function (s) { s.innerHTML = opts; });
+  }
+
+  /* ----- recipes ----- */
+  async function loadRecipes() {
+    var r = await client().from("thaimon_recipes").select("id, result_monster_id");
+    if (r.error) { say("โหลดสูตรไม่ได้"); return; }
+    var ri = await client().from("thaimon_recipe_ingredients").select("recipe_id, monster_id, quantity");
+    if (ri.error) { say("โหลดสูตรไม่ได้"); return; }
+    var byR = {};
+    (ri.data || []).forEach(function (x) {
+      (byR[x.recipe_id] = byR[x.recipe_id] || []).push(x);
+    });
+    var list = document.getElementById("recipeList");
+    list.innerHTML = "";
+    if (!(r.data || []).length) {
+      list.innerHTML = '<p style="color:#8a99ad">ยังไม่มีสูตร</p>';
+    }
+    (r.data || []).forEach(function (rec) {
+      var res = MONBYID[rec.result_monster_id];
+      var ings = (byR[rec.id] || []).map(function (x) {
+        var m = MONBYID[x.monster_id];
+        return x.quantity + "× " + (m ? m.name_th : x.monster_id);
+      }).join(" + ");
+      var card = document.createElement("div");
+      card.className = "recipe-card";
+      card.innerHTML = '<div class="formula">' + ings +
+        ' <span class="arrow">→</span> ' + (res ? res.name_th + " (" + res.rank + ")" : rec.result_monster_id) + "</div>";
+      var del = document.createElement("button");
+      del.className = "btn danger small";
+      del.textContent = "ลบสูตร";
+      del.addEventListener("click", async function () {
+        if (!confirm("ลบสูตรนี้?")) return;
+        var d = await client().from("thaimon_recipes").delete().eq("id", rec.id);
+        if (d.error) say("ลบไม่ได้");
+        else { sayOk("ลบแล้ว"); loadRecipes(); }
+      });
+      card.appendChild(del);
+      list.appendChild(card);
+    });
+  }
+
+  document.getElementById("addRecipeBtn").addEventListener("click", async function () {
+    say("");
+    var resultId = document.getElementById("newResult").value;
+    if (!resultId) { say("เลือกมอนสเตอร์ที่ได้ก่อน"); return; }
+    var map = {};
+    var sels = document.querySelectorAll(".ni-mon");
+    var qtys = document.querySelectorAll(".ni-qty");
+    for (var i = 0; i < sels.length; i++) {
+      var id = sels[i].value;
+      if (!id) continue;
+      var q = Math.max(1, parseInt(qtys[i].value, 10) || 1);
+      map[id] = (map[id] || 0) + q;
+    }
+    var ids = Object.keys(map);
+    if (!ids.length) { say("เลือกวัตถุดิบอย่างน้อย 1 ชนิด"); return; }
+    try {
+      var ins = await client().from("thaimon_recipes").insert({ result_monster_id: resultId }).select("id").single();
+      if (ins.error) throw ins.error;
+      var rows = ids.map(function (id) {
+        return { recipe_id: ins.data.id, monster_id: id, quantity: map[id] };
+      });
+      var ins2 = await client().from("thaimon_recipe_ingredients").insert(rows);
+      if (ins2.error) throw ins2.error;
+      sayOk("เพิ่มสูตรแล้ว");
+      sels.forEach(function (s) { s.value = ""; });
+      document.getElementById("newResult").value = "";
+      loadRecipes();
+    } catch (e) {
+      say("บันทึกสูตรไม่ได้");
+    }
+  });
+
+  /* ----- players: grant balls/gacha, reset password ----- */
+  async function loadPlayers() {
+    var r = await client().from("thaimon_players")
+      .select("id, username, display_name, pokeballs, gachapons, mic_exempt")
+      .order("username");
+    if (r.error) { say("โหลดผู้เล่นไม่ได้"); return; }
+    var list = document.getElementById("playerList");
+    list.innerHTML = "";
+    if (!(r.data || []).length) {
+      list.innerHTML = '<p style="color:#8a99ad">ยังไม่มีผู้เล่น</p>';
+      return;
+    }
+    (r.data || []).forEach(function (p) {
+      var row = document.createElement("div");
+      row.className = "player-row";
+      row.innerHTML =
+        '<div class="pinfo"><div class="un">' + p.display_name + ' <span style="color:#90a4ae;font-weight:normal">(' + p.username + ")</span></div>" +
+        '<div class="st">🔴 ' + p.pokeballs + " • 🎰 " + p.gachapons + (p.mic_exempt ? ' • 🎤ยกเว้น' : "") + "</div></div>" +
+        '<div class="grant"><span style="font-size:.85rem">🔴</span><input type="number" value="0" data-gb="' + p.id + '">' +
+        '<button class="btn small" data-gbb="' + p.id + '">ให้บอล</button></div>' +
+        '<div class="grant"><span style="font-size:.85rem">🎰</span><input type="number" value="0" data-gg="' + p.id + '">' +
+        '<button class="btn small" data-ggb="' + p.id + '">ให้กาชา</button></div>' +
+        '<button class="btn small" data-mic="' + p.id + '">' + (p.mic_exempt ? "บังคับไมค์" : "ยกเว้นไมค์") + "</button>" +
+        '<button class="btn small danger" data-rp="' + p.id + '">รีเซ็ตรหัส</button>';
+      list.appendChild(row);
+    });
+    list.querySelectorAll("[data-gbb]").forEach(function (b) {
+      b.addEventListener("click", function () { grant(b.getAttribute("data-gbb"), "pokeballs", "gb"); });
+    });
+    list.querySelectorAll("[data-ggb]").forEach(function (b) {
+      b.addEventListener("click", function () { grant(b.getAttribute("data-ggb"), "gachapons", "gg"); });
+    });
+    list.querySelectorAll("[data-mic]").forEach(function (b) {
+      b.addEventListener("click", async function () {
+        var pid = b.getAttribute("data-mic");
+        try {
+          var cur = await client().from("thaimon_players").select("mic_exempt").eq("id", pid).single();
+          if (cur.error) throw cur.error;
+          var nv = !cur.data.mic_exempt;
+          var u = await client().from("thaimon_players").update({ mic_exempt: nv }).eq("id", pid);
+          if (u.error) throw u.error;
+          sayOk(nv ? "ยกเว้นไมค์ให้ผู้เล่นนี้แล้ว" : "ผู้เล่นนี้ต้องใช้ไมค์แล้ว");
+          loadPlayers();
+        } catch (e) { say("บันทึกไม่ได้"); }
+      });
+    });
+    list.querySelectorAll("[data-rp]").forEach(function (b) {
+      b.addEventListener("click", async function () {
+        var pid = b.getAttribute("data-rp");
+        var np = prompt("รหัสผ่านใหม่สำหรับผู้เล่น (อย่างน้อย 4 ตัวอักษร):");
+        if (!np || np.length < 4) { if (np !== null) say("รหัสผ่านสั้นไป"); return; }
+        try {
+          var salt = makeSalt();
+          var hash = await hashPassword(np, salt);
+          var u = await client().from("thaimon_players")
+            .update({ password_salt: salt, password_hash: hash }).eq("id", pid);
+          if (u.error) throw u.error;
+          sayOk("รีเซ็ตรหัสผ่านแล้ว");
+        } catch (e) { say("รีเซ็ตไม่ได้"); }
+      });
+    });
+  }
+
+  async function grant(pid, field, prefix) {
+    var list = document.getElementById("playerList");
+    var inp = list.querySelector('[data-' + prefix + '="' + pid + '"]');
+    var n = parseInt(inp.value, 10) || 0;
+    if (!n) { say("ใส่จำนวนก่อน"); return; }
+    try {
+      var cur = await client().from("thaimon_players").select(field).eq("id", pid).single();
+      if (cur.error) throw cur.error;
+      var nv = Math.max(0, (cur.data[field] || 0) + n);
+      var upd = {};
+      upd[field] = nv;
+      var u = await client().from("thaimon_players").update(upd).eq("id", pid);
+      if (u.error) throw u.error;
+      sayOk("ให้แล้ว");
+      loadPlayers();
+    } catch (e) { say("ให้ไม่ได้"); }
+  }
+
+  /* ----- invite codes ----- */
+  async function loadCodes() {
+    var r = await client().from("thaimon_invite_codes")
+      .select("code, used_by, reusable, active, created_at").order("created_at", { ascending: false });
+    if (r.error) { say("โหลดรหัสไม่ได้"); return; }
+    var list = document.getElementById("codeList");
+    list.innerHTML = "";
+    (r.data || []).forEach(function (c) {
+      var row = document.createElement("div");
+      row.className = "code-row";
+      var status;
+      if (c.reusable) {
+        status = c.active
+          ? '<span class="fresh">ใช้ซ้ำได้ • เปิด</span>'
+          : '<span class="used">ใช้ซ้ำได้ • ปิด</span>';
+      } else {
+        status = c.used_by ? '<span class="used">ใช้แล้ว</span>' : '<span class="fresh">ว่าง</span>';
+      }
+      row.innerHTML = '<span class="cd">' + c.code + "</span>" + status;
+      if (c.reusable) {
+        var tg = document.createElement("button");
+        tg.className = "btn small";
+        tg.textContent = c.active ? "ปิดใช้" : "เปิดใช้";
+        tg.addEventListener("click", async function () {
+          var u = await client().from("thaimon_invite_codes")
+            .update({ active: !c.active }).eq("code", c.code);
+          if (u.error) say("บันทึกไม่ได้");
+          else { sayOk(c.active ? "ปิดรหัสแล้ว" : "เปิดรหัสแล้ว"); loadCodes(); }
+        });
+        row.appendChild(tg);
+      }
+      if (!c.used_by) {
+        var del = document.createElement("button");
+        del.className = "btn danger small";
+        del.textContent = "ลบ";
+        del.addEventListener("click", async function () {
+          if (!confirm("ลบ " + c.code + " ?")) return;
+          var d = await client().from("thaimon_invite_codes").delete().eq("code", c.code);
+          if (d.error) say("ลบไม่ได้");
+          else { sayOk("ลบแล้ว"); loadCodes(); }
+        });
+        row.appendChild(del);
+      }
+      list.appendChild(row);
+    });
+  }
+  document.getElementById("addCodeBtn").addEventListener("click", async function () {
+    var code = document.getElementById("newCode").value.trim().toUpperCase();
+    if (!code) { say("ใส่รหัสก่อน"); return; }
+    var reusable = document.getElementById("newCodeReusable").checked;
+    var r = await client().from("thaimon_invite_codes").insert({ code: code, reusable: reusable, active: true });
+    if (r.error) say("สร้างไม่ได้ (อาจซ้ำ)");
+    else {
+      sayOk("สร้างรหัสแล้ว" + (reusable ? " (ใช้ซ้ำได้)" : ""));
+      document.getElementById("newCode").value = "";
+      document.getElementById("newCodeReusable").checked = false;
+      loadCodes();
+    }
+  });
+
+  /* ---------- boot ---------- */
+  if (sessionStorage.getItem(SESS_KEY) === "1") {
+    enter();
+  } else {
+    checkFirstRun();
+  }
+})();
+</script>
+</body>
+</html>

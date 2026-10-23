@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="data:,">
+  <title>ไทยมอน — หน้าของฉัน</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="thaimon.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+      background: linear-gradient(160deg, #e8f7e9, #cdeeda 60%, #b8e2c8);
+      color: #1c3a24;
+      font-family: Tahoma, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap { width: min(100%, 480px); margin: 0 auto; position: relative; z-index: 1; }
+    .profile {
+      background: rgba(255, 253, 247, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 3px solid rgba(123, 201, 111, 0.8);
+      border-radius: 24px;
+      padding: 22px 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(30, 80, 40, 0.15);
+    }
+    .avatar {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      border: 4px solid #2e7d32;
+      background: #e8f5e9;
+      display: grid;
+      place-items: center;
+      font-size: 3rem;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      position: relative;
+    }
+    .avatar::after {
+      content: '📷';
+      position: absolute;
+      bottom: 2px; right: 2px;
+      font-size: 1.3rem;
+      background: rgba(255,255,255,.9);
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: grid;
+      place-items: center;
+    }
+    .dname-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .dname {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #1c3a24;
+      margin: 0;
+    }
+    .dname-input {
+      font-family: inherit;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-align: center;
+      border: 2px solid #2e7d32;
+      border-radius: 10px;
+      padding: 4px 10px;
+      width: 200px;
+      color: #1c3a24;
+    }
+    .edit-btn {
+      border: 0;
+      background: #e8f5e9;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .uname {
+      color: #6a8a6e;
+      font-size: 0.9rem;
+      margin: 6px 0 0;
+    }
+    .stats {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+    .stat {
+      background: #fff;
+      border: 2px solid #a5d6a7;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+    .menu { margin-top: 16px; display: grid; gap: 12px; }
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      min-height: 76px;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 18px;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      color: #fff;
+      box-shadow: 0 5px 0 rgba(0,0,0,.18);
+    }
+    .menu-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+    .menu-btn .ico { font-size: 2.4rem; flex: 0 0 auto; }
+    .menu-btn .txt b { display: block; font-size: 1.25rem; }
+    .menu-btn .txt span { font-size: 0.88rem; opacity: 0.92; }
+    .btn-collect { background: linear-gradient(135deg, #e63e30, #c62828); }
+    .btn-gacha { background: linear-gradient(135deg, #8e4bb7, #6a2d91); }
+    .btn-collection { background: linear-gradient(135deg, #1976b8, #0d4f7c); }
+    .logout {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      min-height: 48px;
+      border: 2px solid #a5d6a7;
+      border-radius: 12px;
+      background: rgba(255,255,255,.6);
+      color: #5a7a60;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .msg { text-align: center; min-height: 1.4em; font-weight: 700; margin: 8px 0 0; }
+    .msg.error { color: #c62828; }
+    /* ---------- daily claim ---------- */
+    .daily { margin-top: 12px; display: grid; gap: 8px; }
+    .daily-row { min-height: 48px; display: grid; place-items: center; }
+    .daily-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: .7rem 1.8rem;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.05rem;
+      background: linear-gradient(135deg, #ffb300, #ff8f00);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 0 rgba(0,0,0,.15);
+    }
+    .daily-btn.gacha { background: linear-gradient(135deg, #ab47bc, #7b1fa2); }
+    .daily-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+    .daily-btn:disabled { background: #bdbdbd; cursor: default; box-shadow: none; }
+    .daily-timer {
+      font-weight: 800;
+      font-size: .95rem;
+      color: #6a8a6e;
+    }
+    .daily-timer .cd { font-variant-numeric: tabular-nums; }
+    /* ---------- voice challenge ---------- */
+    .voice-layer {
+      position: fixed; inset: 0; z-index: 30;
+      background: rgba(30,15,45,.82);
+      display: none; place-items: center; padding: 20px;
+    }
+    .voice-layer.show { display: grid; }
+    .voice-box {
+      background: #fffdf4; border-radius: 22px; border: 4px solid #ff8f00;
+      padding: 1.4rem 1.2rem; width: 92%; max-width: 340px; text-align: center;
+    }
+    .voice-box .mic { font-size: 2.6rem; animation: micpulse 1s ease-in-out infinite; }
+    @keyframes micpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+    .voice-box .vtext { font-size: 1.15rem; font-weight: bold; margin: .4rem 0; }
+    .voice-box .vtext .vp { color: #e45826; font-size: 1.4rem; }
+    .voice-box .vheard { font-size: .95rem; color: #52647a; min-height: 1.4em; margin-top: .2rem; }
+    .voice-box .vprivacy { font-size: .68rem; color: #8a99ad; margin-top: .4rem; }
+    .voice-cancel {
+      margin-top: 10px; background: #9e9e9e; color: #fff; border: none;
+      border-radius: 999px; padding: .5rem 1.8rem; font-size: .95rem; font-weight: bold;
+      cursor: pointer; font-family: inherit;
+    }
+    /* ---------- avatar picker ---------- */
+    .picker-layer {
+      position: fixed; inset: 0; z-index: 20;
+      background: rgba(20, 45, 25, 0.6);
+      display: grid; place-items: center;
+      padding: 20px;
+    }
+    .picker-box {
+      width: min(100%, 380px);
+      max-height: 80svh;
+      overflow-y: auto;
+      background: #fffdf7;
+      border-radius: 20px;
+      border: 3px solid #2e7d32;
+      padding: 18px;
+    }
+    .picker-box h2 { margin: 0 0 4px; font-size: 1.3rem; text-align: center; }
+    .picker-box p { margin: 0 0 12px; text-align: center; color: #6a8a6e; font-size: 0.9rem; }
+    .picker-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .picker-item {
+      border: 3px solid #a5d6a7;
+      border-radius: 14px;
+      background: #f1f8e9;
+      padding: 8px 4px;
+      cursor: pointer;
+      text-align: center;
+      font-family: inherit;
+    }
+    .picker-item.current { border-color: #e45826; background: #fff0e8; }
+    .picker-item .thumb {
+      width: 64px; height: 64px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #e8f5e9;
+      display: grid;
+      place-items: center;
+      font-size: 2rem;
+    }
+    .picker-item .nm { font-size: 0.8rem; margin-top: 4px; font-weight: 700; }
+    .picker-close {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      min-height: 48px;
+      border: 0;
+      border-radius: 12px;
+      background: #9e9e9e;
+      color: #fff;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="profile">
+      <div class="avatar" id="avatar">🐾</div>
+      <div class="dname-row">
+        <h1 class="dname" id="dname">…</h1>
+        <input class="dname-input" id="dnameInput" hidden maxlength="20">
+        <button class="edit-btn" id="editBtn" type="button" aria-label="เปลี่ยนชื่อ">✏️</button>
+      </div>
+      <p class="uname" id="uname"></p>
+      <div class="stats">
+        <div class="stat" id="statBall">🔴 × 0</div>
+        <div class="stat" id="statGacha">🎰 × 0</div>
+      </div>
+      <div class="daily" id="dailyBox">
+        <div class="daily-row">
+          <button class="daily-btn" id="dailyBallBtn" type="button" hidden>🎁 รับโปเกบอล ×2</button>
+          <div class="daily-timer" id="dailyBallTimer" hidden>⏳ โปเกบอลรับอีกครั้งใน <span class="cd" id="dailyBallCount"></span></div>
+        </div>
+        <div class="daily-row">
+          <button class="daily-btn gacha" id="dailyGachaBtn" type="button" hidden>🎰 รับกาชาปอง ×1</button>
+          <div class="daily-timer" id="dailyGachaTimer" hidden>⏳ กาชาปองรับอีกครั้งใน <span class="cd" id="dailyGachaCount"></span></div>
+        </div>
+      </div>
+      <p class="msg" id="msg"></p>
+    </section>
+
+    <nav class="menu">
+      <button class="menu-btn btn-collect" type="button" onclick="location.href='collect.html'">
+        <span class="ico">🔴</span>
+        <span class="txt"><b>จับมอนสเตอร์</b><span>ออกไปจับมอนสเตอร์ในทุ่ง!</span></span>
+      </button>
+      <button class="menu-btn btn-gacha" type="button" onclick="location.href='gacha.html'">
+        <span class="ico">🎰</span>
+        <span class="txt"><b>สุ่มกาชาปอง</b><span>ลุ้นมอนสเตอร์หายาก!</span></span>
+      </button>
+      <button class="menu-btn btn-collection" type="button" onclick="location.href='collection.html'">
+        <span class="ico">📖</span>
+        <span class="txt"><b>คอลเลกชัน</b><span>ดูและวิวัฒนาการมอนสเตอร์</span></span>
+      </button>
+    </nav>
+
+    <button class="logout" id="logoutBtn" type="button">ออกจากระบบ</button>
+  </main>
+
+  <div class="picker-layer" id="pickerLayer" hidden>
+    <div class="picker-box">
+      <h2>เลือกรูปประจำตัว</h2>
+      <div class="picker-grid" id="pickerGrid"></div>
+      <button class="picker-close" id="pickerClose" type="button">ปิด</button>
+    </div>
+  </div>
+
+  <div class="voice-layer" id="voiceLayer">
+    <div class="voice-box">
+      <div class="mic">🎤</div>
+      <div class="vtext">พูดว่า <span class="vp">“ขอบคุณครับ”</span> หรือ <span class="vp">“ขอบคุณค่ะ”</span><br>เพื่อรับของรางวัล 🎁</div>
+      <div class="vheard" id="voiceHeard"></div>
+      <div class="vprivacy">เสียงจะถูกส่งให้ Google/Apple ช่วยฟัง</div>
+      <button class="voice-cancel" id="voiceCancel" type="button">ยกเลิก</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+      var pid = window.ThaiMon.requireSession();
+      if (!pid) return;
+
+      var avatarEl = document.getElementById('avatar');
+      var dnameEl = document.getElementById('dname');
+      var dnameInput = document.getElementById('dnameInput');
+      var editBtn = document.getElementById('editBtn');
+      var unameEl = document.getElementById('uname');
+      var statBall = document.getElementById('statBall');
+      var statGacha = document.getElementById('statGacha');
+      var msg = document.getElementById('msg');
+      var pickerLayer = document.getElementById('pickerLayer');
+      var pickerGrid = document.getElementById('pickerGrid');
+      var micExempt = false;   // admin can exempt a player from the mic requirement
+      /* ---------- daily claim (voice-gated) ---------- */
+      var DAY_MS = 24 * 60 * 60 * 1000;
+      var VOICE_MS = 10000;
+      var daily = {
+        ball: { btn: document.getElementById('dailyBallBtn'), timer: document.getElementById('dailyBallTimer'), count: document.getElementById('dailyBallCount'), last: null, iv: null, col: 'last_daily_claim_at', reward: { pokeballs: 2 }, label: 'โปเกบอล +2' },
+        gacha: { btn: document.getElementById('dailyGachaBtn'), timer: document.getElementById('dailyGachaTimer'), count: document.getElementById('dailyGachaCount'), last: null, iv: null, col: 'last_daily_gacha_claim_at', reward: { gachapons: 1 }, label: 'กาชาปอง +1' }
+      };
+
+      function fmtCountdown(ms) {
+        if (ms < 0) ms = 0;
+        var s = Math.floor(ms / 1000);
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        function p(n) { return (n < 10 ? '0' : '') + n; }
+        return p(h) + ':' + p(m) + ':' + p(sec);
+      }
+
+      function updateDaily(kind) {
+        var d = daily[kind];
+        if (d.iv) { clearInterval(d.iv); d.iv = null; }
+        var canClaim = !d.last || (Date.now() - new Date(d.last).getTime() >= DAY_MS);
+        if (canClaim) {
+          d.btn.hidden = false;
+          d.btn.disabled = false;
+          d.timer.hidden = true;
+        } else {
+          d.btn.hidden = true;
+          d.timer.hidden = false;
+          var tick = function () {
+            var remain = new Date(d.last).getTime() + DAY_MS - Date.now();
+            if (remain <= 0) { updateDaily(kind); return; }
+            d.count.textContent = fmtCountdown(remain);
+          };
+          tick();
+          d.iv = setInterval(tick, 1000);
+        }
+      }
+
+      /* ----- Thai voice matching (same strict rules as catching) ----- */
+      function levenshtein(a, b) {
+        var m = a.length, n = b.length;
+        if (!m) return n;
+        if (!n) return m;
+        var d = [];
+        for (var i = 0; i <= m; i++) d[i] = [i];
+        for (var j = 0; j <= n; j++) d[0][j] = j;
+        for (i = 1; i <= m; i++) {
+          for (j = 1; j <= n; j++) {
+            d[i][j] = Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1] + (a[i-1]===b[j-1] ? 0 : 1));
+          }
+        }
+        return d[m][n];
+      }
+      function voiceMatch(t, target) {
+        t = (t || '').replace(/\s+/g, '').trim();
+        if (!t) return false;
+        if (t === target) return true;
+        if (t.length > target.length && t.indexOf(target) !== -1) return true;
+        var maxDist = target.length <= 2 ? 0 : (target.length <= 4 ? 1 : 2);
+        return levenshtein(t, target) <= maxDist;
+      }
+      function saidThanks(txt) {
+        return voiceMatch(txt, 'ขอบคุณครับ') || voiceMatch(txt, 'ขอบคุณค่ะ');
+      }
+
+      var voiceLayer = document.getElementById('voiceLayer');
+      var voiceHeard = document.getElementById('voiceHeard');
+      function voiceChallenge() {
+        return new Promise(function (resolve) {
+          var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          var done = false;
+          function finish(result) {
+            if (done) return;
+            done = true;
+            voiceLayer.classList.remove('show');
+            resolve(result);
+          }
+          document.getElementById('voiceCancel').onclick = function () { finish('cancel'); };
+          voiceHeard.textContent = '';
+          voiceLayer.classList.add('show');
+          if (!SR) { finish('no-mic'); return; }
+          var rec;
+          try { rec = new SR(); } catch (e) { finish('no-mic'); return; }
+          rec.lang = 'th-TH';
+          rec.interimResults = true;
+          rec.maxAlternatives = 3;
+          var timer = setTimeout(function () {
+            try { rec.stop(); } catch (e) {}
+            finish('fail');
+          }, VOICE_MS);
+          function stopRec() { try { rec.stop(); } catch (e) {} }
+          document.getElementById('voiceCancel').onclick = function () {
+            clearTimeout(timer); stopRec(); finish('cancel');
+          };
+          rec.onresult = function (e) {
+            if (done) return;
+            var txt = '';
+            for (var i = e.resultIndex; i < e.results.length; i++) txt += e.results[i][0].transcript;
+            txt = txt.trim();
+            if (txt) voiceHeard.textContent = 'ได้ยิน: ' + txt;
+            if (saidThanks(txt)) {
+              clearTimeout(timer); stopRec();
+              voiceHeard.textContent = 'ถูกต้อง! 🎉';
+              setTimeout(function () { finish('success'); }, 700);
+            }
+          };
+          rec.onerror = function (e) {
+            if (done) return;
+            if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+              clearTimeout(timer); stopRec();
+              window.ThaiMon.showMicHelp().then(function (retry) {
+                if (retry && !done) resolve(voiceChallenge());
+                else finish('no-mic');
+              });
+            }
+          };
+          rec.onend = function () { if (!done) { try { rec.start(); } catch (e) {} } };
+          try { rec.start(); } catch (e) {
+            clearTimeout(timer);
+            window.ThaiMon.showMicHelp().then(function (retry) {
+              if (retry && !done) resolve(voiceChallenge());
+              else finish('no-mic');
+            });
+          }
+        });
+      }
+
+      async function claimDaily(kind) {
+        var d = daily[kind];
+        d.btn.disabled = true;
+        var said = await voiceChallenge();
+        if (said === 'fail' || said === 'cancel') {
+          if (said === 'fail') {
+            msg.textContent = 'พูดไม่ถูกนะ ลองกดรับอีกครั้ง';
+            msg.className = 'msg error';
+          }
+          d.btn.disabled = false;
+          return;
+        }
+        if (said === 'no-mic' && !micExempt) {
+          // mic is required: no reward without speaking
+          msg.textContent = 'ต้องเปิดไมโครโฟนเพื่อรับรางวัล 🎤';
+          msg.className = 'msg error';
+          d.btn.disabled = false;
+          return;
+        }
+        // 'no-mic' + micExempt auto-passes; 'success' passes
+        try {
+          var p = await window.ThaiMon.getPlayer(pid);
+          var last = p[d.col] ? new Date(p[d.col]).getTime() : 0;
+          if (Date.now() - last < DAY_MS) {
+            d.last = p[d.col];
+            updateDaily(kind);
+            return;
+          }
+          var nowIso = new Date().toISOString();
+          var upd = {};
+          upd[d.col] = nowIso;
+          if (d.reward.pokeballs) upd.pokeballs = (p.pokeballs || 0) + d.reward.pokeballs;
+          if (d.reward.gachapons) upd.gachapons = (p.gachapons || 0) + d.reward.gachapons;
+          var r = await window.ThaiMon.client()
+            .from('thaimon_players').update(upd).eq('id', pid);
+          if (r.error) throw r.error;
+          d.last = nowIso;
+          if (d.reward.pokeballs) statBall.textContent = '🔴 × ' + upd.pokeballs;
+          if (d.reward.gachapons) statGacha.textContent = '🎰 × ' + upd.gachapons;
+          msg.textContent = 'ได้รับ' + d.label + '! 🎉';
+          msg.className = 'msg';
+          updateDaily(kind);
+        } catch (e) {
+          msg.textContent = 'รับไม่ได้ ลองอีกครั้งนะ';
+          msg.className = 'msg error';
+          d.btn.disabled = false;
+        }
+      }
+
+      daily.ball.btn.addEventListener('click', function () { claimDaily('ball'); });
+      daily.gacha.btn.addEventListener('click', function () { claimDaily('gacha'); });
+
+      function setAvatarDisplay(avatarId, imageUrl) {
+        if (avatarId && imageUrl) {
+          avatarEl.textContent = '';
+          avatarEl.style.backgroundImage = 'url("' + imageUrl + '")';
+        } else {
+          avatarEl.textContent = '🐾';
+          avatarEl.style.backgroundImage = '';
+        }
+      }
+
+      async function load() {
+        try {
+          var p = await window.ThaiMon.getPlayer(pid);
+          dnameEl.textContent = p.display_name;
+          unameEl.textContent = 'ชื่อผู้ใช้: ' + p.username;
+          statBall.textContent = '🔴 × ' + p.pokeballs;
+          statGacha.textContent = '🎰 × ' + p.gachapons;
+          micExempt = !!p.mic_exempt;
+          daily.ball.last = p.last_daily_claim_at || null;
+          daily.gacha.last = p.last_daily_gacha_claim_at || null;
+          updateDaily('ball');
+          updateDaily('gacha');
+          if (p.avatar_id) {
+            var a = await window.ThaiMon.client()
+              .from('thaimon_avatars').select('image_url').eq('id', p.avatar_id).single();
+            if (a.data) setAvatarDisplay(p.avatar_id, a.data.image_url);
+          }
+        } catch (e) {
+          msg.textContent = 'โหลดข้อมูลไม่ได้';
+          msg.className = 'msg error';
+        }
+      }
+
+      async function openPicker() {
+        pickerGrid.innerHTML = '';
+        try {
+          var inv = await window.ThaiMon.client()
+            .from('thaimon_player_avatars')
+            .select('avatar_id, thaimon_avatars(id, name_th, image_url)')
+            .eq('player_id', pid);
+          if (inv.error) throw inv.error;
+          (inv.data || []).forEach(function (row) {
+            var av = row.thaimon_avatars;
+            if (!av) return;
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'picker-item';
+            b.innerHTML = '<div class="thumb" style="background-image:url(\'' + av.image_url + '\')"></div><div class="nm">' + av.name_th + '</div>';
+            b.addEventListener('click', function () { pickAvatar(av.id, av.image_url); });
+            pickerGrid.appendChild(b);
+          });
+          if (!inv.data || !inv.data.length) {
+            var note = document.createElement('p');
+            note.style.gridColumn = '1 / -1';
+            note.textContent = 'ยังไม่มีอวาตาร์';
+            pickerGrid.appendChild(note);
+          }
+        } catch (e) {
+          msg.textContent = 'โหลดอวาตาร์ไม่ได้';
+          msg.className = 'msg error';
+        }
+        pickerLayer.hidden = false;
+      }
+
+      async function pickAvatar(avatarId, imageUrl) {
+        try {
+          var r = await window.ThaiMon.client()
+            .from('thaimon_players').update({ avatar_id: avatarId }).eq('id', pid);
+          if (r.error) throw r.error;
+          setAvatarDisplay(avatarId, imageUrl);
+          pickerLayer.hidden = true;
+        } catch (e) {
+          msg.textContent = 'เปลี่ยนรูปไม่ได้';
+          msg.className = 'msg error';
+        }
+      }
+
+      avatarEl.addEventListener('click', openPicker);
+      document.getElementById('pickerClose').addEventListener('click', function () {
+        pickerLayer.hidden = true;
+      });
+
+      editBtn.addEventListener('click', async function () {
+        if (!editing) {
+          editing = true;
+          dnameInput.value = dnameEl.textContent;
+          dnameEl.hidden = true;
+          dnameInput.hidden = false;
+          dnameInput.focus();
+          editBtn.textContent = '💾';
+        } else {
+          var v = dnameInput.value.trim();
+          if (!v) { msg.textContent = 'ชื่อต้องไม่ว่าง'; msg.className = 'msg error'; return; }
+          try {
+            var r = await window.ThaiMon.client()
+              .from('thaimon_players').update({ display_name: v }).eq('id', pid);
+            if (r.error) throw r.error;
+            dnameEl.textContent = v;
+            msg.textContent = '';
+          } catch (e) {
+            msg.textContent = 'บันทึกไม่ได้';
+            msg.className = 'msg error';
+          }
+          editing = false;
+          dnameEl.hidden = false;
+          dnameInput.hidden = true;
+          editBtn.textContent = '✏️';
+        }
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', function () {
+        window.ThaiMon.clearSession();
+        window.location.href = 'index.html';
+      });
+
+      load();
+    })();
+  </script>
+</body>
+</html>
