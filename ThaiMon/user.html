@@ -273,11 +273,11 @@
       </div>
       <div class="daily" id="dailyBox">
         <div class="daily-row">
-          <button class="daily-btn" id="dailyBallBtn" type="button" hidden>🎁 รับโปเกบอล ×2</button>
+          <button class="daily-btn" id="dailyBallBtn" type="button" hidden>🎁 รับโปเกบอล ×5</button>
           <div class="daily-timer" id="dailyBallTimer" hidden>⏳ โปเกบอลรับอีกครั้งใน <span class="cd" id="dailyBallCount"></span></div>
         </div>
         <div class="daily-row">
-          <button class="daily-btn gacha" id="dailyGachaBtn" type="button" hidden>🎰 รับกาชาปอง ×1</button>
+          <button class="daily-btn gacha" id="dailyGachaBtn" type="button" hidden>🎰 รับกาชาปอง ×3</button>
           <div class="daily-timer" id="dailyGachaTimer" hidden>⏳ กาชาปองรับอีกครั้งใน <span class="cd" id="dailyGachaCount"></span></div>
         </div>
       </div>
@@ -341,8 +341,8 @@
       var DAY_MS = 24 * 60 * 60 * 1000;
       var VOICE_MS = 10000;
       var daily = {
-        ball: { btn: document.getElementById('dailyBallBtn'), timer: document.getElementById('dailyBallTimer'), count: document.getElementById('dailyBallCount'), last: null, iv: null, col: 'last_daily_claim_at', reward: { pokeballs: 2 }, label: 'โปเกบอล +2' },
-        gacha: { btn: document.getElementById('dailyGachaBtn'), timer: document.getElementById('dailyGachaTimer'), count: document.getElementById('dailyGachaCount'), last: null, iv: null, col: 'last_daily_gacha_claim_at', reward: { gachapons: 1 }, label: 'กาชาปอง +1' }
+        ball: { btn: document.getElementById('dailyBallBtn'), timer: document.getElementById('dailyBallTimer'), count: document.getElementById('dailyBallCount'), last: null, iv: null, col: 'last_daily_claim_at', reward: { pokeballs: 5 }, label: 'โปเกบอล +5' },
+        gacha: { btn: document.getElementById('dailyGachaBtn'), timer: document.getElementById('dailyGachaTimer'), count: document.getElementById('dailyGachaCount'), last: null, iv: null, col: 'last_daily_gacha_claim_at', reward: { gachapons: 3 }, label: 'กาชาปอง +3' }
       };
 
       function fmtCountdown(ms) {
