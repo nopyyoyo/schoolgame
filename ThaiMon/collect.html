@@ -696,13 +696,16 @@
 
       rec.onresult = function (e) {
         if (done) return;
-        var txt = "";
+        var txt = "", matched = false;
         for (var i = e.resultIndex; i < e.results.length; i++) {
           txt += e.results[i][0].transcript;
+          for (var k = 0; k < e.results[i].length; k++) {
+            if (voiceMatch(e.results[i][k].transcript, monster)) matched = true;
+          }
         }
         txt = txt.trim();
         if (txt) voiceheard.textContent = "ได้ยิน: " + txt;
-        if (voiceMatch(txt, monster)) {
+        if (matched || voiceMatch(txt, monster)) {
           clearTimeout(timer);
           clearInterval(wiggler);
           try { rec.stop(); } catch (err) {}
@@ -723,16 +726,23 @@
             if (retry && !done) resolve(voiceCatchPhase(monster));
             else finish("no-mic");
           });
+        } else if (e.error === "network") {
+          voiceheard.textContent = "เครือข่ายมีปัญหา กำลังลองใหม่...";
         }
       };
       rec.onend = function () {
         if (!done) {
-          try { rec.start(); } catch (e) {}
+          // Short delay: restarting instantly after an error often fails silently
+          setTimeout(function () {
+            if (done) return;
+            try { rec.start(); } catch (e) {}
+          }, 300);
         }
       };
       try { rec.start(); }
       catch (e) {
         clearTimeout(timer);
+        clearInterval(wiggler);
         clearInterval(wiggler);
         window.ThaiMon.showMicHelp().then(function (retry) {
           if (retry && !done) resolve(voiceCatchPhase(monster));

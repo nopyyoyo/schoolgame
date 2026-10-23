@@ -748,13 +748,16 @@
 
       rec.onresult = function (e) {
         if (done) return;
-        var txt = "";
+        var txt = "", matched = false;
         for (var i = e.resultIndex; i < e.results.length; i++) {
           txt += e.results[i][0].transcript;
+          for (var k = 0; k < e.results[i].length; k++) {
+            if (voiceMatch(e.results[i][k].transcript, mon.th)) matched = true;
+          }
         }
         txt = txt.trim();
         if (txt) heard.textContent = "ได้ยิน: " + txt;
-        if (voiceMatch(txt, mon.th)) {
+        if (matched || voiceMatch(txt, mon.th)) {
           clearTimeout(timer);
           try { rec.stop(); } catch (err) {}
           heard.textContent = "ถูกต้อง! 🎉";
@@ -770,11 +773,16 @@
             if (retry && !done) resolve(voiceChallenge(mon));
             else finish("no-mic");
           });
+        } else if (e.error === "network") {
+          heard.textContent = "เครือข่ายมีปัญหา กำลังลองใหม่...";
         }
       };
       rec.onend = function () {
         if (!done) {
-          try { rec.start(); } catch (e) {}
+          setTimeout(function () {
+            if (done) return;
+            try { rec.start(); } catch (e) {}
+          }, 300);
         }
       };
       try { rec.start(); }

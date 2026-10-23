@@ -435,10 +435,16 @@
           rec.onresult = function (e) {
             if (done) return;
             var txt = '';
-            for (var i = e.resultIndex; i < e.results.length; i++) txt += e.results[i][0].transcript;
+            var matched = false;
+            for (var i = e.resultIndex; i < e.results.length; i++) {
+              txt += e.results[i][0].transcript;
+              for (var k = 0; k < e.results[i].length; k++) {
+                if (saidThanks(e.results[i][k].transcript)) matched = true;
+              }
+            }
             txt = txt.trim();
             if (txt) voiceHeard.textContent = 'ได้ยิน: ' + txt;
-            if (saidThanks(txt)) {
+            if (matched || saidThanks(txt)) {
               clearTimeout(timer); stopRec();
               voiceHeard.textContent = 'ถูกต้อง! 🎉';
               setTimeout(function () { finish('success'); }, 700);
@@ -452,9 +458,13 @@
                 if (retry && !done) resolve(voiceChallenge());
                 else finish('no-mic');
               });
+            } else if (e.error === 'network') {
+              voiceHeard.textContent = 'เครือข่ายมีปัญหา กำลังลองใหม่...';
             }
           };
-          rec.onend = function () { if (!done) { try { rec.start(); } catch (e) {} } };
+          rec.onend = function () {
+            if (!done) setTimeout(function () { if (!done) { try { rec.start(); } catch (e) {} } }, 300);
+          };
           try { rec.start(); } catch (e) {
             clearTimeout(timer);
             window.ThaiMon.showMicHelp().then(function (retry) {
