@@ -661,6 +661,7 @@
       function finish(result) {
         if (done) return;
         done = true;
+        killRec();
         voiceui.classList.remove("show");
         resolve(result);
       }
@@ -677,13 +678,15 @@
       voicetimerbar.style.width = "0%";
 
       var rec;
+
+      function killRec() { if (!rec) return; rec.onend = null; rec.onresult = null; rec.onerror = null; try { rec.abort(); } catch (e) {} }
       try { rec = new SR(); } catch (e) { finish("no-mic"); return; }
       rec.lang = "th-TH";
       rec.interimResults = true;
       rec.maxAlternatives = 3;
 
       var timer = setTimeout(function () {
-        try { rec.stop(); } catch (e) {}
+        killRec();
         clearInterval(wiggler);
         finish("escape");
       }, VOICE_MS);
@@ -708,7 +711,7 @@
         if (matched || voiceMatch(txt, monster)) {
           clearTimeout(timer);
           clearInterval(wiggler);
-          try { rec.stop(); } catch (err) {}
+          killRec();
           voiceui.classList.add("success");
           voiceheard.textContent = "ถูกต้อง! 🎉";
           SFX.pop();
@@ -720,7 +723,7 @@
         if (e.error === "not-allowed" || e.error === "service-not-allowed") {
           clearTimeout(timer);
           clearInterval(wiggler);
-          try { rec.stop(); } catch (err) {}
+          killRec();
           // Mic blocked: show on-screen recovery help instead of silently failing
           window.ThaiMon.showMicHelp().then(function (retry) {
             if (retry && !done) resolve(voiceCatchPhase(monster));

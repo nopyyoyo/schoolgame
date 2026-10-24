@@ -412,6 +412,7 @@
           function finish(result) {
             if (done) return;
             done = true;
+            killRec();
             voiceLayer.classList.remove('show');
             resolve(result);
           }
@@ -420,15 +421,16 @@
           voiceLayer.classList.add('show');
           if (!SR) { finish('no-mic'); return; }
           var rec;
+          function killRec() { if (!rec) return; rec.onend = null; rec.onresult = null; rec.onerror = null; try { rec.abort(); } catch (e) {} }
           try { rec = new SR(); } catch (e) { finish('no-mic'); return; }
           rec.lang = 'th-TH';
           rec.interimResults = true;
           rec.maxAlternatives = 3;
           var timer = setTimeout(function () {
-            try { rec.stop(); } catch (e) {}
+            killRec();
             finish('fail');
           }, VOICE_MS);
-          function stopRec() { try { rec.stop(); } catch (e) {} }
+          function stopRec() { killRec(); }
           document.getElementById('voiceCancel').onclick = function () {
             clearTimeout(timer); stopRec(); finish('cancel');
           };

@@ -720,6 +720,7 @@
       function finish(result) {
         if (done) return;
         done = true;
+        killRec();
         layer.classList.remove("show");
         resolve(result);
       }
@@ -736,13 +737,15 @@
       bar.style.width = "0%";
 
       var rec;
+
+      function killRec() { if (!rec) return; rec.onend = null; rec.onresult = null; rec.onerror = null; try { rec.abort(); } catch (e) {} }
       try { rec = new SR(); } catch (e) { finish("no-mic"); return; }
       rec.lang = "th-TH";
       rec.interimResults = true;
       rec.maxAlternatives = 3;
 
       var timer = setTimeout(function () {
-        try { rec.stop(); } catch (e) {}
+        killRec();
         finish("fail");
       }, VOICE_MS);
 
@@ -759,7 +762,7 @@
         if (txt) heard.textContent = "ได้ยิน: " + txt;
         if (matched || voiceMatch(txt, mon.th)) {
           clearTimeout(timer);
-          try { rec.stop(); } catch (err) {}
+          killRec();
           heard.textContent = "ถูกต้อง! 🎉";
           setTimeout(function () { finish("success"); }, 700);
         }
@@ -768,7 +771,7 @@
         if (done) return;
         if (e.error === "not-allowed" || e.error === "service-not-allowed") {
           clearTimeout(timer);
-          try { rec.stop(); } catch (err) {}
+          killRec();
           window.ThaiMon.showMicHelp().then(function (retry) {
             if (retry && !done) resolve(voiceChallenge(mon));
             else finish("no-mic");
